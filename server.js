@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '1.6.93';
-const BUILD_ID = 'SADA-1.6.93-NETLIFY-CAPTCHA-20261027';
+const APP_VERSION = '3.0';
+const BUILD_ID = 'SADA-3.0-ADMIN-PROFILE-20261027';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -1280,6 +1280,8 @@ function recordSuccessfulUserLogin(username){
   return at;
 }
 
+let ADMIN_PROFILE_BOOTSTRAP_DONE=false;
+let ADMIN_PROFILE_BOOTSTRAP_IN_FLIGHT=null;
 async function ensureAdminFirebaseUserProfile(){
   const email=normalizeEmail(ADMIN_USER);
   if(!validEmail(email))throw new Error('بريد حساب الإدارة غير مضبوط؛ لم نغيّر قاعدة البيانات.');
@@ -6873,6 +6875,12 @@ async function routeAPI(req,res,urlObj){
       const configuredAdminValid=submittedEmail===String(ADMIN_USER||'').trim().toLowerCase()&&adminPasswordValid(pw);
       if(!bundledOwnerValid&&!configuredAdminValid)return json(res,401,{ok:false,code:'invalid_admin_credentials',error:'بيانات دخول الإدارة غير صحيحة. تحقق من البريد وكلمة المرور أو إعدادات الإدارة.'});
       const adminIdentity=isBundledOwner?BUNDLED_ADMIN_AUTH.email:ADMIN_USER;
+      const canEnsureAdminProfile=firebaseServiceAccountConfigured()||!!String(process.env.FIREBASE_DATABASE_SECRET||'').trim()||(process.env.NODE_ENV==='test'&&process.env.FIREBASE_ALLOW_UNAUTHENTICATED==='true');
+      if(canEnsureAdminProfile&&!ADMIN_PROFILE_BOOTSTRAP_DONE&&!ADMIN_PROFILE_BOOTSTRAP_IN_FLIGHT){
+        const bootstrap=ensureAdminFirebaseUserProfile().then(result=>{ADMIN_PROFILE_BOOTSTRAP_DONE=true;return result;}).catch(e=>{console.warn('[ADMIN_PROFILE_BOOTSTRAP_FAILED]',String(e.message||e).slice(0,180));}).finally(()=>{if(ADMIN_PROFILE_BOOTSTRAP_IN_FLIGHT===bootstrap)ADMIN_PROFILE_BOOTSTRAP_IN_FLIGHT=null;});
+        ADMIN_PROFILE_BOOTSTRAP_IN_FLIGHT=bootstrap;
+      }
+      // Never delay a valid owner login while the optional Firebase profile link is being verified.
       const sessionToken=setSession(res,{role:'admin',username:adminIdentity});return json(res,200,{ok:true,role:'admin',username:adminIdentity,sessionToken});
     }
     const store=readJSON('users.json',{users:{}});let actualUsername=u,user=null,remoteRecord=null,remoteLookupFailed=false;
