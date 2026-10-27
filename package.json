@@ -5,7 +5,8 @@
   "description": "صدى العراق — Netlify Functions compatibility package",
   "scripts": {
     "start": "node server.js",
-    "test": "node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/database-management.test.js"
+    "test": "node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/database-management.test.js",
+    "build": "node scripts/prepare-netlify.js"
   },
   "engines": {
     "node": ">=22"
