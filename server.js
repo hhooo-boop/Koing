@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '3.0';
-const BUILD_ID = 'SADA-3.0-RAILWAY-BUILD-FIX-20261027';
+const BUILD_ID = 'SADA-3.0-CUSTOM-SHOP-ORDER-WA-BALANCE-CROSS-DEVICE-20261027';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -746,8 +746,45 @@ function decodeSession(token){
     return v;
   }catch(_){return null;}
 }
-function isSadaAdminBannedAccount(user){return !!(user&&(user.adminBanned===true||user.siteBanned===true));}
+function isSadaAdminBannedAccount(user){
+  if(!user||typeof user!=='object')return false;
+  const status=String(user.status||user.accountStatus||'').trim().toLowerCase();
+  return user.adminBanned===true||user.siteBanned===true||user.banned===true||status==='banned';
+}
 const SADA_ADMIN_BANNED_USERNAMES=new Set();
+const USER_BAN_STATUS_CACHE=new Map();
+const USER_BAN_STATUS_TTL_MS=1800;
+async function verifyCurrentUserBanStatus(username){
+  const canonical=String(username||'').trim(),key=canonical.toLowerCase();
+  if(!key)return {banned:false,known:false};
+  if(SADA_ADMIN_BANNED_USERNAMES.has(key))return {banned:true,known:true,source:'local-ban-index'};
+  const cached=USER_BAN_STATUS_CACHE.get(key);
+  if(cached&&cached.expiresAt>Date.now())return cached.result;
+  // The local mirror catches bans even when Firebase does not have this legacy account.
+  try{
+    const local=readJSON('users.json',{users:{}}).users||{};
+    const match=Object.entries(local).find(([k,v])=>String(v?.username||k).trim().toLowerCase()===key);
+    if(match&&isSadaAdminBannedAccount(match[1])){
+      SADA_ADMIN_BANNED_USERNAMES.add(key);
+      const result={banned:true,known:true,source:'local-profile'};
+      USER_BAN_STATUS_CACHE.set(key,{expiresAt:Date.now()+USER_BAN_STATUS_TTL_MS,result});
+      return result;
+    }
+  }catch(_){}
+  // Check Firebase on the server, not from client flags or a single Railway replica's memory.
+  // If Firebase cannot be reached, the caller fails closed for an authenticated user request.
+  const remote=await findRemoteUserByUsername(canonical);
+  if(remote?.user&&typeof remote.user==='object'){
+    const banned=isSadaAdminBannedAccount(remote.user);
+    if(banned)SADA_ADMIN_BANNED_USERNAMES.add(key);else SADA_ADMIN_BANNED_USERNAMES.delete(key);
+    const result={banned,known:true,source:'firebase',firebasePath:String(remote.firebasePath||'')};
+    USER_BAN_STATUS_CACHE.set(key,{expiresAt:Date.now()+USER_BAN_STATUS_TTL_MS,result});
+    return result;
+  }
+  const result={banned:false,known:false,source:'no-remote-record'};
+  USER_BAN_STATUS_CACHE.set(key,{expiresAt:Date.now()+USER_BAN_STATUS_TTL_MS,result});
+  return result;
+}
 try{const _banStore=readJSON('users.json',{users:{}});for(const [k,u] of Object.entries(_banStore.users||{})){if(isSadaAdminBannedAccount(u)){const name=String(u.username||k).trim().toLowerCase();if(name)SADA_ADMIN_BANNED_USERNAMES.add(name);}}}catch(_){}
 function session(req){
   // Prefer any valid signed session among header, Bearer token and HttpOnly cookie.
@@ -3759,6 +3796,28 @@ async function saveCustomShopService(b,root,actor,at){
   const old=root.services[key]||{},imageUrl=customShopImageUrl(b.imageUrl,old.imageUrl||''),record={...old,key,categoryKey,name,description,platforms,imageUrl,priceIQD:Number(priceIQD.toFixed(4)),minQuantity,maxQuantity,inputLabel,inputPlaceholder,inputType,requiresInput,enabled:b.enabled===undefined?old.enabled!==false:b.enabled===true,serviceKind:'custom_shop',createdAt:old.createdAt||at,updatedAt:at,createdBy:old.createdBy||actor,updatedBy:actor};
   await writeCustomShopRecord('customShop/services/'+key,record);if(old.imageUrl&&old.imageUrl!==imageUrl)customShopRemoveImage(old.imageUrl);return record;
 }
+function customShopSupportMessage(order={}){
+  const safe=v=>String(v??'').replace(/[\r\n]+/g,' ').trim().slice(0,900);
+  const amount=Number(order.totalIQD??order.total??0);
+  const money=Number.isFinite(amount)?amount.toLocaleString('en-US',{maximumFractionDigits:2}):'0';
+  const lines=[
+    '📋 طلب جديد — صدى العراق',
+    '━━━━━━━━━━━━━━━',
+    '🔢 رقم الطلب: #'+safe(order.publicOrderNo||order.id||'غير متوفر'),
+    '👤 اسم المستخدم: '+safe(order.userName||order.user||'غير متوفر'),
+    '🧩 القسم: '+safe(order.category||'غير محدد'),
+    '⚡ الخدمة: '+safe(order.serviceName||'خدمة'),
+    '🆔 رقم الخدمة: '+safe(order.siteServiceId||order.serviceId||order.customShopServiceKey||'غير متوفر'),
+    '📱 المنصة: '+safe(order.serviceApp||order.platform||'غير محددة'),
+    '🔗 الرابط/البيانات: '+safe(order.link||order.customerDetails||'غير متوفر'),
+    '📦 الكمية: '+Math.max(0,Number(order.quantity)||0).toLocaleString('en-US'),
+    '💵 المبلغ المخصوم: '+money+' د.ع',
+    '📌 الحالة: بانتظار تنفيذ الدعم اليدوي',
+    '━━━━━━━━━━━━━━━',
+    'يرجى مراجعة تفاصيل الطلب وإكمال الخدمة يدوياً.'
+  ];
+  return lines.join('\n');
+}
 async function handleCustomShopOrder(req,b,username,orderSession){
   if(String(b.serviceKind||'')!=='custom_shop'&&b.customShop!==true)return null;
   const localId=String(b.localId||'').trim(),serviceKey=String(b.serviceKey||'').trim(),categoryKey=String(b.categoryKey||'').trim(),platform=String(b.platform||'').trim(),quantity=Number(b.quantity),details=String(b.details||b.link||'').trim().slice(0,2000);
@@ -3766,7 +3825,7 @@ async function handleCustomShopOrder(req,b,username,orderSession){
   if(!/^[A-Za-z0-9_-]{1,80}$/.test(serviceKey)||!categoryKey)return {status:422,body:{ok:false,error:'بيانات الخدمة والقسم مطلوبة.'}};
   const localOrders=readJSON('orders.json',[]);let prior=Array.isArray(localOrders)?localOrders.find(o=>String(o.user||o.username||'')===username&&String(o.localId||o.id||'')===localId&&String(o.serviceKind||'')==='custom_shop'):null;
   if(!prior){try{const fb=await firebaseGetJson('orders/'+firebaseSafeKey(localId),5000);if(fb&&String(fb.user||fb.username||'')===username&&String(fb.serviceKind||'')==='custom_shop')prior=fb}catch(_){}}
-  if(prior){if(String(prior.customShopServiceKey||'')!==serviceKey)return {status:409,body:{ok:false,error:'رقم تتبع الطلب مستخدم لعملية شراء مختلفة.'}};return {status:200,body:{ok:true,idempotent:true,order:prior,siteOrderId:String(prior.id||localId),publicOrderNo:String(prior.publicOrderNo||''),totalIQD:Number(prior.totalIQD??prior.total??0),supportWhatsappUrl:normalizeWhatsAppUrl(readJSON('settings.json',{}).waUrl||'https://wa.me/9647762267959')}};}
+  if(prior){if(String(prior.customShopServiceKey||'')!==serviceKey)return {status:409,body:{ok:false,error:'رقم تتبع الطلب مستخدم لعملية شراء مختلفة.'}};const priorMessage=String(prior.supportMessage||customShopSupportMessage(prior));return {status:200,body:{ok:true,idempotent:true,order:prior,siteOrderId:String(prior.id||localId),publicOrderNo:String(prior.publicOrderNo||''),totalIQD:Number(prior.totalIQD??prior.total??0),supportWhatsappUrl:normalizeWhatsAppUrl(readJSON('settings.json',{}).waUrl||'https://wa.me/9647762267959'),supportMessage:priorMessage}};}
   let root;try{root=await readCustomShopRemote(true)}catch(e){return {status:503,body:{ok:false,error:'تعذر التحقق من الخدمة في Firebase؛ لم يُخصم أي رصيد.'}};}
   const svc=root.services[serviceKey],cat=root.categories[categoryKey];
   if(!svc||svc.enabled===false||String(svc.categoryKey)!==categoryKey||svc.serviceKind!=='custom_shop'||!cat||cat.enabled===false)return {status:409,body:{ok:false,error:'الخدمة أو القسم غير متاح حالياً. حدّث الصفحة وحاول مجدداً.'}};
@@ -3783,14 +3842,15 @@ async function handleCustomShopOrder(req,b,username,orderSession){
   let reservation=null;if(!isAdminSession){reservation=await reserveManualSupportUsageAndWallet(username,walletUserPath,'customshop_'+serviceKey,0,localId,amountIQD,serviceKey);if(!reservation.ok){if(reservation.insufficient)return {status:402,body:{ok:false,error:reservation.error,balanceIQD:reservation.balanceIQD}};if(reservation.duplicate)return {status:409,body:{ok:false,error:reservation.error,uncertain:true}};return {status:503,body:{ok:false,error:reservation.error||'تعذر حجز الرصيد بأمان.'}};}}
   let publicOrderNo='';try{publicOrderNo=await nextPublicOrderNumber()}catch(e){if(reservation?.ok)await releaseManualSupportUsageAndWallet(walletUserPath,username,'customshop_'+serviceKey,localId);return {status:503,body:{ok:false,error:'تعذر تخصيص رقم الطلب. لم يتم تأكيد عملية الشراء.'}};}
   const at=nowISO(),profile=verifiedUser?.user||localUser||{},categoryName=String(cat.name||''),siteOrderId=localId;
-  const order={id:siteOrderId,localId,publicOrderNo,user:username,userName:String(profile.fullName||profile.displayName||profile.name||profile.username||username),memberId:String(profile.id||profile.userId||profile.uid||username),orderSource:'custom-shop',origin:'app',providerId:'manual-support',providerName:'التنفيذ اليدوي عبر واتساب',providerOrderId:'',providerServiceId:'',serviceId:serviceKey,siteServiceId:serviceKey,customShopServiceKey:serviceKey,customShopCategoryKey:categoryKey,customShopOrder:true,serviceKind:'custom_shop',manualSupportStatus:'awaiting_contact',serviceName:String(svc.name||'خدمة'),description:String(svc.description||''),serviceApp:platform||'Other',platform:platform||'Other',category:categoryName,link:details,customerDetails:details,quantity,unitPriceIQD:Number(price.toFixed(4)),discountPct:0,chargeUsd:Number((amountIQD/FIXED_RATE).toFixed(6)),total:amountIQD,totalIQD:amountIQD,status:'pending',statusText:'بانتظار التواصل عبر واتساب',billingMode:isAdminSession?'admin-test':'user',free:amountIQD<=0,createdAt:at,updatedAt:at,providerCostUnknown:true};
+  const order={id:siteOrderId,localId,publicOrderNo,user:username,userName:String(profile.fullName||profile.displayName||profile.name||profile.username||username),memberId:String(profile.id||profile.userId||profile.uid||username),orderSource:'custom-shop',origin:'app',providerId:'manual-support',providerName:'التنفيذ اليدوي عبر واتساب',providerOrderId:'',providerServiceId:'',serviceId:serviceKey,siteServiceId:String(svc.siteServiceId||serviceKey),customShopServiceKey:serviceKey,customShopCategoryKey:categoryKey,customShopOrder:true,serviceKind:'custom_shop',manualSupportStatus:'awaiting_contact',serviceName:String(svc.name||'خدمة'),description:String(svc.description||''),serviceApp:platform||'Other',platform:platform||'Other',category:categoryName,link:details,customerDetails:details,quantity,unitPriceIQD:Number(price.toFixed(4)),discountPct:0,chargeUsd:Number((amountIQD/FIXED_RATE).toFixed(6)),total:amountIQD,totalIQD:amountIQD,status:'pending',statusText:'بانتظار التواصل عبر واتساب',billingMode:isAdminSession?'admin-test':'user',free:amountIQD<=0,createdAt:at,updatedAt:at,providerCostUnknown:true};
+  order.supportMessage=customShopSupportMessage(order);
   try{await persistOrderToFirebase(order)}catch(e){let check=null;try{check=await firebaseGetJson('orders/'+firebaseSafeKey(siteOrderId),5000)}catch(_){}if(check&&String(check.id||'')===siteOrderId&&String(check.user||check.username||'')===username&&String(check.serviceKind||'')==='custom_shop'){Object.assign(order,check)}else{if(reservation?.ok)await releaseManualSupportUsageAndWallet(walletUserPath,username,'customshop_'+serviceKey,localId).catch(()=>{});appendJsonLedger('provider_failures.json',{stage:'custom_shop_persist',uncertain:true,user:username,localId,serviceKey,error:String(e.message||e).slice(0,160),createdAt:nowISO()});return {status:503,body:{ok:false,uncertain:true,error:'تعذر تأكيد حفظ الطلب في قاعدة البيانات. تواصل مع الدعم قبل إعادة المحاولة، رقم التتبع: '+localId}};}}
   try{appendJsonLedger('orders.json',order)}catch(e){console.warn('custom shop local order mirror failed:',String(e.message||e).slice(0,100));}
   if(!isAdminSession)try{await finalizeProviderOrderAccounting(username,localId,amountIQD,at)}catch(e){console.warn('custom shop order counters reconciliation:',String(e.message||e).slice(0,100));}
   const wa=normalizeWhatsAppUrl(readJSON('settings.json',{}).waUrl||'https://wa.me/9647762267959');
   try{createUserNotification(username,{type:'order_created',orderId:siteOrderId,status:'pending',title:'تم شراء الخدمة بنجاح #'+publicOrderNo,message:'تم استلام طلبك للخدمة '+String(svc.name||'خدمة')+'. يرجى التواصل مع دعم واتساب لإكمال التنفيذ.',meta:{serviceName:svc.name,quantity,publicOrderNo,serviceKind:'custom_shop'}})}catch(_){}
   notifyTelegramNewOrder(order,{source:'custom-shop'}).catch(()=>{});
-  return {status:200,body:{ok:true,order,siteOrderId,publicOrderNo,totalIQD:amountIQD,chargeUsd:order.chargeUsd,supportWhatsappUrl:wa,createdAt:at}};
+  return {status:200,body:{ok:true,order,siteOrderId,publicOrderNo,totalIQD:amountIQD,chargeUsd:order.chargeUsd,supportWhatsappUrl:wa,supportMessage:order.supportMessage,...(reservation?.ok?{balanceBeforeIQD:reservation.balanceBeforeIQD,balanceAfterIQD:reservation.balanceAfterIQD}:{}),createdAt:at}};
 }
 function readAdminManualServices(){
   const v=readJSON('manual_services.json',{});return v&&typeof v==='object'&&!Array.isArray(v)?v:{};
@@ -5077,6 +5137,20 @@ async function routeAPI(req,res,urlObj){
   const p=normalizedPath(urlObj.pathname);
   const maintenanceState=readJSON('settings.json',{}).maintenance||{};
   const currentSession=session(req);
+  const publicAuthPaths=new Set(['/api/config','/api/health','/api/auth','/api/auth/login','/api/auth/register','/api/auth/forgot-password','/api/auth/reset-password','/api/auth/verify-email']);
+  if(currentSession?.role==='user'&&!publicAuthPaths.has(p)){
+    try{
+      const banState=await verifyCurrentUserBanStatus(currentSession.username);
+      if(banState.banned){
+        const lower=String(currentSession.username||'').trim().toLowerCase();if(lower)SADA_ADMIN_BANNED_USERNAMES.add(lower);
+        res.setHeader('Set-Cookie',`${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`);
+        return json(res,403,{ok:false,code:'account_banned',error:'تم حظر حسابك من دخول الموقع. يرجى التواصل مع الإدارة.'});
+      }
+    }catch(e){
+      console.warn('[USER_BAN_CHECK_UNAVAILABLE]',String(currentSession.username||'').slice(0,80),String(e.message||e).slice(0,120));
+      return json(res,503,{ok:false,code:'account_ban_check_unavailable',error:'تعذر التحقق من حالة الحساب في قاعدة البيانات؛ لم نسمح بمتابعة الجلسة حفاظاً على أمان الحساب.'});
+    }
+  }
   const maintenanceAllow=new Set(['/api/config','/api/health','/api/session','/api/auth','/api/auth/login','/api/auth/register','/api/auth/forgot-password','/api/auth/reset-password','/api/auth/verify-email']);
   if(maintenanceState.enabled===true&&currentSession?.role!=='admin'&&!maintenanceAllow.has(p))return json(res,503,{ok:false,maintenance:true,title:String(maintenanceState.title||'التطبيق متوقف مؤقتاً'),message:String(maintenanceState.message||maintenanceState.reason||'التطبيق تحت الصيانة المؤقتة. يرجى المحاولة لاحقاً.'),reason:String(maintenanceState.reason||''),imageUrl:String(maintenanceState.imageUrl||''),error:'التطبيق متوقف مؤقتاً للصيانة.'});
   if(p==='/api/admin/maintenance'&&req.method==='GET'){
@@ -5097,11 +5171,11 @@ async function routeAPI(req,res,urlObj){
   }
   // Separate, administrator-managed no-provider shop: customShop/catalog stays isolated from SMM services.
   if(p==='/api/custom-shop'&&req.method==='GET'){
-    try{const root=await readCustomShopRemote(false),settings=readJSON('settings.json',{});const cats=Object.entries(root.categories).map(([key,v])=>({...v,key})).filter(c=>c&&c.enabled!==false);const catMap=new Map(cats.map(c=>[String(c.key),c]));const visibleCats=cats.filter(c=>!c.parentKey||catMap.has(String(c.parentKey)));const services=Object.entries(root.services).map(([key,v])=>({...v,key})).filter(s=>s&&s.enabled!==false&&s.serviceKind==='custom_shop'&&catMap.has(String(s.categoryKey))&&catMap.get(String(s.categoryKey)).enabled!==false);return json(res,200,{ok:true,categories:visibleCats,services,supportWhatsappUrl:normalizeWhatsAppUrl(settings.waUrl||settings.waNum||'https://wa.me/9647762267959'),source:'firebase-customShop',checkedAt:nowISO()});}catch(e){return json(res,503,{ok:false,error:'تعذر تحميل قسم من عندك من Firebase: '+String(e.message||e).slice(0,140)});}
+    try{const root=await readCustomShopRemote(false),settings=readJSON('settings.json',{});const lastUpdated=row=>Date.parse(row?.updatedAt||row?.createdAt||0)||0;const cats=Object.entries(root.categories).map(([key,v])=>({...v,key})).filter(c=>c&&c.enabled!==false).sort((a,b)=>lastUpdated(a)-lastUpdated(b));const catMap=new Map(cats.map(c=>[String(c.key),c]));const visibleCats=cats.filter(c=>!c.parentKey||catMap.has(String(c.parentKey)));const services=Object.entries(root.services).map(([key,v])=>({...v,key})).filter(s=>s&&s.enabled!==false&&s.serviceKind==='custom_shop'&&catMap.has(String(s.categoryKey))&&catMap.get(String(s.categoryKey)).enabled!==false).sort((a,b)=>lastUpdated(a)-lastUpdated(b));return json(res,200,{ok:true,categories:visibleCats,services,supportWhatsappUrl:normalizeWhatsAppUrl(settings.waUrl||settings.waNum||'https://wa.me/9647762267959'),source:'firebase-customShop',checkedAt:nowISO()});}catch(e){return json(res,503,{ok:false,error:'تعذر تحميل قسم من عندك من Firebase: '+String(e.message||e).slice(0,140)});}
   }
   if(p==='/api/admin/custom-shop'&&req.method==='GET'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
-    try{const root=await readCustomShopRemote(true);return json(res,200,{ok:true,categories:Object.entries(root.categories).map(([key,v])=>({...v,key})).sort((a,b)=>(Date.parse(a.createdAt||0)||0)-(Date.parse(b.createdAt||0)||0)),services:Object.entries(root.services).map(([key,v])=>({...v,key})).sort((a,b)=>(Date.parse(b.updatedAt||b.createdAt||0)||0)-(Date.parse(a.updatedAt||a.createdAt||0)||0)),storage:'Firebase Realtime Database',path:'customShop'});}catch(e){return json(res,503,{ok:false,error:'تعذر قراءة قسم من عندك من Firebase: '+String(e.message||e).slice(0,160)});}
+    try{const root=await readCustomShopRemote(true);const lastUpdated=row=>Date.parse(row?.updatedAt||row?.createdAt||0)||0;return json(res,200,{ok:true,categories:Object.entries(root.categories).map(([key,v])=>({...v,key})).sort((a,b)=>lastUpdated(a)-lastUpdated(b)),services:Object.entries(root.services).map(([key,v])=>({...v,key})).sort((a,b)=>lastUpdated(a)-lastUpdated(b)),storage:'Firebase Realtime Database',path:'customShop'});}catch(e){return json(res,503,{ok:false,error:'تعذر قراءة قسم من عندك من Firebase: '+String(e.message||e).slice(0,160)});}
   }
   if(p==='/api/admin/custom-shop/image'&&req.method==='POST'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
@@ -5987,6 +6061,7 @@ async function routeAPI(req,res,urlObj){
       if(tx.result?.error){const e=tx.result.error;return json(res,e==='email-mismatch'?409:e==='admin-target'?409:404,{ok:false,error:e==='email-mismatch'?'البريد الإلكتروني لا يطابق حساب Firebase.':e==='admin-target'?'لا يمكن حظر حساب إدارة.':'المستخدم غير موجود.'});}
       const verified=await firebaseGetJson(found.firebasePath,10000);if(!verified||isSadaAdminBannedAccount(verified)!==banned)throw new Error('لم يؤكد Firebase حالة الحظر بعد الحفظ.');
       const canonical=String(found.username||verified.username||username).trim(),lower=canonical.toLowerCase();if(banned)SADA_ADMIN_BANNED_USERNAMES.add(lower);else SADA_ADMIN_BANNED_USERNAMES.delete(lower);
+      USER_BAN_STATUS_CACHE.set(lower,{expiresAt:Date.now()+USER_BAN_STATUS_TTL_MS,result:{banned,known:true,source:'verified-admin-action',firebasePath:String(found.firebasePath||'')}});
       const store=readJSON('users.json',{users:{}});store.users=store.users&&typeof store.users==='object'?store.users:{};
       const localKey=Object.keys(store.users).find(k=>String(store.users[k]?.username||k).toLowerCase()===lower)||Object.keys(store.users).find(k=>email&&normalizeEmail(firebaseRecordEmail(store.users[k])||store.users[k]?.email)===email)||canonical;
       store.users[localKey]={...(store.users[localKey]||{}),...verified,username:String(store.users[localKey]?.username||canonical)};writeJSON('users.json',store);
@@ -6682,7 +6757,7 @@ async function routeAPI(req,res,urlObj){
     const orderRows=[...orderMap.values()],allEvents=new Map();const pushEvent=(ev,username,email='')=>{if(!ev||typeof ev!=='object')return;const id=String(ev.id||[username,ev.orderId,ev.providerOrderId,ev.createdAt,ev.amountIQD].join('|'));const prof=profileByUser.get(String(username||ev.user||'').toLowerCase())||profileByEmail.get(String(email||'').toLowerCase())||{};allEvents.set(id,{...(allEvents.get(id)||{}),...ev,id,user:String(ev.user||username||prof.username||''),email:String(email||ev.email||prof.email||'')})};
     for(const ev of readJSON('refunds.json',[]))pushEvent(ev,String(ev?.user||''),String(ev?.email||''));
     for(const [key,u] of collectionEntries(peopleRoot)){if(!u||typeof u!=='object'||Array.isArray(u))continue;const uname=String(u.username||u.userName||u.user||u.handle||decodeFirebaseSafeKey(key)||key).trim(),email=String(firebaseRecordEmail(u)||'').trim().toLowerCase(),maps=u.sadaRefunds&&typeof u.sadaRefunds==='object'?u.sadaRefunds:{};for(const [refundKey,entry] of Object.entries(maps)){if(!entry||typeof entry!=='object')continue;const events=Array.isArray(entry.events)&&entry.events.length?entry.events:[{...entry,id:entry.id||refundKey,orderId:entry.orderId||entry.siteOrderId,amountIQD:entry.totalIQD||entry.amountIQD,amountUSD:entry.amountUSD,status:entry.status,createdAt:entry.updatedAt||entry.createdAt}];for(const ev of events)pushEvent(ev,uname,email)}}
-    const enriched=[...allEvents.values()].map(ev=>{const user=String(ev.user||''),order=orderRows.find(o=>String(o.user||o.username||'').toLowerCase()===user.toLowerCase()&&((ev.orderId&&[o.id,o.siteOrderId,o.orderId,o.publicOrderNo].some(x=>String(x||'')===String(ev.orderId)))||(ev.providerOrderId&&String(o.providerOrderId||o.smmpartyOrderId||'')===String(ev.providerOrderId))))||{},profile=profileByUser.get(user.toLowerCase())||{};const rawChargeIQD=order.totalIQD??order.total??(Number(order.chargeUsd||0)*FIXED_RATE);const chargeIQD=Number(rawChargeIQD||0);return {...ev,username:user,email:String(ev.email||profile.email||order.email||''),name:String(profile.fullName||profile.name||order.userName||user),publicOrderNo:String(order.publicOrderNo||(/^[0-9]+$/.test(String(ev.orderId||''))?ev.orderId:'')||''),siteOrderId:String(order.id||order.siteOrderId||ev.orderId||''),providerOrderId:String(ev.providerOrderId||order.providerOrderId||order.smmpartyOrderId||''),serviceName:String(ev.serviceName||order.serviceName||order.name||'خدمة'),link:String(order.link||''),quantity:Number(ev.quantity??order.quantity??order.qty??0),originalChargeIQD:chargeIQD,originalChargeUSD:Number((chargeIQD/FIXED_RATE).toFixed(6)),amountIQD:Math.max(0,Number(ev.amountIQD||0)),amountUSD:Number((Number(ev.amountIQD||0)/FIXED_RATE).toFixed(6))}}).sort((a,b)=>(Date.parse(b.createdAt||0)||0)-(Date.parse(a.createdAt||0)||0));
+    const enriched=[...allEvents.values()].map(ev=>{const user=String(ev.user||''),order=orderRows.find(o=>String(o.user||o.username||'').toLowerCase()===user.toLowerCase()&&((ev.orderId&&[o.id,o.siteOrderId,o.orderId,o.publicOrderNo].some(x=>String(x||'')===String(ev.orderId)))||(ev.providerOrderId&&String(o.providerOrderId||o.smmpartyOrderId||'')===String(ev.providerOrderId))))||{},profile=profileByUser.get(user.toLowerCase())||{};const rawChargeIQD=order.totalIQD??order.total??(Number(order.chargeUsd||0)*FIXED_RATE);const chargeIQD=Number(rawChargeIQD||0);return {...ev,username:user,email:String(ev.email||profile.email||order.email||''),name:String(profile.fullName||profile.name||order.userName||user),publicOrderNo:String(order.publicOrderNo||(/^[0-9]+$/.test(String(ev.orderId||''))?ev.orderId:'')||''),siteOrderId:String(order.id||order.siteOrderId||ev.orderId||''),providerOrderId:String(ev.providerOrderId||order.providerOrderId||order.smmpartyOrderId||''),serviceName:String(ev.serviceName||order.serviceName||order.service_name||order.name||'خدمة'),serviceId:String(ev.serviceId||order.serviceId||order.service_id||order.sadaServiceId||order.sada_service_id||''),orderStatus:String(order.status||order.orderStatus||order.order_status||'غير معروف'),refundState:String(order.refundState||ev.refundState||'credited'),refundReason:String(ev.reason||''),link:String(order.link||''),quantity:Number(ev.quantity??order.quantity??order.qty??0),originalChargeIQD:chargeIQD,originalChargeUSD:Number((chargeIQD/FIXED_RATE).toFixed(6)),amountIQD:Math.max(0,Number(ev.amountIQD||0)),amountUSD:Number((Number(ev.amountIQD||0)/FIXED_RATE).toFixed(6))}}).sort((a,b)=>(Date.parse(b.createdAt||0)||0)-(Date.parse(a.createdAt||0)||0));
     const stats={count:enriched.length,totalRefundIQD:enriched.reduce((n,r)=>n+Math.max(0,Number(r.amountIQD||0)),0),totalRefundUSD:0,users:new Set(enriched.map(r=>String(r.user||'').toLowerCase()).filter(Boolean)).size};stats.totalRefundUSD=Number((stats.totalRefundIQD/FIXED_RATE).toFixed(6));
     const filtered=enriched.filter(r=>!q||[r.user,r.username,r.name,r.email,r.orderId,r.siteOrderId,r.publicOrderNo,r.providerOrderId,r.serviceName,r.status].join(' ').toLowerCase().includes(q));
     const byUser=new Map();for(const r of enriched){const k=String(r.user||'غير معروف');const v=byUser.get(k)||{username:k,email:r.email||'',count:0,totalRefundIQD:0,totalRefundUSD:0};v.count++;v.totalRefundIQD+=Number(r.amountIQD||0);v.totalRefundUSD=Number((v.totalRefundIQD/FIXED_RATE).toFixed(6));if(!v.email&&r.email)v.email=r.email;byUser.set(k,v)}
@@ -6695,7 +6770,7 @@ async function routeAPI(req,res,urlObj){
       const map=user.sadaRefunds&&typeof user.sadaRefunds==='object'?user.sadaRefunds:{};const rows=[];for(const [refundKey,entry] of Object.entries(map)){if(!entry||typeof entry!=='object')continue;const events=Array.isArray(entry.events)&&entry.events.length?entry.events:[{...entry,id:entry.id||refundKey,orderId:entry.orderId,amountIQD:entry.totalIQD||entry.amountIQD,amountUSD:entry.amountUSD,status:entry.status,createdAt:entry.updatedAt||entry.createdAt}];for(const ev of events)rows.push({...ev,user:username});}
       const global=readJSON('refunds.json',[]);for(const r of global.filter(x=>String(x.user||'').toLowerCase()===username.toLowerCase())){if(!rows.some(y=>y.id&&y.id===r.id))rows.push(r)}
       let orderRows=readJSON('orders.json',[]).filter(o=>o&&typeof o==='object'&&!o.event);try{const remote=await firebaseGetJson('orders',8000);for(const [key,o] of collectionEntries(remote)){if(!o||typeof o!=='object'||o.event)continue;const idx=orderRows.findIndex(x=>String(x.user||x.username||'').toLowerCase()===String(o.user||o.username||'').toLowerCase()&&String(x.id||x.siteOrderId||'')===String(o.id||o.siteOrderId||''));if(idx>=0)orderRows[idx]={...orderRows[idx],...o};else orderRows.push({...o,_firebaseKey:key});}}catch(_){}
-      const profileEmail=String(firebaseRecordEmail(user)||'');for(let i=0;i<rows.length;i++){const r=rows[i],o=orderRows.find(x=>String(x.user||x.username||'').toLowerCase()===username.toLowerCase()&&((r.orderId&&[x.id,x.siteOrderId,x.publicOrderNo,x.orderId].some(v=>String(v||'')===String(r.orderId)))||(r.providerOrderId&&String(x.providerOrderId||x.smmpartyOrderId||'')===String(r.providerOrderId))))||{};const rawCharged=o.totalIQD??o.total??(Number(o.chargeUsd||0)*FIXED_RATE);const charged=Number(rawCharged||0);rows[i]={...r,email:profileEmail,publicOrderNo:String(o.publicOrderNo||(/^[0-9]+$/.test(String(r.orderId||''))?r.orderId:'')||''),siteOrderId:String(o.id||o.siteOrderId||r.orderId||''),providerOrderId:String(r.providerOrderId||o.providerOrderId||o.smmpartyOrderId||''),serviceName:String(r.serviceName||o.serviceName||o.name||'خدمة'),link:String(o.link||''),quantity:Number(r.quantity??o.quantity??o.qty??0),originalChargeIQD:charged,originalChargeUSD:Number((charged/FIXED_RATE).toFixed(6)),amountIQD:Math.max(0,Number(r.amountIQD||0)),amountUSD:Number((Number(r.amountIQD||0)/FIXED_RATE).toFixed(6))};}
+      const profileEmail=String(firebaseRecordEmail(user)||'');for(let i=0;i<rows.length;i++){const r=rows[i],o=orderRows.find(x=>String(x.user||x.username||'').toLowerCase()===username.toLowerCase()&&((r.orderId&&[x.id,x.siteOrderId,x.publicOrderNo,x.orderId].some(v=>String(v||'')===String(r.orderId)))||(r.providerOrderId&&String(x.providerOrderId||x.smmpartyOrderId||'')===String(r.providerOrderId))))||{};const rawCharged=o.totalIQD??o.total??(Number(o.chargeUsd||0)*FIXED_RATE);const charged=Number(rawCharged||0);rows[i]={...r,email:profileEmail,publicOrderNo:String(o.publicOrderNo||(/^[0-9]+$/.test(String(r.orderId||''))?r.orderId:'')||''),siteOrderId:String(o.id||o.siteOrderId||r.orderId||''),providerOrderId:String(r.providerOrderId||o.providerOrderId||o.smmpartyOrderId||''),serviceName:String(r.serviceName||o.serviceName||o.service_name||o.name||'خدمة'),serviceId:String(r.serviceId||o.serviceId||o.service_id||o.sadaServiceId||o.sada_service_id||''),orderStatus:String(o.status||o.orderStatus||o.order_status||'غير معروف'),refundState:String(r.refundState||r.status||'credited'),link:String(o.link||''),quantity:Number(r.quantity??o.quantity??o.qty??0),originalChargeIQD:charged,originalChargeUSD:Number((charged/FIXED_RATE).toFixed(6)),amountIQD:Math.max(0,Number(r.amountIQD||0)),amountUSD:Number((Number(r.amountIQD||0)/FIXED_RATE).toFixed(6))};}
       rows.sort((a,b)=>(Date.parse(b.createdAt||'')||0)-(Date.parse(a.createdAt||'')||0));const total=rows.reduce((sum,r)=>sum+Math.max(0,Number(r.amountIQD||0)),0);const balanceIQD=Number(user.balance||0);
       return json(res,200,{ok:true,user:username,email:profileEmail,balanceIQD,balanceUSD:Number((balanceIQD/FIXED_RATE).toFixed(6)),totalRefundIQD:total,totalRefundUSD:Number((total/FIXED_RATE).toFixed(6)),refunds:rows.slice(0,500)});
     }catch(e){return json(res,502,{ok:false,error:'تعذر قراءة سجل الاسترداد من قاعدة البيانات: '+String(e.message||e).slice(0,150)});}
