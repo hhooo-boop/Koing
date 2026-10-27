@@ -1,16 +1,17 @@
 {
-  "name": "sada-iraq-netlify",
+  "name": "sada-iraq",
   "version": "3.0.0",
   "private": true,
-  "description": "صدى العراق — Netlify Functions compatibility package",
+  "description": "صدى العراق — Railway Node.js service with Netlify compatibility",
   "scripts": {
     "start": "node server.js",
-    "test": "node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/database-management.test.js && node tests/admin-account.test.js"
+    "test": "node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/database-management.test.js && node tests/admin-account.test.js",
+    "build": "node --check server.js"
   },
   "engines": {
     "node": ">=22"
   },
-  "buildId": "SADA-3.0-ADMIN-PROFILE-20261027",
+  "buildId": "SADA-3.0-RAILWAY-BUILD-FIX-20261027",
   "dependencies": {
     "google-auth-library": "^11.2.0",
     "firebase-admin": "^14.5.0",

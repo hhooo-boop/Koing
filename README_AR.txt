@@ -2,7 +2,7 @@
 
 الإصدار التقني: 3.0
 إصدار الواجهة: 3.0
-معرّف البناء: SADA-3.0-ADMIN-PROFILE-20261027
+معرّف البناء: SADA-3.0-RAILWAY-BUILD-FIX-20261027
 
 متطلبات التشغيل
 - Node.js 22 أو أحدث.
@@ -47,3 +47,10 @@
 - راجع NETLIFY_SETUP_AR.md. يجب نشر المشروع عبر Git متصل بـ Netlify أو Netlify CLI كي تُبنى Netlify Functions؛ رفع ملفات الواجهة وحدها لا يشغّل API.
 - على Netlify استخدم متغيرات البيئة السرية FIREBASE_DATABASE_URL وFIREBASE_SERVICE_ACCOUNT_JSON وSESSION_SECRET. لا تضمّن مفتاح حساب الخدمة في ZIP أو ملفات الموقع.
 - تخزين ملفات Function مؤقت؛ الصور والبيانات التي لا تحفظ في Firebase أو تخزين دائم آخر قد لا تبقى بعد إعادة التشغيل.
+
+نشر Railway — إصلاح أمر البناء (مهم)
+- ملف railway.json يحدد Railpack وأمر البناء `npm run build` وأمر التشغيل `node server.js`.
+- أمر البناء في package.json يفحص صياغة server.js فقط، ولا يعتمد على scripts/prepare-netlify.js؛ لذلك لا يتكرر خطأ MODULE_NOT_FOUND الخاص بسكربت Netlify أثناء بناء Railway.
+- إعداد Netlify منفصل في netlify.toml ويستخدم scripts/prepare-netlify.js الخاص به.
+- بعد رفع هذه النسخة إلى نفس مستودع GitHub والفرع المرتبط بخدمة Railway، تأكد أن package.json وrailway.json في جذر المستودع هما النسخة الجديدة. إذا كان Root Directory في Railway يشير إلى مجلد آخر، اجعله جذر المجلد الذي يحتوي package.json وserver.js وrailway.json.
+- إعدادات الخدمة اليدوية في لوحة Railway قد تؤثر إذا كان إعداد Config File غير محدد أو يشير إلى ملف آخر؛ راجع Build Command وRoot Directory إذا استمر استخدام الأمر القديم.
