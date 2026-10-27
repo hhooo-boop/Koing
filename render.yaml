@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: sada-iraq-app
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: FIREBASE_DATABASE_URL
+        value: https://sada-iraq-app-default-rtdb.firebaseio.com
+      - key: FIREBASE_SERVICE_ACCOUNT_FILE
+        value: /etc/secrets/sada-iraq-firebase-admin.json
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: SADA_ENCRYPTION_KEY
+        generateValue: true
