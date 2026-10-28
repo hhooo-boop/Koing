@@ -1,19 +1,20 @@
 {
   "name": "sada-iraq",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "private": true,
   "description": "صدى العراق — Railway Node.js service with Netlify compatibility",
   "scripts": {
     "start": "node server.js",
-    "test": "node scripts/validate-release.js && node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/custom-shop-order-flow.test.js && node tests/ban-enforcement.test.js && node tests/database-management.test.js && node tests/admin-account.test.js && node tests/provider-auto-sync.test.js && node tests/order-details-messaging.test.js && node tests/storefront-and-live-refresh.test.js",
-    "build": "node --check server.js && node -e \"const fs=require('node:fs'); for (const f of ['server.js','index.html','package.json','config.json']) { if (!fs.existsSync(f)) throw new Error('Missing required root file: '+f); } JSON.parse(fs.readFileSync('package.json','utf8')); JSON.parse(fs.readFileSync('config.json','utf8')); console.log('Railway build preflight passed (root-only safe; nested scripts/tests are optional for deployment)');\"",
+    "test": "node --check server.js && node -e \"const fs=require('node:fs'); for(const f of ['server.js','index.html','package.json','config.json']) if(!fs.existsSync(f)) throw new Error('Missing required root file: '+f); const p=JSON.parse(fs.readFileSync('package.json','utf8')); const c=JSON.parse(fs.readFileSync('config.json','utf8')); const s=fs.readFileSync('server.js','utf8'); if(String(p.version).split('.').slice(0,2).join('.')!==String(c.version)) throw new Error('package/config version mismatch'); if(String(p.buildId)!==String(c.buildId)||!s.includes(p.buildId)) throw new Error('release buildId mismatch'); console.log('PASS: root-only deployment checks; nested scripts/tests are not required for npm test.');\"",
+    "build": "npm test",
     "release:bump": "node scripts/bump-release.js",
-    "prestart": "node --check server.js"
+    "prestart": "node --check server.js",
+    "test:full": "node scripts/validate-release.js && node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/custom-shop-order-flow.test.js && node tests/ban-enforcement.test.js && node tests/database-management.test.js && node tests/admin-account.test.js && node tests/provider-auto-sync.test.js && node tests/order-details-messaging.test.js && node tests/storefront-and-live-refresh.test.js"
   },
   "engines": {
     "node": ">=22"
   },
-  "buildId": "SADA-3.5-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028",
+  "buildId": "SADA-3.6-ROOT-SAFE-BUILD-PREFLIGHT-20261028",
   "dependencies": {
     "google-auth-library": "^11.2.0",
     "firebase-admin": "^14.5.0",
