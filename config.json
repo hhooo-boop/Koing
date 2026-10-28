@@ -1,7 +1,7 @@
 {
   "appName": "صدى العراق",
-  "version": "5.2",
-  "buildId": "SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028",
+  "version": "5.3",
+  "buildId": "SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028",
   "currency": "USD",
   "exchangeRate": 1250,
   "fixedRecharge": "5000 IQD = 4 USD",
