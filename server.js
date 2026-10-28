@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '4.0';
-const BUILD_ID = 'SADA-4.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+const APP_VERSION = '4.1';
+const BUILD_ID = 'SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -7599,11 +7599,20 @@ async function routeAPI(req,res,urlObj){
     try{
       const d=await providerRequest(prov,{action:'status',order:providerOrderId});
       const normalized=normalizeProviderStatus(d?.status??d?.data?.status??d?.result?.status??''); const checkedAt=nowISO();
-      const idx=rows.findIndex(x=>String(x.user||'')===username&&String(x.providerId||'')===providerId&&String(x.providerOrderId||'')===providerOrderId);
-      let resolvedSiteOrderId=effectiveSiteOrderId, synced=null;
+      const idx=rows.findIndex(x=>String(x.user||x.username||'')===username&&String(x.providerId||x.provider_id||'')===providerId&&String(x.providerOrderId||x.smmpartyOrderId||x.provider_order_id||'')===providerOrderId);
+      let resolvedSiteOrderId=effectiveSiteOrderId;
       if(normalized==='unknown')return json(res,502,{ok:false,error:'لم يرجع المزود حالة معروفة، لذلك لم نغيّر الحالة أو الرصيد.',providerStatus:String(d?.status||'')});
-      if(idx>=0){const ord=rows[idx];resolvedSiteOrderId=String(ord.id||effectiveSiteOrderId);synced=await syncVerifiedOrderStatus(await resolveFinancialOrder(ord),d,normalized);if(!synced.ok)return json(res,503,{ok:false,error:'تم فحص حالة المزود لكن تعذر حفظها في قاعدة البيانات. لم نغيّر الرصيد.',details:synced.refund?.error||synced.refund?.reason});}
-      return json(res,200,{ok:true,siteOrderId:resolvedSiteOrderId,providerId,providerOrderId,status:String(synced?.order?.status||normalized),providerStatusConfirmed:true,normalizedStatus:normalized,remains:d.remains??d?.data?.remains??null,startCount:d.start_count??d.startCount??null,charge:d.charge,currency:d.currency||'USD',refund:synced?.refund||null,checkedAt});
+      // Some orders are canonical in Firebase and absent from the local JSON ledger.
+      // The tracking ticket proves ownership; resolve the canonical Firebase row by the same user/provider/order tuple.
+      const sourceOrder=idx>=0?rows[idx]:{id:effectiveSiteOrderId,siteOrderId:effectiveSiteOrderId,user:username,username,providerId,providerOrderId};
+      const financialOrder=await resolveFinancialOrder(sourceOrder);
+      if(String(financialOrder.user||financialOrder.username||'')!==username||String(financialOrder.providerId||financialOrder.provider_id||'')!==providerId||String(financialOrder.providerOrderId||financialOrder.smmpartyOrderId||financialOrder.provider_order_id||'')!==providerOrderId){
+        return json(res,503,{ok:false,error:'تم فحص المزود، لكن تعذر العثور على سجل الطلب الأساسي المطابق في قاعدة البيانات. لم نغيّر الحالة أو الرصيد.'});
+      }
+      resolvedSiteOrderId=String(financialOrder.id||financialOrder.siteOrderId||effectiveSiteOrderId||'');
+      const synced=await syncVerifiedOrderStatus(financialOrder,d,normalized);
+      if(!synced.ok)return json(res,503,{ok:false,error:'تم فحص حالة المزود لكن تعذر حفظها والتحقق منها في قاعدة البيانات. لم نغيّر الرصيد.',details:synced.error||synced.refund?.error||synced.refund?.reason});
+      return json(res,200,{ok:true,siteOrderId:resolvedSiteOrderId,providerId,providerOrderId,status:String(synced.order?.status||normalized),providerStatus:String(synced.order?.providerStatus||d?.status||normalized),providerStatusConfirmed:true,normalizedStatus:normalized,remains:d.remains??d?.data?.remains??null,startCount:d.start_count??d.startCount??null,charge:d.charge,currency:d.currency||'USD',refund:synced?.refund||null,checkedAt:synced.checkedAt||checkedAt});
     }catch(e){return json(res,502,{ok:false,error:e.name==='AbortError'?'انتهت مهلة الاتصال بالمزود':e.message});}
   }
   if(p==='/api/order/cancel' && req.method==='POST'){
@@ -7682,27 +7691,55 @@ async function routeAPI(req,res,urlObj){
       }
     }catch(e){firebaseAvailable=false;firebaseWarning=String(e.message||e).slice(0,160);}
     // This list endpoint deliberately does not load the whole users node; email/profile fields are loaded per-user on demand.
-    const rows=[...merged.values()].map(o=>({...o,email:String(o.email||o.userEmail||o.memberEmail||'')})).filter(o=>{const hay=[o.id,o.publicOrderNo,o.publicOrderNumber,o.siteOrderId,o.user,o.username,o.userName,o.name,o.email,o.link,o.serviceName,o.providerOrderId,o.legacyOrderId,o.legacyOrderNumber].map(v=>String(v||'').toLowerCase()).join(' ');const rawStatus=String(o.providerStatus||o.smmStatus||o.status||'pending').trim().toLowerCase().replace(/[\s_-]+/g,' ');const norm=(rawStatus==='in progress'||rawStatus==='inprogress')?'in progress':normalizeProviderStatus(rawStatus);const wanted=(st==='in progress'||st==='in_progress')?'in progress':normalizeProviderStatus(st);return (!q||hay.includes(q))&&(!st||st==='all'||norm===wanted);}).sort((a,b)=>(Date.parse(b.createdAt||0)||0)-(Date.parse(a.createdAt||0)||0)).slice(0,500);
+    const rows=[...merged.values()].map(o=>({...o,email:String(o.email||o.userEmail||o.memberEmail||'')})).filter(o=>{const hay=[o.id,o.publicOrderNo,o.publicOrderNumber,o.siteOrderId,o.user,o.username,o.userName,o.name,o.email,o.link,o.serviceName,o.providerOrderId,o.legacyOrderId,o.legacyOrderNumber].map(v=>String(v||'').toLowerCase()).join(' ');const providerRaw=o.providerStatus||o.smmStatus||o.provider_status||'';const hasProvider=!!(o.providerId&& (o.providerOrderId||o.smmpartyOrderId||o.provider_order_id));const providerConfirmed=o.providerStatusConfirmed===true||(o.providerStatusConfirmed===undefined&&!!o.lastCheckedAt&&!!providerRaw);const rawStatus=String(hasProvider&&!providerConfirmed?'pending':providerConfirmed?(providerRaw||o.status||'pending'):(o.status||providerRaw||'pending')).trim().toLowerCase().replace(/[\s_-]+/g,' ');const norm=(rawStatus==='in progress'||rawStatus==='inprogress')?'in progress':normalizeProviderStatus(rawStatus);const wanted=(st==='in progress'||st==='in_progress')?'in progress':normalizeProviderStatus(st);return (!q||hay.includes(q))&&(!st||st==='all'||norm===wanted);}).sort((a,b)=>(Date.parse(b.createdAt||0)||0)-(Date.parse(a.createdAt||0)||0)).slice(0,500);
     return json(res,200,{ok:true,orders:rows,firebaseAvailable,warning:firebaseWarning||undefined,searchMode,limit:500,readOnlyLegacyCount:rows.filter(x=>x.legacyHistory).length});
   }
   if(p==='/api/admin/order-status' && req.method==='POST'){
     if(!isAdmin(req)) return json(res,403,{ok:false,error:'غير مصرح'});
     const b=await bodyJSON(req); const siteId=String(b.orderId||'').trim();
     if(!siteId) return json(res,422,{ok:false,error:'رقم طلب الموقع مطلوب'});
-    const rows=readJSON('orders.json',[]); const idx=rows.findIndex(o=>String(o.id||'')===siteId);
-    if(idx<0) return json(res,404,{ok:false,error:'طلب الموقع غير موجود'});
-    const order=rows[idx]; if(!order.providerId||!order.providerOrderId) return json(res,409,{ok:false,error:'هذا الطلب لا يملك طلباً مرتبطاً بالمزود'});
-    await ensureProviderRuntime(order.providerId); const {prov}=getProviderById(order.providerId); if(!prov)return json(res,404,{ok:false,error:'المزود غير موجود'});
+    const rows=readJSON('orders.json',[]);
+    let order=Array.isArray(rows)?rows.find(o=>o&&!o.event&&[String(o.id||''),String(o.localId||''),String(o.siteOrderId||'')].includes(siteId)):null;
+    if(!order){
+      const fields=['id','siteOrderId','publicOrderNo','publicOrderNumber','orderNo'];
+      for(const field of fields){
+        try{
+          const got=await firebaseGetQueryJson('orders',{orderBy:JSON.stringify(field),equalTo:JSON.stringify(siteId),limitToLast:100},6500);
+          const match=collectionEntries(got).find(([key,v])=>v&&typeof v==='object'&&!Array.isArray(v)&&[String(v.id||''),String(v.siteOrderId||''),String(v.publicOrderNo||''),String(v.publicOrderNumber||''),String(v.orderNo||'')].includes(siteId));
+          if(match){order={...match[1],_firebaseKey:match[0]};break;}
+        }catch(_){}
+        if(/^\d+$/.test(siteId)&&Number.isSafeInteger(Number(siteId))){
+          try{
+            const numeric=await firebaseGetQueryJson('orders',{orderBy:JSON.stringify(field),equalTo:String(Number(siteId)),limitToLast:100},6500);
+            const match=collectionEntries(numeric).find(([key,v])=>v&&typeof v==='object'&&!Array.isArray(v)&&[String(v.id||''),String(v.siteOrderId||''),String(v.publicOrderNo||''),String(v.publicOrderNumber||''),String(v.orderNo||'')].includes(siteId));
+            if(match){order={...match[1],_firebaseKey:match[0]};break;}
+          }catch(_){}
+        }
+      }
+    }
+    // Last-resort bounded lookup mirrors the admin orders screen and tolerates missing Firebase indexes.
+    if(!order){
+      try{
+        const recent=await firebaseGetQueryJson('orders',{orderBy:'"$key"',limitToLast:500},9000);
+        const match=collectionEntries(recent).find(([key,v])=>v&&typeof v==='object'&&!Array.isArray(v)&&[String(v.id||''),String(v.siteOrderId||''),String(v.publicOrderNo||''),String(v.publicOrderNumber||''),String(v.orderNo||''),String(key)].includes(siteId));
+        if(match)order={...match[1],_firebaseKey:match[0]};
+      }catch(_){}
+    }
+    if(!order) return json(res,404,{ok:false,error:'طلب الموقع غير موجود في السجل المحلي أو قاعدة البيانات'});
+    const providerId=String(order.providerId||order.provider_id||'').trim();
+    const providerOrderId=String(order.providerOrderId||order.smmpartyOrderId||order.provider_order_id||'').trim();
+    if(!providerId||!providerOrderId) return json(res,409,{ok:false,error:'هذا الطلب لا يملك رقم طلب مرتبطاً بالمزود'});
+    await ensureProviderRuntime(providerId); const {prov}=getProviderById(providerId); if(!prov)return json(res,404,{ok:false,error:'المزود المرتبط بالطلب غير موجود'});
     try{
-      const d=await providerRequest(prov,{action:'status',order:String(order.providerOrderId)});
+      const d=await providerRequest(prov,{action:'status',order:providerOrderId});
       const normalized=normalizeProviderStatus(d?.status??d?.data?.status??d?.result?.status??'');
       if(normalized==='unknown')return json(res,502,{ok:false,error:'رد المزود لا يحتوي على حالة معروفة؛ لم نغيّر الحالة أو الرصيد.',providerStatus:String(d?.status||'')});
-      const resolvedOrder=await resolveFinancialOrder({...order,_firebaseKey:order._firebaseKey||order.firebaseKey||''});
+      const resolvedOrder=await resolveFinancialOrder({...order,providerId,providerOrderId,_firebaseKey:order._firebaseKey||order.firebaseKey||''});
       const synced=await syncVerifiedOrderStatus(resolvedOrder,d,normalized);
-      if(!synced.ok)return json(res,503,{ok:false,error:'تم فحص المزود لكن تعذر تثبيت الحالة في قاعدة البيانات؛ لم يُنفذ الاسترداد.',details:synced.refund?.error||synced.refund?.reason});
-      return json(res,200,{ok:true,siteOrderId:siteId,providerOrderId:String(order.providerOrderId),status:synced.order.status,providerStatus:synced.order.providerStatus,providerStatusConfirmed:synced.order.providerStatusConfirmed,remains:synced.order.remains,startCount:synced.order.startCount,refund:synced.refund||null,checkedAt:synced.order.lastCheckedAt});
+      if(!synced.ok)return json(res,503,{ok:false,error:'تم فحص المزود لكن تعذر تثبيت الحالة والتحقق من حفظها في قاعدة البيانات؛ لم يُنفذ الاسترداد.',details:synced.error||synced.refund?.error||synced.refund?.reason});
+      return json(res,200,{ok:true,siteOrderId:String(synced.order?.id||synced.order?.siteOrderId||siteId),providerOrderId,status:synced.order.status,providerStatus:synced.order.providerStatus,providerStatusConfirmed:synced.order.providerStatusConfirmed,remains:synced.order.remains,startCount:synced.order.startCount,refund:synced.refund||null,checkedAt:synced.order.lastCheckedAt});
     }catch(e){
-      appendJsonLedger('provider_failures.json',{stage:'admin_order_status',siteOrderId:siteId,providerId:order.providerId,providerOrderId:order.providerOrderId,error:String(e.message||e),createdAt:nowISO()});
+      appendJsonLedger('provider_failures.json',{stage:'admin_order_status',siteOrderId:siteId,providerId,providerOrderId,error:String(e.message||e),createdAt:nowISO()});
       return json(res,502,{ok:false,error:String(e.message||e)});
     }
   }

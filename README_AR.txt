@@ -1,8 +1,8 @@
 صدى العراق — حزمة النشر
 
-الإصدار التقني: 4.0
-إصدار الواجهة: 4.0
-معرّف البناء: SADA-4.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028
+الإصدار التقني: 4.1
+إصدار الواجهة: 4.1
+معرّف البناء: SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028
 
 متطلبات التشغيل
 - Node.js 22 أو أحدث.
@@ -10,7 +10,7 @@
 - فحص سريع لملفات الجذر عبر: npm test
 - التحقق من تطابق الخادم والواجهة وملفات الإصدار عبر: npm run build
 - تشغيل مجموعة الاختبارات الكاملة، بما فيها اختبارات Firebase والمزوّد الوهميين المعزولين: npm run test:full
-- ترقية رقم الإصدار للتحديث القادم: npm run release:bump (تتحول 3.9 إلى 4.0 تلقائياً)
+- ترقية رقم الإصدار للتحديث القادم: npm run release:bump (تتحول 4.1 إلى 4.2 تلقائياً)
 - تشغيل الخادم عبر: npm start
 - يجب نشر المشروع كخدمة Node.js، وليس كملفات ثابتة فقط.
 
@@ -54,7 +54,7 @@
 
 نشر Railway — إصلاح أمر البناء (مهم)
 - ملف railway.json يستخدم `NIXPACKS` مع أمر البناء `npm run build` وأمر التشغيل `npm start`. أمر البناء يشغّل فحص الملفات الأساسية، وليس مجموعة الاختبارات الكاملة؛ شغّل `npm run test:full` محلياً قبل الرفع.
-- يفتح فحص الإصدار `/api/release` بعد النشر؛ يجب أن ترى `version: 4.0` و`deploymentConsistent: true`.
+- يفتح فحص الإصدار `/api/release` بعد النشر؛ يجب أن ترى `version: 4.1` و`deploymentConsistent: true`.
 - أمر بناء Railway لا يعتمد على `scripts/prepare-netlify.js` أو `scripts/validate-release.js` أثناء الفحص الأساسي، لتجنب فشل بسبب غياب سكربتات التطوير في نسخة رفع ناقصة. اختبار كامل الإصدار متاح محلياً عبر `npm run test:full`.
 - إعداد Netlify منفصل في netlify.toml ويستخدم scripts/prepare-netlify.js الخاص به.
 - بعد رفع هذه النسخة إلى نفس مستودع GitHub والفرع المرتبط بخدمة Railway، تأكد أن package.json وrailway.json في جذر المستودع هما النسخة الجديدة. إذا كان Root Directory في Railway يشير إلى مجلد آخر، اجعله جذر المجلد الذي يحتوي package.json وserver.js وrailway.json.
