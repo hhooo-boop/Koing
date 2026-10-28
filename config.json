@@ -1,7 +1,7 @@
 {
   "appName": "صدى العراق",
-  "version": "3.0",
-  "buildId": "SADA-3.0-AUTO-PROVIDER-CATALOG-SYNC-DESCRIPTIONS-20261028",
+  "version": "3.2",
+  "buildId": "SADA-3.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028",
   "currency": "USD",
   "exchangeRate": 1250,
   "fixedRecharge": "5000 IQD = 4 USD",
@@ -24,7 +24,7 @@
     },
     {
       "iqd": 5000,
-      "usd": 4.0
+      "usd": 4
     },
     {
       "iqd": 6000,
@@ -44,7 +44,7 @@
     },
     {
       "iqd": 10000,
-      "usd": 8.0
+      "usd": 8
     }
   ],
   "supportWhatsappUrl": "https://wa.me/9647762267959",

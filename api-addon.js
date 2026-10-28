@@ -1,2 +1,2 @@
 // Sada Iraq current release marker.
-window.SadaIraqAPI = window.SadaIraqAPI || {version:'3.0',buildId:'SADA-3.0-AUTO-PROVIDER-CATALOG-SYNC-DESCRIPTIONS-20261028'};
+window.SadaIraqAPI = window.SadaIraqAPI || {version:'3.2',buildId:'SADA-3.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028'};

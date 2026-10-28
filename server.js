@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '3.0';
-const BUILD_ID = 'SADA-3.0-AUTO-PROVIDER-CATALOG-SYNC-DESCRIPTIONS-20261028';
+const APP_VERSION = '3.2';
+const BUILD_ID = 'SADA-3.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -2838,10 +2838,11 @@ async function syncVerifiedOrderStatus(order,providerData,normalizedStatus){
   return {order:{...full,...update},refund};
 }
 async function runRefundReconciliationMonitor(){
+  // Check in-flight provider orders at approximately one-minute intervals; cap work per cycle to avoid provider API bursts.
   if(runRefundReconciliationMonitor.running)return;runRefundReconciliationMonitor.running=true;
   try{
     const snapshot=await loadOrderMonitorSnapshot();if(!snapshot.rows?.length)return;const now=Date.now();let examined=0;
-    const candidates=snapshot.rows.filter(r=>r.providerId&&r.providerOrderId&&(['pending','processing'].includes(r.status)||(['cancelled','partial'].includes(r.status)&&!['credited','no_refund_due'].includes(String(r.refundState||''))))&&(!r.lastCheckedAt||now-(auditTimestamp(r.lastCheckedAt)||0)>180000)).sort((a,b)=>Number(a.createdMs||0)-Number(b.createdMs||0)).slice(0,12);
+    const candidates=snapshot.rows.filter(r=>r.providerId&&r.providerOrderId&&(['pending','processing'].includes(r.status)||(['cancelled','partial'].includes(r.status)&&!['credited','no_refund_due'].includes(String(r.refundState||''))))&&(!r.lastCheckedAt||now-(auditTimestamp(r.lastCheckedAt)||0)>60000)).sort((a,b)=>Number(a.createdMs||0)-Number(b.createdMs||0)).slice(0,12);
     for(const row of candidates){if(examined++>=12)break;try{const full=await resolveFinancialOrder(row);await ensureProviderRuntime(row.providerId);const prov=getProviderById(row.providerId,{allowSingleFallback:false}).prov;if(!prov?.url||!prov?.key)continue;const d=await providerRequest(prov,{action:'status',order:String(row.providerOrderId)},15000);const normalized=normalizeProviderStatus(d?.status??d?.data?.status??d?.result?.status??'');if(normalized==='unknown')continue;await syncVerifiedOrderStatus(full,d,normalized);}catch(e){console.warn('refund/order status monitor:',String(e.message||e).slice(0,120));}}
   }catch(e){console.warn('refund reconciliation monitor:',String(e.message||e).slice(0,160));}finally{runRefundReconciliationMonitor.running=false;}
 }
@@ -5269,7 +5270,7 @@ async function routeAPI(req,res,urlObj){
   const p=normalizedPath(urlObj.pathname);
   const maintenanceState=readJSON('settings.json',{}).maintenance||{};
   const currentSession=session(req);
-  const publicAuthPaths=new Set(['/api/config','/api/health','/api/auth','/api/auth/login','/api/auth/register','/api/auth/forgot-password','/api/auth/reset-password','/api/auth/verify-email']);
+  const publicAuthPaths=new Set(['/api/config','/api/health','/api/release','/api/auth','/api/auth/login','/api/auth/register','/api/auth/forgot-password','/api/auth/reset-password','/api/auth/verify-email']);
   if(currentSession?.role==='user'&&!publicAuthPaths.has(p)){
     try{
       const banState=await verifyCurrentUserBanStatus(currentSession.username);
@@ -5283,7 +5284,7 @@ async function routeAPI(req,res,urlObj){
       return json(res,503,{ok:false,code:'account_ban_check_unavailable',error:'تعذر التحقق من حالة الحساب في قاعدة البيانات؛ لم نسمح بمتابعة الجلسة حفاظاً على أمان الحساب.'});
     }
   }
-  const maintenanceAllow=new Set(['/api/config','/api/health','/api/session','/api/auth','/api/auth/login','/api/auth/register','/api/auth/forgot-password','/api/auth/reset-password','/api/auth/verify-email']);
+  const maintenanceAllow=new Set(['/api/config','/api/health','/api/release','/api/session','/api/auth','/api/auth/login','/api/auth/register','/api/auth/forgot-password','/api/auth/reset-password','/api/auth/verify-email']);
   if(maintenanceState.enabled===true&&currentSession?.role!=='admin'&&!maintenanceAllow.has(p))return json(res,503,{ok:false,maintenance:true,title:String(maintenanceState.title||'التطبيق متوقف مؤقتاً'),message:String(maintenanceState.message||maintenanceState.reason||'التطبيق تحت الصيانة المؤقتة. يرجى المحاولة لاحقاً.'),reason:String(maintenanceState.reason||''),imageUrl:String(maintenanceState.imageUrl||''),error:'التطبيق متوقف مؤقتاً للصيانة.'});
   if(p==='/api/admin/maintenance'&&req.method==='GET'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
@@ -7790,14 +7791,33 @@ async function routeAPI(req,res,urlObj){
   }
   if(p==='/api/smm') return apiSmm(req,res,urlObj);
   if(p==='/api/asiacell' && req.method==='POST') return apiAsiacell(req,res);
+  if(p==='/api/release' && (req.method==='GET'||req.method==='HEAD')) {
+    const readText=(name)=>{try{return fs.readFileSync(path.join(ROOT,name),'utf8')}catch(_){return ''}};
+    const html=readText('index.html'),publicHtml=readText(path.join('public','index.html'));
+    const versionFile=readText('version.txt').trim(),buildFile=readText('BUILD_ID.txt').trim();
+    let packageVersion='',packageBuild='',configVersion='',configBuild='';
+    try{const v=JSON.parse(readText('package.json'));packageVersion=String(v.version||'').split('.').slice(0,2).join('.');packageBuild=String(v.buildId||'')}catch(_){}
+    try{const v=JSON.parse(readText('config.json'));configVersion=String(v.version||'');configBuild=String(v.buildId||'')}catch(_){}
+    const readMeta=(source,name)=>{const safeName=String(name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const re=new RegExp(`<meta\\s+name=["']${safeName}["']\\s+content=["']([^"']+)`, 'i');return String(source.match(re)?.[1]||'')};
+    const uiVersion=readMeta(html,'sada-version'),uiBuildId=readMeta(html,'sada-build-id');
+    const publicUiVersion=readMeta(publicHtml,'sada-version'),publicUiBuildId=readMeta(publicHtml,'sada-build-id');
+    const rootPublicIdentical=!!html&&html===publicHtml;
+    const deploymentConsistent=uiVersion===APP_VERSION&&uiBuildId===BUILD_ID&&versionFile===APP_VERSION&&buildFile===BUILD_ID&&packageVersion===APP_VERSION&&packageBuild===BUILD_ID&&configVersion===APP_VERSION&&configBuild===BUILD_ID&&rootPublicIdentical&&publicUiVersion===APP_VERSION&&publicUiBuildId===BUILD_ID;
+    const digest=html?crypto.createHash('sha256').update(html).digest('hex'):'';
+    res.setHeader('Cache-Control','no-store, no-cache, must-revalidate, max-age=0');
+    res.setHeader('CDN-Cache-Control','no-store');
+    res.setHeader('Surrogate-Control','no-store');
+    res.setHeader('X-Sada-Release-Version',APP_VERSION);res.setHeader('X-Sada-Release-Build',BUILD_ID);
+    return json(res,deploymentConsistent?200:503,{ok:deploymentConsistent,app:APP_NAME,version:APP_VERSION,buildId:BUILD_ID,uiVersion,uiBuildId,versionFile,buildFile,packageVersion,packageBuild,configVersion,configBuild,publicUiVersion,publicUiBuildId,rootPublicIdentical,deploymentConsistent,htmlSha256:digest,branch:process.env.RAILWAY_GIT_BRANCH||null,commit:process.env.RAILWAY_GIT_COMMIT_SHA||null,checkedAt:new Date().toISOString()});
+  }
   if(p==='/api/health') {
     let uiVersion='', uiBuildId='', versionFile='', buildFile='';
     try { const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8'); uiVersion=String(html.match(/<meta\s+name=["']sada-version["']\s+content=["']([^"']+)["']/i)?.[1]||''); uiBuildId=String(html.match(/<meta\s+name=["']sada-build-id["']\s+content=["']([^"']+)["']/i)?.[1]||''); } catch(_) {}
     try { versionFile=fs.readFileSync(path.join(ROOT,'version.txt'),'utf8').trim(); } catch(_) {}
     try { buildFile=fs.readFileSync(path.join(ROOT,'BUILD_ID.txt'),'utf8').trim(); } catch(_) {}
-    const deploymentConsistent=uiVersion===APP_VERSION && uiBuildId===BUILD_ID && versionFile===APP_VERSION && buildFile===BUILD_ID;
+    let releasePackage={},releaseConfig={};try{releasePackage=JSON.parse(fs.readFileSync(path.join(ROOT,'package.json'),'utf8'))}catch(_){}try{releaseConfig=JSON.parse(fs.readFileSync(path.join(ROOT,'config.json'),'utf8'))}catch(_){}let publicUiVersion='',publicUiBuildId='',rootPublicIdentical=false;try{const publicHtml=fs.readFileSync(path.join(ROOT,'public','index.html'),'utf8'),rootHtml=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');rootPublicIdentical=publicHtml===rootHtml;publicUiVersion=String(publicHtml.match(/<meta\s+name=["']sada-version["']\s+content=["']([^"']+)["']/i)?.[1]||'');publicUiBuildId=String(publicHtml.match(/<meta\s+name=["']sada-build-id["']\s+content=["']([^"']+)["']/i)?.[1]||'');}catch(_){} const deploymentConsistent=uiVersion===APP_VERSION&&uiBuildId===BUILD_ID&&versionFile===APP_VERSION&&buildFile===BUILD_ID&&String(releasePackage.version||'').split('.').slice(0,2).join('.')===APP_VERSION&&releasePackage.buildId===BUILD_ID&&releaseConfig.version===APP_VERSION&&releaseConfig.buildId===BUILD_ID&&rootPublicIdentical&&publicUiVersion===APP_VERSION&&publicUiBuildId===BUILD_ID;
     const dbInfo=firebaseDatabaseDiagnosticInfo();
-    const health={ok:true,app:APP_NAME,version:APP_VERSION,buildId:BUILD_ID,uiVersion,uiBuildId,versionFile,buildFile,deploymentConsistent,dataStorageMode:DATA_IS_EXTERNAL?'external-directory':'release-local',firebaseUrlConfigured:!!FIREBASE_DATABASE_URL,firebaseDatabaseSource:FIREBASE_DATABASE_URL_SOURCE,firebaseServerAuthConfigured:firebaseAuthAvailable(),firebaseDatabaseDriver:firebaseAdminEnabled()?'admin-sdk':'rest-oauth',priceGuard:PRICE_GUARD_ENABLED,securityPatch:'1.6.91',providerCount:Object.keys(providerStore().providers||{}).length,time:new Date().toISOString(),node:process.version};
+    const health={ok:deploymentConsistent,app:APP_NAME,version:APP_VERSION,buildId:BUILD_ID,uiVersion,uiBuildId,versionFile,buildFile,publicUiVersion,publicUiBuildId,rootPublicIdentical,deploymentConsistent,dataStorageMode:DATA_IS_EXTERNAL?'external-directory':'release-local',firebaseUrlConfigured:!!FIREBASE_DATABASE_URL,firebaseDatabaseSource:FIREBASE_DATABASE_URL_SOURCE,firebaseServerAuthConfigured:firebaseAuthAvailable(),firebaseDatabaseDriver:firebaseAdminEnabled()?'admin-sdk':'rest-oauth',priceGuard:PRICE_GUARD_ENABLED,securityPatch:'1.6.91',providerCount:Object.keys(providerStore().providers||{}).length,time:new Date().toISOString(),node:process.version};
     // Keep operational configuration details private; only an authenticated admin can inspect them.
     if(isAdmin(req)){const credentialStatus=firebaseServiceAccountStatus();health.firebaseDatabase={host:dbInfo.host,source:dbInfo.source,databaseProjectHint:dbInfo.databaseProjectHint,serviceAccountProjectId:dbInfo.serviceAccountProjectId||null,configuredWebProjectId:dbInfo.configuredWebProjectId||null,serviceAccountProjectMatch:dbInfo.serviceAccountProjectMatch};health.securityConfig={sessionSecretConfigured:!!String(process.env.SESSION_SECRET||'').trim(),dedicatedEncryptionKeyConfigured:!!String(process.env.SADA_ENCRYPTION_KEY||'').trim(),stableEncryptionAvailable:telegramEncryptionReady(),firebaseConfigured:!!FIREBASE_DATABASE_URL,firebaseServiceAccountConfigured:credentialStatus.ok,firebaseCredentialStatus:{ok:credentialStatus.ok,code:credentialStatus.code,source:credentialStatus.source,message:credentialStatus.message},firebaseDatabaseSecretConfigured:!!String(process.env.FIREBASE_DATABASE_SECRET||'').trim(),firebaseAuthAvailable:firebaseAuthAvailable(),emailServiceConfigured:!!(String(process.env.RESEND_API_KEY||'').trim()&&String(process.env.RESEND_FROM_EMAIL||process.env.EMAIL_FROM||'').trim()),telegramTokenFromEnvironment:!!String(process.env.TELEGRAM_BOT_TOKEN||'').trim(),adminPasswordFromEnvironment:!!(String(process.env.ADMIN_PASSWORD||'').trim()||String(process.env.ADMIN_PASSWORD_HASH||'').trim()),adminPasswordConfigured:adminPasswordConfigured()};}
     return json(res,200,health);
@@ -7848,7 +7868,7 @@ function serveStatic(req,res,urlObj){
       if(readErr)return json(res,404,{error:'Not found'});
       res.setHeader('Content-Type',MIME[ext]||'application/octet-stream');res.setHeader('Last-Modified',record.lastModified);res.setHeader('Vary','Accept-Encoding');
       // HTML revalidates on every visit so deployments appear immediately; assets can be reused briefly.
-      res.setHeader('Cache-Control',ext==='.html'?'no-cache, must-revalidate, max-age=0':'public, max-age=300, must-revalidate');if(ext==='.html'){res.setHeader('Pragma','no-cache');res.setHeader('Expires','0');}
+      res.setHeader('Cache-Control',ext==='.html'?'no-store, no-cache, must-revalidate, max-age=0':'public, max-age=300, must-revalidate');if(ext==='.html'){res.setHeader('CDN-Cache-Control','no-store');res.setHeader('Surrogate-Control','no-store');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0');}
       let body=record.raw,encoding='';const ae=String(req.headers['accept-encoding']||'');
       if(record.br&&/(?:^|,\s*)br(?:\s*;q=(?!0(?:\.0*)?)[0-9.]+)?(?:,|$)/i.test(ae)){body=record.br;encoding='br';}
       else if(record.gzip&&/(?:^|,\s*)gzip(?:\s*;q=(?!0(?:\.0*)?)[0-9.]+)?(?:,|$)/i.test(ae)){body=record.gzip;encoding='gzip';}
@@ -8020,6 +8040,8 @@ let ADMIN_PAYMENTS_CACHE={at:0,value:null,promise:null,limit:0};
 const server=http.createServer(async (req,res)=>{
   try{
     res._forwardedProto=String(req.headers['x-forwarded-proto']||'').split(',')[0].trim();
+    res.setHeader('X-Sada-Release-Version',APP_VERSION);
+    res.setHeader('X-Sada-Release-Build',BUILD_ID);
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('X-Frame-Options','SAMEORIGIN');
     res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
