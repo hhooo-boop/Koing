@@ -2,7 +2,7 @@
 
 الإصدار التقني: 3.0
 إصدار الواجهة: 3.0
-معرّف البناء: SADA-3.0-ORDER-DETAILS-PROGRESS-COPY-SEARCH-CROSS-DEVICE-20261028
+معرّف البناء: SADA-3.0-AUTO-PROVIDER-CATALOG-SYNC-DESCRIPTIONS-20261028
 
 متطلبات التشغيل
 - Node.js 22 أو أحدث.

@@ -5,13 +5,13 @@
   "description": "صدى العراق — Railway Node.js service with Netlify compatibility",
   "scripts": {
     "start": "node server.js",
-    "test": "node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/custom-shop-order-flow.test.js && node tests/ban-enforcement.test.js && node tests/database-management.test.js && node tests/admin-account.test.js && node tests/order-details-messaging.test.js",
+    "test": "node --check server.js && node --check tests/performance-release.test.js && node tests/performance-release.test.js && node tests/orders-index-fallback.test.js && node tests/auth-email-login.test.js && node tests/custom-shop-release.test.js && node tests/custom-shop-order-flow.test.js && node tests/ban-enforcement.test.js && node tests/database-management.test.js && node tests/admin-account.test.js && node tests/provider-auto-sync.test.js && node tests/order-details-messaging.test.js",
     "build": "node --check server.js"
   },
   "engines": {
     "node": ">=22"
   },
-  "buildId": "SADA-3.0-ORDER-DETAILS-PROGRESS-COPY-SEARCH-CROSS-DEVICE-20261028",
+  "buildId": "SADA-3.0-AUTO-PROVIDER-CATALOG-SYNC-DESCRIPTIONS-20261028",
   "dependencies": {
     "google-auth-library": "^11.2.0",
     "firebase-admin": "^14.5.0",

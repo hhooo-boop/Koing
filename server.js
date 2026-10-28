@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '3.0';
-const BUILD_ID = 'SADA-3.0-ORDER-DETAILS-PROGRESS-COPY-SEARCH-CROSS-DEVICE-20261028';
+const BUILD_ID = 'SADA-3.0-AUTO-PROVIDER-CATALOG-SYNC-DESCRIPTIONS-20261028';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -1519,9 +1519,10 @@ function providerServiceName(row={},id=''){
   return providerOriginalServiceName(row)||(id?('خدمة رقم '+String(id).slice(0,60)):'خدمة غير مسماة');
 }
 function providerServiceDescription(row={}){
-  const keys=['description','desc','serviceDescription','service_description','service_desc','serviceDesc','descriptionText','description_text','serviceDescriptionText','service_description_text','details','serviceDetails','service_details','instructions','note','requirements','info','htmlDescription','descriptionHtml','description_ar','desc_ar','شرح','وصف'];
+  // Suppliers do not all use the same field name. Keep the raw provider text and normalize common aliases.
+  const keys=['description','desc','serviceDescription','service_description','service_desc','serviceDesc','descriptionText','description_text','serviceDescriptionText','service_description_text','details','serviceDetails','service_details','instructions','note','requirements','info','htmlDescription','descriptionHtml','description_ar','desc_ar','description_arabic','service_description_ar','shortDescription','short_description','longDescription','long_description','publicDescription','public_description','serviceInfo','service_info','how_to_use','howToUse','شرح','وصف'];
   const candidates=[row];
-  for(const key of ['provider','service','data','details','metadata','meta','attributes']){
+  for(const key of ['provider','service','data','result','details','metadata','meta','attributes','service_data','serviceData']){
     const value=row?.[key];
     if(value&&typeof value==='object'&&!Array.isArray(value))candidates.push(value);
   }
@@ -1530,7 +1531,7 @@ function providerServiceDescription(row={}){
     if(typeof value==='string'||typeof value==='number')return String(value).trim();
     if(Array.isArray(value))return value.map(toText).filter(Boolean).join('\n').trim();
     if(typeof value==='object'){
-      for(const key of ['text','description','desc','content','value','html','plain','ar']){
+      for(const key of ['text','description','desc','content','value','html','plain','ar','en','message','summary']){
         const text=toText(value[key]);if(text)return text;
       }
     }
@@ -1538,6 +1539,21 @@ function providerServiceDescription(row={}){
   };
   for(const candidate of candidates){
     for(const key of keys){const text=toText(candidate?.[key]);if(text)return text.slice(0,4000);}
+  }
+  return '';
+}
+function providerServiceCategory(row={}){
+  const keys=['category','category_name','categoryName','category_title','categoryTitle','service_category','serviceCategory','service_category_name','serviceCategoryName','group','group_name','groupName','section','section_name','sectionName'];
+  const toText=value=>{
+    if(value===undefined||value===null)return '';
+    if(typeof value==='string'||typeof value==='number')return String(value).trim();
+    if(Array.isArray(value))return value.map(toText).filter(Boolean).join('، ');
+    if(typeof value==='object')for(const key of ['name','title','label','category','text','value']){const v=toText(value[key]);if(v)return v;}
+    return '';
+  };
+  for(const object of [row,row?.service,row?.data,row?.metadata,row?.attributes]){
+    if(!object||typeof object!=='object')continue;
+    for(const key of keys){const value=toText(object[key]);if(value)return value.slice(0,180);}
   }
   return '';
 }
@@ -1556,7 +1572,8 @@ function normalizeProviderServices(d){
     let ratePresent=false,rate=null;
     for(const k of rateKeys){const value=x[k];if(value===undefined||value===null||String(value).trim()==='')continue;const n=Number(String(value).replace(/,/g,''));if(Number.isFinite(n)&&n>=0){rate=n;ratePresent=true;break;}}
     const description=providerServiceDescription(x);
-    return {...x,service:id||String(x.service||''),name,rate:ratePresent?rate:0,ratePresent,description,providerDescription:description};
+    const category=providerServiceCategory(x);
+    return {...x,service:id||String(x.service||''),name,rate:ratePresent?rate:0,ratePresent,description,providerDescription:description,category:category||String(x.category||''),providerCategory:category};
   }).filter(x=>String(x.service||'').trim()!=='');
 }
 
@@ -2829,11 +2846,11 @@ async function runRefundReconciliationMonitor(){
   }catch(e){console.warn('refund reconciliation monitor:',String(e.message||e).slice(0,160));}finally{runRefundReconciliationMonitor.running=false;}
 }
 
-const DEFAULT_GLOBAL_PRICING={markupPct:100,autoSync:true,intervalHours:1,intervalMinutes:10,lastAttemptAt:null,lastSuccessAt:null,lastUpdatedAt:null,lastResult:null,lastError:''};
+const DEFAULT_GLOBAL_PRICING={markupPct:100,autoSync:true,intervalHours:1,intervalMinutes:5,lastAttemptAt:null,lastSuccessAt:null,lastUpdatedAt:null,lastResult:null,lastError:''};
 function cleanGlobalPricing(v={}){
   const pct=Number(v.markupPct??v.markup??DEFAULT_GLOBAL_PRICING.markupPct);
   const interval=Number(v.intervalHours??DEFAULT_GLOBAL_PRICING.intervalHours);
-  const mins=Number(v.intervalMinutes);return {...DEFAULT_GLOBAL_PRICING,...v,markupPct:Number.isFinite(pct)?Math.max(0,Math.min(1000,pct)):100,autoSync:v.autoSync!==false,intervalHours:[1,3,6,12,24].includes(interval)?interval:1,intervalMinutes:[5,10,15,30,60].includes(mins)?mins:10};
+  const mins=Number(v.intervalMinutes);return {...DEFAULT_GLOBAL_PRICING,...v,markupPct:Number.isFinite(pct)?Math.max(0,Math.min(1000,pct)):100,autoSync:v.autoSync!==false,intervalHours:[1,3,6,12,24].includes(interval)?interval:1,intervalMinutes:[5,10,15,30,60].includes(mins)?mins:5};
 }
 function localGlobalPricing(){const settings=readJSON('settings.json',{});return cleanGlobalPricing(settings.pricing||{});}
 async function getGlobalPricing(){
@@ -2864,8 +2881,17 @@ function providerServiceKey(s){for(const k of ['providerServiceId','smmpartyId',
 function providerServiceRate(s){if(s&&s.ratePresent===false)return null;return validRateField(s,['rate','rate_usd','rateUsd','usd_rate','usdRate','rate_per_1000','ratePer1000','price_per_1000','pricePer1000','price','cost'])}
 function catalogRate(s){return validRateField(s,['providerRateUsd','smmRateUsd','baseProviderRateUsd','smmRate','provider_rate_usd'])}
 function pricedPatch(s,base,pct){const sell=Number((base*(1+pct/100)).toFixed(8));return {sellingUsd:sell,price:Number((sell*FIXED_RATE).toFixed(6)),basePrice:Number((base*FIXED_RATE).toFixed(6)),providerRateUsd:base,smmRateUsd:base,smmRate:base,markupPct:pct,priceSyncedAt:nowISO()}}
-// Firebase REST multi-path PATCH: write nested field paths, never replace the entire service object.
+// Firebase REST multi-path PATCH: write only fields that actually changed, never replace the whole row mid-flight.
 function appendServicePricePatch(out,key,values){for(const [field,value] of Object.entries(values))out[String(key)+'/'+field]=value;}
+function appendChangedServicePatch(out,key,current,values){
+  const changed={};
+  for(const [field,value] of Object.entries(values||{})){
+    if(value===undefined)continue;
+    if(!catalogValuesEqual(current?.[field]??null,value??null))changed[field]=value;
+  }
+  if(Object.keys(changed).length)appendServicePricePatch(out,key,changed);
+  return Object.keys(changed).length;
+}
 async function applyCachedGlobalMarkup(pct){
   await ensureLocalServiceCatalogSeeded();
   const root=readJSON('services.json',{});if(!root||typeof root!=='object'||Array.isArray(root))return {updated:0,skipped:0};
@@ -2960,17 +2986,32 @@ function providerCatalogLooksComplete(raw,byId){
 }
 function recordProviderMissingCheck(row,completeCatalog,now=nowISO()){
   if(!row||typeof row!=='object'||hasExplicitSiteServiceDisable(row)||!completeCatalog)return {changed:false,removed:false};
-  // Keep the service in the site's catalog even after repeated provider misses. Provider mismatch is
-  // enforced at order time (fail closed, no debit); only the site administrator may hide a service.
+  // A deletion needs two successful, complete supplier catalogs separated by at least four minutes.
+  // Hide it from new purchases but retain its row so historical orders remain explainable.
+  const nowMs=Date.parse(now)||Date.now();
+  const previousCheck=Date.parse(String(row.providerMissingLastCheckedAt||''))||0;
+  if(previousCheck&&nowMs-previousCheck<4*60*1000)return {changed:false,removed:false};
   row.providerMissingChecks=Math.max(0,Number(row.providerMissingChecks)||0)+1;
   row.providerMissingLastCheckedAt=now;
   row.providerLastCatalogVerifiedAt=now;
+  if(row.providerMissingChecks>=2){
+    row.providerAvailable=false;row.availabilityStatus='unavailable';row.providerAvailabilityReason='provider_confirmed_removed';
+    row.providerRemovedConfirmedAt=now;row.providerLastRemovedAt=now;row.providerAutoDisabled=true;
+    row.active=false;row.enabled=false;row.hidden=true;row.isHidden=true;row.status='disabled';
+    return {changed:true,removed:true};
+  }
   return {changed:true,removed:false};
 }
-
 function clearProviderMissingChecks(row,now=nowISO()){
-  if(!row||typeof row!=='object')return false;const changed=Number(row.providerMissingChecks||0)!==0||isProviderConfirmedRemoved(row);row.providerMissingChecks=0;row.providerMissingLastCheckedAt='';row.providerRemovedConfirmedAt='';
-  if(isProviderConfirmedRemoved(row)){row.providerAvailable=true;row.availabilityStatus='available';row.providerAvailabilityReason='';row.providerCheckedAt=now;}return changed;
+  if(!row||typeof row!=='object')return false;
+  const wasAutoRemoved=isProviderConfirmedRemoved(row)&&row.providerAutoDisabled===true;
+  const changed=Number(row.providerMissingChecks||0)!==0||isProviderConfirmedRemoved(row);
+  row.providerMissingChecks=0;row.providerMissingLastCheckedAt='';row.providerRemovedConfirmedAt='';
+  if(wasAutoRemoved){
+    row.providerAvailable=true;row.availabilityStatus='available';row.providerAvailabilityReason='';row.providerCheckedAt=now;
+    row.active=true;row.enabled=true;row.hidden=false;row.isHidden=false;row.deleted=false;row.status='active';row.providerAutoDisabled=false;row.providerRestoredAt=now;
+  }
+  return changed;
 }
 function recoverTransientlyHiddenServices(root,source='provider-sync'){
   if(!root||typeof root!=='object'||Array.isArray(root))return 0;
@@ -3086,7 +3127,7 @@ async function runProviderPriceSync(options={}){
   if(GLOBAL_PRICE_SYNC_RUNNING)return {ok:false,busy:true,updated:0,errors:['مزامنة أخرى قيد التنفيذ']};
   GLOBAL_PRICE_SYNC_RUNNING=true;
   let cfg=await getGlobalPricing();cfg.lastAttemptAt=nowISO();const settings=readJSON('settings.json',{});settings.pricing=cfg;writeJSON('settings.json',settings);
-  const result={ok:true,updated:0,skipped:0,providers:0,providerErrors:[],localUpdated:0,imported:0,newServicesRequireApproval:0,unavailable:0,unverified:0,recovered:0,priceVerified:0};
+  const result={ok:true,updated:0,skipped:0,providers:0,providerErrors:[],localUpdated:0,imported:0,newServicesRequireApproval:0,unavailable:0,removedConfirmed:0,unverified:0,recovered:0,priceVerified:0,pricesChanged:0,descriptionsUpdated:0,categoriesUpdated:0,namesUpdated:0,metadataUpdated:0,availabilityChanged:0,firebasePersisted:false,firebaseServicesUpdated:0};
   try{
     // Migrate the legacy catalog once, then keep automatic pricing on host JSON.
     await ensureLocalServiceCatalogSeeded();
@@ -3094,6 +3135,7 @@ async function runProviderPriceSync(options={}){
     result.recovered=recoverTransientlyHiddenServices(root,'provider-sync-recovery');
     if(result.recovered)root=readJSON('services.json',{});
     const rows=Object.entries(root).filter(([k,v])=>v&&typeof v==='object'&&!Array.isArray(v)&&v.unapprovedAutoImport!==true);
+    const originalServiceRows=new Map(rows.map(([key,row])=>[key,JSON.parse(JSON.stringify(row))]));
     if(!rows.length)throw new Error('كتالوج الخدمات على الاستضافة فارغ؛ لم تُجرَ مزامنة. استورد الخدمات أولاً أو تحقق من ملف services.json.');
     // Local/manual and free services are fulfilled without an external provider. Never attempt provider price sync for them.
     const providerBackedRows=rows.filter(([,svc])=>{
@@ -3117,74 +3159,164 @@ async function runProviderPriceSync(options={}){
         const byId=new Map();for(const r of raw){const id=String(r?.service??r?.service_id??r?.serviceId??r?.id??r?.serviceID??'').trim();if(id)byId.set(id,r)}
         const catalogComplete=providerCatalogLooksComplete(raw,byId);
         if(!catalogComplete)result.providerErrors.push(pid+': كتالوج المزود غير مكتمل؛ لن تُخفى أي خدمة غائبة');
-        let pUpdated=0;
+        let pUpdated=0,pMetadata=0,pRemoved=0;
         const providerRows=rowsByProvider.get(pid)||[];
         const existingIds=new Set(providerRows.map(([,v])=>providerServiceKey(v)).filter(Boolean));
         for(const [key,svc] of providerRows){
           const sid=providerServiceKey(svc);if(!sid){result.skipped++;continue}
           const latest=byId.get(sid);
           if(!latest){
-            // Only a second consecutive absence from a well-formed, non-empty catalog confirms removal.
-            // Never delete the record: order history and provider mapping must remain auditable.
-            result.unverified++;result.skipped++;
-            if(catalogComplete){const absent=recordProviderMissingCheck(svc,true);if(absent.changed){result.availabilityChanged=(result.availabilityChanged||0)+1;availabilitySnapshots[key]={...svc};}if(absent.removed){result.unavailable++;result.removedConfirmed=(result.removedConfirmed||0)+1;}}
+            // Never interpret a timeout/empty/partial list as deletion. Two complete catalogs must miss this ID.
+            result.skipped++;
+            if(isProviderConfirmedRemoved(svc)){pRemoved++;continue;}
+            if(catalogComplete){const absent=recordProviderMissingCheck(svc,true);if(absent.changed){result.availabilityChanged++;availabilitySnapshots[key]={...svc};}if(absent.removed){result.unavailable++;result.removedConfirmed++;pRemoved++;}}
+            else result.unverified++;
             continue;
           }
-          if(clearProviderMissingChecks(svc))availabilitySnapshots[key]={...svc};
-          // Repair only generic/empty saved labels when the provider supplies a real name.
-          // Never overwrite a meaningful custom name already saved by the site owner.
+          const wasProviderRemoved=isProviderConfirmedRemoved(svc)&&svc.providerAutoDisabled===true;
+          if(clearProviderMissingChecks(svc)){availabilitySnapshots[key]={...svc};result.availabilityChanged++;}
+          const metadataFields={};let rowMetadataChanges=0;
+          // Provider name: refresh names that are known to be provider-managed, but preserve administrator labels.
           const originalProviderName=providerOriginalServiceName(latest);
           const currentName=String(svc.name||'').trim();
+          const savedProviderName=String(svc.providerServiceName||'').trim();
           const genericCurrentName=!currentName||/^(?:service|خدمة|service\s*#?\s*\d*|خدمة\s*#?\s*\d*|unknown service|خدمة غير مسماة)$/i.test(currentName);
-          if(originalProviderName&&genericCurrentName){appendServicePricePatch(allPatches,key,{name:originalProviderName});result.namesFixed=(result.namesFixed||0)+1;}
+          const providerOwnsName=svc.nameSource==='provider'||genericCurrentName||(savedProviderName&&normalizeCatalogLabel(currentName)===normalizeCatalogLabel(savedProviderName))||(!savedProviderName&&originalProviderName&&normalizeCatalogLabel(currentName)===normalizeCatalogLabel(originalProviderName));
+          if(originalProviderName){
+            metadataFields.providerServiceName=originalProviderName;
+            if(providerOwnsName){metadataFields.name=originalProviderName;metadataFields.nameSource='provider';if(currentName!==originalProviderName)result.namesUpdated++;}
+          }
+          // Always retain the supplier description separately; only replace the visible description when it is empty or provider-managed.
+          const liveDescription=providerServiceDescription(latest).trim();
+          const oldProviderDescription=String(svc.providerDescription||'').trim();
+          const visibleDescription=String(svc.description||'').trim();
+          const visibleDesc=String(svc.desc||'').trim();
+          const manualDescription=svc.descriptionSource==='manual'||svc.manualDescriptionSource==='admin'||svc.descriptionManuallySet===true;
+          if(liveDescription){
+            metadataFields.providerDescription=liveDescription;
+            metadataFields.providerDescriptionSource='provider';
+            if(liveDescription!==oldProviderDescription||!svc.providerDescriptionUpdatedAt)metadataFields.providerDescriptionUpdatedAt=nowISO();
+            const canUpdateVisibleDescription=!manualDescription&&(!visibleDescription||svc.descriptionSource==='provider'||svc.providerDescriptionSource==='provider'||(oldProviderDescription&&visibleDescription===oldProviderDescription));
+            const descIsProviderOrGeneric=!visibleDesc||visibleDesc===oldProviderDescription||svc.descriptionSource==='provider'||svc.providerDescriptionSource==='provider'||visibleDesc===String(svc.quality||'')||visibleDesc===String(svc.type||'');
+            if(canUpdateVisibleDescription){metadataFields.description=liveDescription;metadataFields.descriptionSource='provider';}
+            if(!manualDescription&&(canUpdateVisibleDescription||descIsProviderOrGeneric))metadataFields.desc=liveDescription;
+            if(liveDescription!==oldProviderDescription||(!visibleDescription&&canUpdateVisibleDescription)||(!visibleDesc&&!!metadataFields.desc))result.descriptionsUpdated++;
+          }else if(svc.providerDescriptionSource==='provider'&&!manualDescription&&(oldProviderDescription||visibleDescription||visibleDesc)){
+            // Clear a stale supplier-managed description only when the supplier no longer returns one.
+            metadataFields.providerDescription='';metadataFields.providerDescriptionUpdatedAt=nowISO();
+            if(svc.descriptionSource==='provider')metadataFields.description='';
+            if(visibleDesc===oldProviderDescription)metadataFields.desc='';
+          }
+          // Provider category metadata is refreshed every time. Replace the displayed group only when it was supplier-managed;
+          // administrator-assigned site sections stay intact.
+          const liveCategory=providerServiceCategory(latest);
+          if(liveCategory){
+            const oldProviderCategory=String(svc.providerCategory||'').trim();
+            metadataFields.providerCategory=liveCategory;if(oldProviderCategory!==liveCategory||!svc.providerCategoryUpdatedAt)metadataFields.providerCategoryUpdatedAt=nowISO();metadataFields.providerCategoryNames=[liveCategory];
+            const oldGroups=catalogRowGroups(svc);const currentCategory=String(svc.category||'').trim();
+            const categoryManaged=svc.categorySource==='provider'||!oldGroups.length||
+              (oldProviderCategory&&oldGroups.some(g=>normalizeCatalogLabel(g)===normalizeCatalogLabel(oldProviderCategory)))||
+              oldGroups.some(g=>normalizeCatalogLabel(g)===normalizeCatalogLabel(liveCategory))||
+              (!currentCategory&&oldGroups.length===0);
+            if(categoryManaged){
+              let nextGroups;
+              if(svc.categorySource==='provider')nextGroups=[liveCategory];
+              else if(oldProviderCategory)nextGroups=oldGroups.map(g=>normalizeCatalogLabel(g)===normalizeCatalogLabel(oldProviderCategory)?liveCategory:g);
+              else if(oldGroups.some(g=>normalizeCatalogLabel(g)===normalizeCatalogLabel(liveCategory)))nextGroups=oldGroups;
+              else nextGroups=oldGroups.length?oldGroups:[liveCategory];
+              nextGroups=[...new Map(nextGroups.map(g=>[normalizeCatalogLabel(g),String(g||'').trim()])).values()].filter(Boolean);
+              metadataFields.category=liveCategory;metadataFields.groups=nextGroups;metadataFields.categories=nextGroups;metadataFields.categorySource='provider';
+              if(normalizeCatalogLabel(currentCategory)!==normalizeCatalogLabel(liveCategory)||JSON.stringify(oldGroups)!==JSON.stringify(nextGroups))result.categoriesUpdated++;
+            }
+          }
+          const providerType=String(latest.rawType||latest.type||latest.service_type||latest.serviceType||'').trim().slice(0,100);
+          if(providerType)metadataFields.providerServiceType=providerType;
+          for(const [field,keys] of [['min',['min','minimum','min_quantity','minQuantity','min_order','minOrder']],['max',['max','maximum','max_quantity','maxQuantity','max_order','maxOrder']]]){
+            const v=validRateField(latest,keys);if(v!==null&&v>0){const num=Math.floor(v);if(Number(svc[field])!==num)metadataFields[field]=num;}
+          }
+          if(typeof latest.refill==='boolean'&&svc.refill!==latest.refill)metadataFields.refill=latest.refill;
+          if(typeof latest.cancel==='boolean'&&svc.cancel!==latest.cancel)metadataFields.cancel=latest.cancel;
+          rowMetadataChanges=appendChangedServicePatch(allPatches,key,svc,metadataFields);
+          if(rowMetadataChanges){result.metadataUpdated++;pMetadata++;}
           const base=providerServiceRate(latest);
           const oldBase=catalogRate(svc);
           if(base===null||(base===0&&oldBase!==null&&oldBase>0)){
-            // Keep the existing service enabled and cached price intact when the rate is
-            // absent or suspicious. The order guard will pause an order transiently instead.
+            // Keep the cached price intact when the supplier omits a rate or unexpectedly sends zero.
             result.unverified++;result.skipped++;
-            if(base===0&&oldBase!==null&&oldBase>0)result.providerErrors.push(pid+' الخدمة '+sid+': تجاهلنا سعراً صفرياً غير متوقع؛ لم نغيّر حالة الخدمة');
+            if(base===0&&oldBase!==null&&oldBase>0)result.providerErrors.push(pid+' الخدمة '+sid+': تجاهلنا سعراً صفرياً غير متوقع؛ لم نغيّر السعر');
+            if(rowMetadataChanges)pUpdated++;
             continue;
           }
-          const priced=pricedPatch(svc,base,pct);
+          const expectedSell=Number((Number(base)*(1+pct/100)).toFixed(8));
+          const storedSell=Number(svc.sellingUsd);
+          const priceNeeds=priceGuardNeeds(svc,Number(base),pct)||!Number.isFinite(storedSell)||Math.abs(storedSell-expectedSell)>Math.max(1e-9,Math.abs(expectedSell)*1e-6);
+          const priced=pricedPatch(svc,Number(base),pct);
           const canRestore=!hasExplicitSiteServiceDisable(svc)&&canRestoreProviderAvailability(svc);
-          appendServicePricePatch(allPatches,key,canRestore?{...priced,providerAvailable:true,availabilityStatus:'available',providerCheckedAt:nowISO(),providerAvailabilityReason:''}:{...priced});
-          pUpdated++;result.updated++;result.priceVerified++;
+          const priceFields=priceNeeds?{...priced}:{};
+          if(canRestore&&(svc.providerAvailable!==true||String(svc.availabilityStatus||'')!=='available'||String(svc.providerAvailabilityReason||'')))Object.assign(priceFields,{providerAvailable:true,availabilityStatus:'available',providerCheckedAt:nowISO(),providerAvailabilityReason:''});
+          const priceFieldsChanged=appendChangedServicePatch(allPatches,key,svc,priceFields);
+          if(priceNeeds&&priceFieldsChanged){result.pricesChanged++;result.updated++;}
+          pUpdated++;result.priceVerified++;
         }
-        // Automatic synchronization is price/status-only. Never add provider catalog rows or categories here.
+        // Automatic synchronization refreshes approved service metadata and prices, but does not publish new unreviewed provider rows.
         // New services are imported only through the admin's explicit selected-service import UI.
         for(const latest of raw){
           const sid=String(latest?.service??latest?.service_id??latest?.serviceId??latest?.id??latest?.serviceID??'').trim();
           if(sid&&!existingIds.has(sid))result.newServicesRequireApproval++;
         }
-        result.providers++;if(!pUpdated&&result.newServicesRequireApproval===pendingBeforeProvider)result.providerErrors.push(pid+': لم تتم مطابقة معرّفات الخدمات أو لم يوجد سعر صالح');
+        result.providers++;if(!pUpdated&&!pMetadata&&!pRemoved&&result.newServicesRequireApproval===pendingBeforeProvider)result.providerErrors.push(pid+': لم تتم مطابقة معرّفات الخدمات أو لم يوجد سعر صالح');
       }catch(e){result.ok=false;result.providerErrors.push(pid+': '+String(e.message||e).slice(0,160))}
     }
     if(Object.keys(allPatches).length||result.availabilityChanged){
-      // Provider requests are awaited above. Re-read the latest catalog before applying narrow field patches
-      // so an admin service import/edit completed during the request is never overwritten by a stale snapshot.
+      // Re-read before applying narrow patches so an administrator edit made during supplier I/O is preserved.
       const persistRoot=readJSON('services.json',{});let applied=0;
       const expectedMappings=new Map(rows.map(([key,svc])=>[key,{providerId:String(svc.providerId||''),providerServiceId:providerServiceKey(svc)}]));
       const patchesByKey=new Map();
       for(const [composite,value] of Object.entries(allPatches)){const split=composite.indexOf('/');if(split<1)continue;const key=composite.slice(0,split),field=composite.slice(split+1);if(!patchesByKey.has(key))patchesByKey.set(key,{});patchesByKey.get(key)[field]=value;}
-      for(const [key,fields] of patchesByKey){const current=persistRoot[key],expected=expectedMappings.get(key);if(!current||typeof current!=='object'||current.unapprovedAutoImport===true||!expected)continue;if(String(current.providerId||'')!==expected.providerId||providerServiceKey(current)!==expected.providerServiceId)continue;
+      for(const [key,fields] of patchesByKey){
+        const current=persistRoot[key],expected=expectedMappings.get(key);
+        if(!current||typeof current!=='object'||current.unapprovedAutoImport===true||!expected)continue;
+        if(String(current.providerId||'')!==expected.providerId||providerServiceKey(current)!==expected.providerServiceId)continue;
         for(const [field,value] of Object.entries(fields)){
-          if(field==='name') {const nm=String(current.name||'').trim();if(nm&&!/^(?:service|خدمة|service\s*#?\s*\d*|خدمة\s*#?\s*\d*|unknown service|خدمة غير مسماة)$/i.test(nm))continue;}
+          if(field==='name'){
+            const nm=String(current.name||'').trim(),savedProviderName=String(current.providerServiceName||'').trim();
+            const generic=!nm||/^(?:service|خدمة|service\s*#?\s*\d*|خدمة\s*#?\s*\d*|unknown service|خدمة غير مسماة)$/i.test(nm);
+            const providerOwned=current.nameSource==='provider'||generic||(savedProviderName&&normalizeCatalogLabel(nm)===normalizeCatalogLabel(savedProviderName))||normalizeCatalogLabel(nm)===normalizeCatalogLabel(value);
+            if(nm&&!providerOwned)continue;
+          }
+          if(['description','desc'].includes(field)&&(current.descriptionSource==='manual'||current.manualDescriptionSource==='admin'||current.descriptionManuallySet===true))continue;
           if(['providerAvailable','availabilityStatus','providerAvailabilityReason'].includes(field)&&hasExplicitSiteServiceDisable(current))continue;
           if(['providerAvailable','availabilityStatus','providerAvailabilityReason'].includes(field)&&value===true&&!canRestoreProviderAvailability(current))continue;
           current[field]=value;applied++;
         }
       }
-      const availabilityFields=['providerMissingChecks','providerMissingLastCheckedAt','providerLastCatalogVerifiedAt','providerAvailable','availabilityStatus','providerAvailabilityReason','providerRemovedConfirmedAt','providerCheckedAt'];
-      for(const [key,snapshot] of Object.entries(availabilitySnapshots)){const current=persistRoot[key],expected=expectedMappings.get(key);if(!current||typeof current!=='object'||current.unapprovedAutoImport===true||!expected||String(current.providerId||'')!==expected.providerId||providerServiceKey(current)!==expected.providerServiceId||hasExplicitSiteServiceDisable(current))continue;for(const field of availabilityFields)if(Object.prototype.hasOwnProperty.call(snapshot,field)){current[field]=snapshot[field];applied++;}}
-      if(applied){writeCatalogNonStructuralJSON('services.json',persistRoot);markCatalogSeeded();result.storage='hosting-json';result.fieldsApplied=applied;}
+      const availabilityFields=['providerMissingChecks','providerMissingLastCheckedAt','providerLastCatalogVerifiedAt','providerAvailable','availabilityStatus','providerAvailabilityReason','providerRemovedConfirmedAt','providerLastRemovedAt','providerCheckedAt','active','enabled','hidden','isHidden','deleted','status','providerAutoDisabled','providerRestoredAt'];
+      for(const [key,snapshot] of Object.entries(availabilitySnapshots)){
+        const current=persistRoot[key],expected=expectedMappings.get(key);
+        const restoringProviderRemoved=!!(current&&isProviderConfirmedRemoved(current)&&current.providerAutoDisabled===true&&snapshot.providerAutoDisabled!==true);
+        if(!current||typeof current!=='object'||current.unapprovedAutoImport===true||!expected||String(current.providerId||'')!==expected.providerId||providerServiceKey(current)!==expected.providerServiceId||(hasExplicitSiteServiceDisable(current)&&!restoringProviderRemoved))continue;
+        for(const field of availabilityFields)if(Object.prototype.hasOwnProperty.call(snapshot,field)){current[field]=snapshot[field];applied++;}
+      }
+      const affectedKeys=new Set([...patchesByKey.keys(),...Object.keys(availabilitySnapshots)]);
+      const catalogChanges=[];
+      for(const key of affectedKeys){const before=originalServiceRows.get(key)||null,after=persistRoot[key]||null;if(!catalogValuesEqual(before,after))catalogChanges.push({key,oldRow:before,newRow:after});}
+      if(catalogChanges.length)syncCatalogServiceOrderChanges(catalogChanges);
+      if(applied||catalogChanges.length){
+        writeCatalogNonStructuralJSON('services.json',persistRoot);markCatalogSeeded();result.storage='firebase-cached-catalog';result.fieldsApplied=applied;
+        const changedRows=catalogChanges.filter(x=>x.newRow).map(x=>x.key);
+        if(changedRows.length){
+          const updatePaths=Object.fromEntries(changedRows.map(key=>['services/'+key,true]));
+          await persistCatalogBatchToFirebase(updatePaths);
+          result.firebasePersisted=true;result.firebaseServicesUpdated=changedRows.length;
+        }
+      }
     }
     // api_services.json is a compatibility mirror only. Avoid rewriting the whole legacy mirror on every price poll.
     // The authoritative approved catalog above powers API service discovery and order validation.
     result.localUpdated=0;
-    cfg=localGlobalPricing();cfg.lastAttemptAt=nowISO();cfg.lastResult={updated:result.updated,skipped:result.skipped,providers:result.providers,localUpdated:result.localUpdated,namesFixed:Number(result.namesFixed||0),imported:0,newServicesRequireApproval:result.newServicesRequireApproval,unavailable:result.unavailable,unverified:result.unverified,recovered:result.recovered,priceVerified:result.priceVerified};cfg.lastError=result.providerErrors.join(' | ').slice(0,700);if(result.updated>0){cfg.lastSuccessAt=nowISO();}else if(!result.providerErrors.length){cfg.lastError='لم يتم العثور على خدمات مطابقة للتحديث'};
+    cfg=localGlobalPricing();cfg.lastAttemptAt=nowISO();cfg.lastResult={updated:result.updated,pricesChanged:result.pricesChanged,descriptionsUpdated:result.descriptionsUpdated,categoriesUpdated:result.categoriesUpdated,namesUpdated:result.namesUpdated,metadataUpdated:result.metadataUpdated,availabilityChanged:result.availabilityChanged,removedConfirmed:result.removedConfirmed,firebasePersisted:result.firebasePersisted,firebaseServicesUpdated:result.firebaseServicesUpdated,skipped:result.skipped,providers:result.providers,localUpdated:result.localUpdated,namesFixed:Number(result.namesFixed||0),imported:0,newServicesRequireApproval:result.newServicesRequireApproval,unavailable:result.unavailable,unverified:result.unverified,recovered:result.recovered,priceVerified:result.priceVerified};cfg.lastError=result.providerErrors.join(' | ').slice(0,700);if(result.providers>0&&!result.providerErrors.length){cfg.lastSuccessAt=nowISO();cfg.lastSuccessfulResult=cfg.lastResult;}else if(!result.providerErrors.length){cfg.lastError='لم يتم العثور على مزودين مرتبطين بالخدمات أو خدمات صالحة للمزامنة'};
     const st=readJSON('settings.json',{});st.pricing=cfg;writeJSON('settings.json',st);try{await firebaseWriteJson('config/pricing',cfg,7000)}catch(_){}
-    result.importPolicy='manual-approval-required';result.safetyPolicy='Automatic sync updates approved existing services only. It never creates services/categories; import is available only through the admin selected-service action. Missing/invalid provider rows never trigger bulk deletion.';result.pricing=cfg;return result;
+    result.importPolicy='manual-approval-required';result.safetyPolicy='Automatic sync refreshes approved service prices, provider descriptions/names/types/category metadata, limits and refill/cancel flags; preserves admin-customized labels/sections; after two complete supplier-catalog misses separated by at least four minutes, hides and disables the service while preserving its catalog row and old order history. New provider services still require an explicit admin import.';result.pricing=cfg;return result;
   }catch(e){result.ok=false;result.providerErrors.push(String(e.message||e).slice(0,180));const st=readJSON('settings.json',{});const p=cleanGlobalPricing(st.pricing||{});p.lastAttemptAt=nowISO();p.lastError=result.providerErrors.join(' | ').slice(0,700);st.pricing=p;writeJSON('settings.json',st);try{await firebaseWriteJson('config/pricing',p,5000)}catch(_){}return result;
   }finally{GLOBAL_PRICE_SYNC_RUNNING=false}
 }
@@ -6545,7 +6677,7 @@ async function routeAPI(req,res,urlObj){
   if(p==='/api/admin/pricing' && req.method==='POST'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
     const b=await bodyJSON(req);const pct=Number(b.markupPct);if(!Number.isFinite(pct)||pct<0||pct>1000)return json(res,422,{ok:false,error:'نسبة الزيادة على تكلفة المزود يجب أن تكون بين 0 و1000%.'});
-    const minutes=Number(b.intervalMinutes??10);if(![5,10,15,30,60].includes(minutes))return json(res,422,{ok:false,error:'اختر فترة تحديث من 5 أو 10 أو 15 أو 30 أو 60 دقيقة'});
+    const minutes=Number(b.intervalMinutes??5);if(![5,10,15,30,60].includes(minutes))return json(res,422,{ok:false,error:'اختر فترة تحديث من 5 أو 10 أو 15 أو 30 أو 60 دقيقة'});
     const previous=await getGlobalPricing();const saved=await saveGlobalPricing({...previous,markupPct:pct,autoSync:b.autoSync!==false,intervalMinutes:minutes,lastAttemptAt:previous.lastAttemptAt,lastSuccessAt:previous.lastSuccessAt});
     if(!saved.persistedRemotely)return json(res,503,{ok:false,persistedRemotely:false,error:'لم يتم تأكيد حفظ نسبة الربح في Firebase. لم نعلن نجاح الحفظ ولم نشغّل تحديث الأسعار. السبب: '+String(saved.remoteError||'تعذر التحقق من قاعدة البيانات').slice(0,180),pricing:saved.pricing});
     let cached={updated:0,skipped:0,localUpdated:0},cachedError='';try{cached=await applyCachedGlobalMarkup(pct)}catch(e){cachedError=String(e.message||e).slice(0,180)}
