@@ -13,3 +13,6 @@
 ## إصدار 3.4 — إعداد Railway
 
 تمت إعادة `railway.json` إلى `NIXPACKS` وإزالة `buildCommand` المخصص، لتطابق طريقة البناء السابقة للمشروع. إذا استمر خطأ `buildkitd.sock` قبل تنفيذ أوامر البناء، فهذا يدل على انقطاع في عامل بناء Railway؛ إعادة التشغيل التلقائية في `restartPolicy` لا تعيد بناء الصور الفاشلة.
+
+## الإصدار 3.5 — إصلاح `MODULE_NOT_FOUND`
+إذا كان الخطأ هو `Cannot find module '/app/scripts/validate-release.js'`، فهذه النسخة تجعل build وprestart لا يعتمدان على هذا المسار المتداخل. تأكد من أن GitHub يتلقى ملف `package.json` الجديد ضمن نفس Commit الذي يحتوي على `server.js` و`index.html` و`config.json`.
