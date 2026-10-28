@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="sada-version" content="5.1">
-<meta name="sada-build-id" content="SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028">
+<meta name="sada-version" content="5.2">
+<meta name="sada-build-id" content="SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028">
 <script id="sada168-session-presence">try{window.__SADA_BOOT_HAD_SESSION=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'));}catch(_){window.__SADA_BOOT_HAD_SESSION=false}</script>
 
 <style id="sada167-preboot-splash-style">
@@ -2836,7 +2836,7 @@ html.sada-lite-motion .ks-particle{display:none!important}
         </div>
         <i class="fas fa-ellipsis" style="color:var(--t2);font-size:12px;flex-shrink:0"></i>
       </div>
-      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 5.1"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>5.1</b></div>
+      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 5.2"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>5.2</b></div>
     </div>
   </div>
 
@@ -3804,32 +3804,46 @@ function nav(name) {
 function _cddPos(btn, menu, id) {
   const r = btn.getBoundingClientRect();
   const vv = window.visualViewport;
-  const viewportW = Math.max(320, Math.round(vv?.width || window.innerWidth || 320));
-  const viewportH = Math.max(320, Math.round(vv?.height || window.innerHeight || 320));
-  const gap = 8;
-  const spaceBelow = Math.max(0, viewportH - r.bottom - gap);
-  const spaceAbove = Math.max(0, r.top - gap);
+  const viewportW = Math.max(280, Math.round(vv?.width || document.documentElement.clientWidth || window.innerWidth || 360));
+  const viewportH = Math.max(320, Math.round(vv?.height || window.innerHeight || document.documentElement.clientHeight || 640));
+  const safe = 10;
+  const gap = 6;
+  const spaceBelow = Math.max(0, viewportH - r.bottom - safe - gap);
+  const spaceAbove = Math.max(0, r.top - safe - gap);
   const isServiceMenu = id === 'svc-cdd';
   const isCategoryMenu = id === 'cat-cdd';
   const isCurrencyMenu = id === 'cur-cdd' || id === 'sb-cur-cdd';
-  const preferredHeight = isServiceMenu ? Math.min(420, viewportH * 0.48) : isCategoryMenu ? Math.min(280, viewportH * 0.38) : Math.min(260, viewportH * 0.36);
-  const minimumUsefulHeight = isServiceMenu ? Math.min(150, preferredHeight * 0.42) : 96;
-  const openBelow = spaceBelow >= minimumUsefulHeight || spaceBelow >= spaceAbove;
-  const availableSpace = Math.max(96, Math.min(preferredHeight, openBelow ? spaceBelow : spaceAbove));
-  const menuW = isCurrencyMenu ? Math.min(220, viewportW - 24) : Math.min(Math.max(0, r.width), viewportW - 24);
-  const rightEdge = Math.max(8, Math.min(viewportW - r.right, viewportW - menuW - 8));
+  const preferredHeight = isServiceMenu ? Math.min(440, viewportH * 0.62) : isCategoryMenu ? Math.min(330, viewportH * 0.48) : Math.min(280, viewportH * 0.42);
+  const minimumUsefulHeight = isServiceMenu ? Math.min(170, preferredHeight) : 96;
+  const openBelow = spaceBelow >= Math.min(minimumUsefulHeight, preferredHeight * 0.48) || spaceBelow >= spaceAbove;
+  const sideSpace = openBelow ? spaceBelow : spaceAbove;
+  const usableSpace = Math.max(76, Math.min(preferredHeight, viewportH - safe * 2, sideSpace || Math.max(spaceAbove, spaceBelow)));
+  const menuW = Math.max(0, Math.min(isCurrencyMenu ? 260 : r.width, viewportW - safe * 2));
+  // Align the dropdown to the trigger's right edge, but clamp it into the visible phone viewport.
+  const triggerRight = Math.min(viewportW - safe, Math.max(safe, r.right));
+  const rightEdge = Math.max(safe, Math.min(viewportW - triggerRight, viewportW - menuW - safe));
 
-  // Size the shell to its real content when there are only a few options, while keeping a
-  // bounded, independently scrollable option list for larger catalogs.
+  // The menu is moved to <body> while open. Its height follows the actual content up to a
+  // viewport-safe limit; the options list itself scrolls when the catalog is long.
   const list = menu.querySelector(isServiceMenu ? '#svc-options' : isCategoryMenu ? '#cat-options' : '.cdd-options');
   const search = menu.querySelector('.cdd-search-wrap');
   const searchHeight = search ? Math.max(search.offsetHeight || 0, search.scrollHeight || 0) : 0;
-  const listHeight = list ? (list.scrollHeight || list.offsetHeight || 0) : 0;
+  const listHeight = list ? Math.max(list.scrollHeight || 0, list.offsetHeight || 0) : 0;
   const contentHeight = searchHeight + listHeight + 4;
-  const menuHeight = Math.round(Math.min(availableSpace, Math.max(Math.min(minimumUsefulHeight, availableSpace), contentHeight || minimumUsefulHeight)));
-  const topStr = openBelow ? Math.max(gap, r.bottom + 3) + 'px' : 'auto';
-  const botStr = openBelow ? 'auto' : Math.max(gap, viewportH - r.top + 3) + 'px';
-  menu.style.cssText = 'position:fixed;left:auto;right:'+rightEdge+'px;width:'+menuW+'px;max-width:calc(100vw - 24px);--sada-cdd-max-height:'+Math.round(availableSpace)+'px;--sada-cdd-content-height:'+menuHeight+'px;height:'+menuHeight+'px;max-height:'+Math.round(availableSpace)+'px;display:flex;flex-direction:column;overflow:hidden;overflow-x:hidden;overflow-y:hidden;overscroll-behavior-y:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;box-sizing:border-box;z-index:999999;top:'+topStr+';bottom:'+botStr+';';
+  const menuHeight = Math.max(Math.min(minimumUsefulHeight, usableSpace), Math.min(usableSpace, contentHeight || minimumUsefulHeight));
+  // Always keep the complete rectangle inside the visible viewport, even near the bottom nav.
+  const preferredTop = openBelow ? r.bottom + gap : r.top - menuHeight - gap;
+  const top = Math.max(safe, Math.min(preferredTop, viewportH - menuHeight - safe));
+  menu.style.cssText = [
+    'position:fixed', 'left:auto', 'right:'+rightEdge+'px', 'top:'+top+'px', 'bottom:auto',
+    'width:'+menuW+'px', 'max-width:calc(100vw - '+(safe*2)+'px)',
+    '--sada-cdd-menu-width:'+menuW+'px', '--sada-cdd-right:'+rightEdge+'px', '--sada-cdd-top:'+top+'px',
+    '--sada-cdd-max-height:'+Math.round(usableSpace)+'px', '--sada-cdd-content-height:'+menuHeight+'px',
+    'height:'+menuHeight+'px', 'max-height:'+Math.round(usableSpace)+'px',
+    'display:flex', 'flex-direction:column', 'overflow:hidden', 'overflow-x:hidden', 'overflow-y:hidden',
+    'overscroll-behavior-y:contain', 'touch-action:pan-y', '-webkit-overflow-scrolling:touch',
+    'box-sizing:border-box', 'z-index:999999', 'margin:0'
+  ].join(';')+';';
 }
 function _getScrollParents(el) {
   const parents = [];
@@ -3871,6 +3885,7 @@ function toggleCDD(id, e) {
     scrollParents.forEach(p => p.addEventListener('scroll', reposition, {passive:true}));
     window.addEventListener('scroll', reposition, {passive:true});
     window.addEventListener('resize', reposition, {passive:true});
+    if (window.visualViewport) { window.visualViewport.addEventListener('resize', reposition, {passive:true}); window.visualViewport.addEventListener('scroll', reposition, {passive:true}); menu._vvReposFn=reposition; }
   }
 }
 function closeAllCDD() {
@@ -3881,6 +3896,8 @@ function closeAllCDD() {
     if (m._reposFn) {
       window.removeEventListener('scroll', m._reposFn);
       window.removeEventListener('resize', m._reposFn);
+      if (window.visualViewport && m._vvReposFn) { window.visualViewport.removeEventListener('resize', m._vvReposFn); window.visualViewport.removeEventListener('scroll', m._vvReposFn); }
+      m._vvReposFn=null;
       if (m._scrollParents) {
         m._scrollParents.forEach(p => p.removeEventListener('scroll', m._reposFn));
         m._scrollParents = null;
@@ -6602,7 +6619,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
   };
   // Refresh the catalog index only; never rewrite every service's image on page load.
   setTimeout(()=>{hydrateAllCategoryMeta().then(()=>{repairServiceIndex();try{window.buildCatDD?.();window.buildSvcDD?.(SEL_CAT||'__all__')}catch(_){}})},900);
-  window.SadaIraqBuildId='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+  window.SadaIraqBuildId='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
 })();
 
 </script>
@@ -8317,7 +8334,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
 ═══════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  const SADA_VERSION='5.1';
+  const SADA_VERSION='5.2';
   const RATE=1250;
   const ATHIR_NUMBER='07903221783';
     window.SadaIraqVersion=SADA_VERSION;
@@ -8338,7 +8355,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
       b=document.createElement('div'); b.id='sadairaq-version-badge';
       document.body.appendChild(b);
     }
-    const EXPECTED_BUILD='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+    const EXPECTED_BUILD='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
     const applyClientVersion=()=>{
       b.dataset.deployState='checking';
       b.textContent='صدى العراق · الإصدار '+SADA_VERSION+' · جارٍ فحص الخادم…';
@@ -8688,7 +8705,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
   const ensure=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   window.SECTION_META=window.SECTION_META||{};
   window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+window.SadaIraqBuildId='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
 
   function safe(v){return txt(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
   function appLabel(id){const p=(CFG.platforms||[]).find(x=>x.id===id);return p?.lbl||id||'عام';}
@@ -9109,13 +9126,13 @@ window.SadaIraqBuildId='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
 <script>
 (function(){
 'use strict';
-const V='5.1';
+const V='5.2';
 const $=id=>document.getElementById(id);
 const safe=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 const api=window.apiJSON||((p,o)=>fetch(p,Object.assign({credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'}},o||{})).then(async r=>{const t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch(_){d={error:t}}if(!r.ok||d.error)throw new Error(d.error||('HTTP '+r.status));return d;}));
 const mk=window.mk||((tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;});
 window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+window.SadaIraqBuildId='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
 
 function setVersion(){
   const b=$('sadairaq-version-badge');
@@ -12372,7 +12389,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   document.addEventListener('DOMContentLoaded',startFinal);window.addEventListener('load',()=>setTimeout(startFinal,100));setTimeout(startFinal,250);setTimeout(startFinal,1200);
   // Observe the whole document so both independent controls survive page/route re-renders.
   if(document.body){const mo=new MutationObserver(()=>{ensureOrderWhatsApp();});mo.observe(document.body,{childList:true,subtree:true});}
-  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028',hasFetchGuard:true,orderAudit:true};
+  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028',hasFetchGuard:true,orderAudit:true};
 })();
 </script>
 
@@ -13205,7 +13222,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada1666-welcome-refunds-admin-splash">
 (function(){
  'use strict';
- const BUILD='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+ const BUILD='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -13411,7 +13428,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada167-earn-notifications-dashboard">
 (function(){
 'use strict';
-const BUILD='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+const BUILD='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=v=>'$'+Math.max(0,Number(v)||0).toFixed(2);
@@ -14062,8 +14079,8 @@ window.SADA_V1626_RELEASE={version:'1.6.86',features:['earn-page-premium-order',
 <script id="sada1629-runtime-version-badge-fix">
 (function(){
   'use strict';
-  const EXPECTED_VERSION='5.1';
-  const EXPECTED_BUILD='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+  const EXPECTED_VERSION='5.2';
+  const EXPECTED_BUILD='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
   const $=id=>document.getElementById(id);
   function ensureBadge(){
     let b=$('sadairaq-version-badge');
@@ -15521,7 +15538,7 @@ window.SADA_V1599_FIXES={version:'1.6.86',features:['telegram-stable-server-deri
 </style>
 <script id="sada174-version-fix">
 (function(){
-  const version='5.1';
+  const version='5.2';
   document.querySelectorAll('[data-sada-version]').forEach(el=>{el.textContent=version});
   const versionNodes=[...document.querySelectorAll('body *')].filter(el=>el.children.length===0 && /^1\.5\.73$/.test((el.textContent||'').trim()));
   versionNodes.forEach(el=>{if(!el.closest('script,style,code,pre'))el.textContent=version});
@@ -16239,7 +16256,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 .sada-sidebar-version{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px 9px;border:1px solid rgba(48,221,199,.2);border-radius:12px;background:linear-gradient(110deg,rgba(48,221,199,.07),rgba(124,111,247,.08));color:var(--t2);font-size:10px;font-weight:800;letter-spacing:.15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}.sada-sidebar-version i{color:var(--teal);filter:drop-shadow(0 0 5px rgba(48,221,199,.25))}.sada-sidebar-version b{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:4px 8px;border:1px solid rgba(48,221,199,.32);border-radius:999px;background:rgba(48,221,199,.1);color:var(--teal);font-size:11px;font-weight:1000;box-shadow:0 0 14px rgba(48,221,199,.06)}.sb-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 </style>
 <script id="sada-v2-sidebar-only-version">
-(function(){'use strict';const shown='5.1';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
+(function(){'use strict';const shown='5.2';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
 </script>
 
 <script id="sada-free-services-21">
@@ -16676,7 +16693,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 </style>
 <script id="sada-1.6.86-final-ui-enforcement">
 (()=>{'use strict';
- const BUILD='SADA-5.1-CATALOG-DROPDOWN-ADMIN-SYNC-20261028';
+ const BUILD='SADA-5.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
  const $=id=>document.getElementById(id);
  const oldPromo=/(?:اشتراكات\s*و\s*خدمات\s*خاصة|تصفح\s*الخدمات\s*الخاصة|خدمات\s+مستقلة\s+عن\s+المزود)/i;
  const browse=/تصفح\s*الخدمات\s*الخاصة/i;
@@ -17117,3 +17134,133 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
   #adm-panel .adm-sb-item { min-height:42px; }
 }
 </style>
+
+<style id="sadairaq-520-mobile-dropdown-and-admin-orange">
+/* Dropdowns are moved to body while open. Keep their measured width; a 100% rule here
+   used to make a detached menu wider than the trigger and clip its left-hand content. */
+#cat-menu.cdd-menu[data-owner="cat-cdd"],
+#svc-menu.cdd-menu[data-owner="svc-cdd"] {
+  position:fixed!important;
+  left:auto!important;
+  right:var(--sada-cdd-right,12px)!important;
+  top:var(--sada-cdd-top,12px)!important;
+  bottom:auto!important;
+  width:var(--sada-cdd-menu-width,calc(100vw - 24px))!important;
+  min-width:0!important;
+  max-width:calc(100vw - 20px)!important;
+  height:var(--sada-cdd-content-height,auto)!important;
+  max-height:var(--sada-cdd-max-height,60dvh)!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  overflow-x:hidden!important;
+  border:1px solid rgba(255,153,43,.42)!important;
+  border-radius:14px!important;
+  background:#202022!important;
+  box-shadow:0 16px 36px rgba(0,0,0,.52)!important;
+  transform:none!important;
+  transition:none!important;
+}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] .cdd-search-wrap,
+#svc-menu.cdd-menu[data-owner="svc-cdd"] .cdd-search-wrap {
+  flex:0 0 auto!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;
+  background:#202022!important;border-bottom:1px solid rgba(255,153,43,.22)!important;
+}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options,
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options {
+  flex:1 1 auto!important;min-height:0!important;min-width:0!important;width:100%!important;max-width:100%!important;
+  box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior-y:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;
+  scrollbar-width:thin;scrollbar-color:rgba(255,153,43,.55) #202022;
+}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .cdd-option,
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .cdd-option,
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .sada226-service-card,
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .sada1550-service-row {
+  width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;max-height:none!important;
+  box-sizing:border-box!important;overflow:hidden!important;overflow-wrap:anywhere!important;
+}
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .sada226-price-strip {
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;
+  justify-content:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  gap:8px!important;box-sizing:border-box!important;overflow:hidden!important;
+}
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .sada226-price-label {
+  min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;
+  text-align:right!important;line-height:1.5!important;
+}
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .sada226-price-value,
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .svc-main-price,
+#svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .cdd-opt-price {
+  min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;
+  text-align:left!important;font-size:clamp(11px,3.2vw,13px)!important;line-height:1.4!important;
+}
+@media(max-width:600px){
+  #cat-menu.cdd-menu[data-owner="cat-cdd"],#svc-menu.cdd-menu[data-owner="svc-cdd"] {
+    max-width:calc(100vw - 20px)!important;border-radius:13px!important;
+  }
+  #cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .cdd-option,
+  #svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .cdd-option,
+  #svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .sada226-service-card,
+  #svc-menu.cdd-menu[data-owner="svc-cdd"] #svc-options .sada1550-service-row {padding:9px!important;margin:3px 0!important;}
+}
+
+/* Service manager: consistent charcoal + orange palette, with readable action grouping. */
+#adm-panel #sada222-services-workspace .sada222-service-hero {
+  border-color:rgba(255,153,43,.30)!important;
+  background:radial-gradient(ellipse at 95% 0,rgba(255,137,32,.16),transparent 55%),linear-gradient(145deg,#29292b,#1b1b1d)!important;
+  box-shadow:0 10px 25px rgba(0,0,0,.20)!important;
+}
+#adm-panel #sada222-services-workspace .sada222-service-hero h3,
+#adm-panel #sada222-services-workspace .sada222-service-action i {color:#ffad42!important;}
+#adm-panel #sada222-services-workspace .sada222-service-hero p,
+#adm-panel #sada222-services-workspace .sada222-service-action small {color:#c0c0c0!important;}
+#adm-panel #sada222-services-workspace .sada222-service-stat {
+  background:linear-gradient(145deg,#252527,#1b1b1d)!important;border-color:rgba(255,153,43,.22)!important;
+}
+#adm-panel #sada222-services-workspace .sada222-service-stat b {color:#ffad42!important;-webkit-text-fill-color:#ffad42!important;}
+#adm-panel #sada222-services-workspace .sada222-service-action {
+  min-height:100px!important;border:1px solid rgba(255,153,43,.24)!important;
+  background:linear-gradient(145deg,#2b2b2d,#202022)!important;border-radius:14px!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.12)!important;
+}
+#adm-panel #sada222-services-workspace .sada222-service-action:hover,
+#adm-panel #sada222-services-workspace .sada222-service-action:focus-visible {
+  border-color:#ff9d2f!important;background:linear-gradient(145deg,rgba(255,153,43,.15),#242426)!important;
+  box-shadow:0 0 0 2px rgba(255,153,43,.10)!important;
+}
+#adm-panel #sada222-services-workspace .sada222-service-action.danger {border-color:rgba(248,113,113,.32)!important;background:linear-gradient(145deg,rgba(105,37,37,.24),#202022)!important;}
+#adm-panel #sada222-services-workspace .sada222-service-action.danger i {color:#ff8181!important;}
+#adm-panel #sada222-services-workspace .sada222-service-help {
+  border-right-color:#ff941f!important;background:rgba(255,148,31,.08)!important;color:#d0d0d0!important;
+}
+#adm-panel #adm-sub-services .adm-sec-hd,
+#adm-panel #adm-sub-catalog-manager .adm-sec-hd {border-bottom-color:rgba(255,153,43,.24)!important;}
+#adm-panel #adm-sub-services .adm-sec-ttl,
+#adm-panel #adm-sub-catalog-manager .adm-sec-ttl {color:#f5c36a!important;}
+#adm-panel #adm-sub-services .btn.bp,#adm-panel #adm-sub-services .btn.bok,
+#adm-panel #adm-sub-catalog-manager .btn.bp,#adm-panel #adm-sub-catalog-manager .btn.bok {
+  background:linear-gradient(135deg,#ffad42,#f97316)!important;color:#171717!important;
+  border:1px solid rgba(255,199,134,.55)!important;font-weight:900!important;
+}
+#adm-panel #adm-sub-services .btn.bs2,#adm-panel #adm-sub-catalog-manager .btn.bs2 {
+  background:#252527!important;border:1px solid rgba(255,153,43,.24)!important;color:#f1f1f1!important;
+}
+#adm-panel #adm-sub-services .btn.bdng,#adm-panel #adm-sub-catalog-manager .btn.bdng {
+  background:rgba(120,35,35,.22)!important;border-color:rgba(248,113,113,.34)!important;color:#ffc3c3!important;
+}
+#adm-panel #adm-sub-catalog-manager .sada225-view-summary,
+#adm-panel #adm-sub-catalog-manager .sada225-filter-field label {border-color:rgba(255,153,43,.22)!important;color:#e8c178!important;}
+#adm-panel #adm-sub-catalog-manager .sada225-order-row {border-bottom:1px solid rgba(255,153,43,.12)!important;}
+#adm-panel #adm-sub-catalog-manager .sada225-order-title {color:#f6f6f6!important;}
+#adm-panel #adm-sub-catalog-manager .sada225-order-sub {color:#bdbdbd!important;}
+#adm-panel #adm-sub-catalog-manager .sada225-catalog-tabs .btn.on,
+#adm-panel #adm-sub-catalog-manager .sada225-catalog-tabs .btn.active {
+  background:linear-gradient(135deg,#ffad42,#f97316)!important;color:#171717!important;border-color:#ffd19c!important;
+}
+@media(max-width:560px){
+  #adm-panel #sada222-services-workspace .sada222-service-actions {grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}
+  #adm-panel #sada222-services-workspace .sada222-service-action {padding:10px!important;min-height:100px!important;}
+  #adm-panel #sada222-services-workspace .sada222-service-action b {font-size:12px!important;line-height:1.6!important;}
+}
+</style>
+
