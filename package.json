@@ -1,6 +1,6 @@
 {
   "name": "sada-iraq",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "private": true,
   "description": "صدى العراق — Railway Node.js service with Netlify compatibility",
   "scripts": {
@@ -11,9 +11,9 @@
     "prestart": "node scripts/validate-release.js"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
-  "buildId": "SADA-3.2-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028",
+  "buildId": "SADA-3.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028",
   "dependencies": {
     "google-auth-library": "^11.2.0",
     "firebase-admin": "^14.5.0",
