@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="sada-version" content="4.1">
-<meta name="sada-build-id" content="SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028">
+<meta name="sada-build-id" content="SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028">
 <script id="sada168-session-presence">try{window.__SADA_BOOT_HAD_SESSION=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'));}catch(_){window.__SADA_BOOT_HAD_SESSION=false}</script>
 
 <style id="sada167-preboot-splash-style">
@@ -6592,7 +6592,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
   };
   // Refresh the catalog index only; never rewrite every service's image on page load.
   setTimeout(()=>{hydrateAllCategoryMeta().then(()=>{repairServiceIndex();try{window.buildCatDD?.();window.buildSvcDD?.(SEL_CAT||'__all__')}catch(_){}})},900);
-  window.SadaIraqBuildId='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+  window.SadaIraqBuildId='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
 })();
 
 </script>
@@ -8328,7 +8328,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
       b=document.createElement('div'); b.id='sadairaq-version-badge';
       document.body.appendChild(b);
     }
-    const EXPECTED_BUILD='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+    const EXPECTED_BUILD='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
     const applyClientVersion=()=>{
       b.dataset.deployState='checking';
       b.textContent='صدى العراق · الإصدار '+SADA_VERSION+' · جارٍ فحص الخادم…';
@@ -8678,7 +8678,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
   const ensure=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   window.SECTION_META=window.SECTION_META||{};
   window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+window.SadaIraqBuildId='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
 
   function safe(v){return txt(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
   function appLabel(id){const p=(CFG.platforms||[]).find(x=>x.id===id);return p?.lbl||id||'عام';}
@@ -9105,7 +9105,7 @@ const safe=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':
 const api=window.apiJSON||((p,o)=>fetch(p,Object.assign({credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'}},o||{})).then(async r=>{const t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch(_){d={error:t}}if(!r.ok||d.error)throw new Error(d.error||('HTTP '+r.status));return d;}));
 const mk=window.mk||((tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;});
 window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+window.SadaIraqBuildId='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
 
 function setVersion(){
   const b=$('sadairaq-version-badge');
@@ -12362,7 +12362,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   document.addEventListener('DOMContentLoaded',startFinal);window.addEventListener('load',()=>setTimeout(startFinal,100));setTimeout(startFinal,250);setTimeout(startFinal,1200);
   // Observe the whole document so both independent controls survive page/route re-renders.
   if(document.body){const mo=new MutationObserver(()=>{ensureOrderWhatsApp();});mo.observe(document.body,{childList:true,subtree:true});}
-  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028',hasFetchGuard:true,orderAudit:true};
+  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028',hasFetchGuard:true,orderAudit:true};
 })();
 </script>
 
@@ -13195,7 +13195,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada1666-welcome-refunds-admin-splash">
 (function(){
  'use strict';
- const BUILD='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+ const BUILD='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -13401,7 +13401,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada167-earn-notifications-dashboard">
 (function(){
 'use strict';
-const BUILD='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+const BUILD='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=v=>'$'+Math.max(0,Number(v)||0).toFixed(2);
@@ -14053,7 +14053,7 @@ window.SADA_V1626_RELEASE={version:'1.6.86',features:['earn-page-premium-order',
 (function(){
   'use strict';
   const EXPECTED_VERSION='4.1';
-  const EXPECTED_BUILD='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+  const EXPECTED_BUILD='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
   const $=id=>document.getElementById(id);
   function ensureBadge(){
     let b=$('sadairaq-version-badge');
@@ -15197,6 +15197,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  #adm-panel .sada1525-admin-tools{padding:9px!important}
 }
 </style>
+
+
 
 </body>
 
@@ -16474,7 +16476,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 </style>
 <script id="sada-1.6.86-final-ui-enforcement">
 (()=>{'use strict';
- const BUILD='SADA-4.1-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+ const BUILD='SADA-4.1.1-MOBILE-ORDERS-UI-FIX-20261028';
  const $=id=>document.getElementById(id);
  const oldPromo=/(?:اشتراكات\s*و\s*خدمات\s*خاصة|تصفح\s*الخدمات\s*الخاصة|خدمات\s+مستقلة\s+عن\s+المزود)/i;
  const browse=/تصفح\s*الخدمات\s*الخاصة/i;
@@ -16791,4 +16793,127 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 .sada1605-service-name,.sada1525-order-title,.sada1525-order-head .sada1525-order-title{display:block!important;visibility:visible!important;opacity:1!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere!important;word-break:normal!important;max-height:none!important;-webkit-line-clamp:unset!important;line-height:1.65!important;}
 #sada-custom-shop-public-catalog .sada-custom-shop-service-title{display:block!important;white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere!important;word-break:normal!important;text-overflow:clip!important;color:var(--t0,#f3f4f6)!important;-webkit-text-fill-color:var(--t0,#f3f4f6)!important;}
 @media(max-width:600px){#svc-options .cdd-option{gap:8px!important;padding:11px!important;}#svc-options .svc-main-price{max-width:42%!important;white-space:normal!important;overflow-wrap:anywhere!important;flex-shrink:0!important;font-size:11px!important;}}
+</style>
+
+<style id="sadairaq-v411-mobile-layout-repair">
+/* Hotfix 4.1.1: restore a genuinely responsive, consistent Arabic mobile order form. */
+#pg-order, #pg-order * { box-sizing:border-box; }
+#pg-order { width:100%; max-width:100%; min-width:0; overflow-x:clip; }
+#pg-order .pg-hd {
+  padding:15px 14px 16px!important; margin-bottom:12px!important; border-radius:17px!important;
+  border:1px solid rgba(239,181,66,.30)!important;
+  background:radial-gradient(ellipse at 100% 0,rgba(232,171,53,.12),transparent 52%),linear-gradient(145deg,#29292b,#19191b)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.20)!important;
+}
+#pg-order .pg-hd h1 { color:#f4d16b!important; background:none!important; -webkit-text-fill-color:#f4d16b!important; font-size:clamp(20px,5vw,27px)!important; line-height:1.4!important; }
+#pg-order .pg-hd p { color:#c2c2c2!important; font-size:12px!important; line-height:1.75!important; }
+#pg-order .order-layout { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:10px!important; width:100%!important; max-width:100%!important; min-width:0!important; }
+#pg-order .order-layout>.card {
+  position:relative!important; width:100%!important; max-width:100%!important; min-width:0!important;
+  padding:12px!important; border-radius:16px!important; border:1px solid rgba(239,181,66,.23)!important;
+  background:linear-gradient(145deg,#29292b,#1c1c1e)!important;
+  box-shadow:0 7px 18px rgba(0,0,0,.17)!important; transform:none!important; animation:none!important;
+}
+#pg-order .order-layout>.card:focus-within { border-color:rgba(245,181,55,.55)!important; box-shadow:0 0 0 2px rgba(245,181,55,.08)!important; }
+#pg-order .order-field-label { gap:8px!important; margin-bottom:9px!important; color:#f0cf69!important; font-size:12px!important; font-weight:900!important; line-height:1.55!important; }
+#pg-order .order-field-label i { width:27px!important; height:27px!important; flex:0 0 27px!important; border-radius:8px!important; background:rgba(239,181,66,.10)!important; border:1px solid rgba(239,181,66,.20)!important; color:#f0c24e!important; }
+/* Horizontal, compact platform carousel like the reference — never force oversized desktop-width tiles. */
+#pg-order #order-plat-grid {
+  display:flex!important; flex-direction:row!important; direction:rtl!important; flex-wrap:nowrap!important;
+  gap:6px!important; width:100%!important; max-width:100%!important; min-width:0!important;
+  padding:3px 2px 8px!important; overflow-x:auto!important; overflow-y:hidden!important;
+  overscroll-behavior-x:contain; scroll-snap-type:x proximity; scrollbar-width:none!important;
+  -webkit-overflow-scrolling:touch;
+}
+#pg-order #order-plat-grid::-webkit-scrollbar { display:none!important; }
+#pg-order #order-plat-grid .plat-ic-btn {
+  display:flex!important; flex:0 0 clamp(61px,18.5vw,76px)!important; width:clamp(61px,18.5vw,76px)!important;
+  min-width:0!important; max-width:76px!important; min-height:68px!important; height:auto!important;
+  padding:8px 4px!important; margin:0!important; gap:5px!important; border-radius:12px!important;
+  border:1px solid rgba(239,181,66,.20)!important; background:linear-gradient(145deg,#303033,#202022)!important;
+  box-shadow:none!important; transform:none!important; scroll-snap-align:start; overflow:hidden!important;
+}
+#pg-order #order-plat-grid .plat-ic-btn.on,
+#pg-order #order-plat-grid .plat-ic-btn[aria-pressed="true"] {
+  border-color:#f6ad37!important; background:linear-gradient(145deg,rgba(246,173,55,.20),#28282a)!important;
+  box-shadow:inset 0 0 0 1px rgba(246,173,55,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+#pg-order #order-plat-grid .plat-ic-ico { width:30px!important; height:30px!important; min-width:30px!important; min-height:30px!important; border-radius:9px!important; }
+#pg-order #order-plat-grid .plat-ic-ico i { font-size:17px!important; }
+#pg-order #order-plat-grid .plat-lbl { display:block!important; max-width:100%!important; font-size:10px!important; font-weight:850!important; line-height:1.35!important; white-space:normal!important; overflow-wrap:anywhere!important; color:#f3f3f3!important; text-align:center!important; }
+#pg-order #cat-cdd, #pg-order #svc-cdd { width:100%!important; max-width:100%!important; min-width:0!important; }
+#pg-order #cat-btn, #pg-order #svc-btn {
+  display:flex!important; width:100%!important; min-width:0!important; min-height:51px!important; height:auto!important;
+  padding:10px 11px!important; gap:9px!important; border-radius:12px!important;
+  border:1px solid rgba(239,181,66,.30)!important; background:#202022!important; color:#f6f6f6!important;
+  box-shadow:none!important; align-items:center!important; white-space:normal!important;
+}
+#pg-order #cat-btn:focus-visible, #pg-order #svc-btn:focus-visible { outline:2px solid #f2c85c!important; outline-offset:2px!important; }
+#pg-order #cat-icon, #pg-order #svc-icon { flex:0 0 28px!important; width:28px!important; height:28px!important; display:grid!important; place-items:center!important; border-radius:8px!important; background:rgba(239,181,66,.09)!important; color:#f0c24e!important; }
+#pg-order #cat-label, #pg-order #svc-label { display:block!important; width:100%!important; min-width:0!important; max-width:100%!important; max-height:none!important; overflow:visible!important; white-space:normal!important; text-overflow:clip!important; overflow-wrap:anywhere!important; word-break:normal!important; color:#f5f5f5!important; font-size:13px!important; font-weight:850!important; line-height:1.55!important; -webkit-line-clamp:unset!important; }
+#pg-order #cat-menu, #pg-order #svc-menu, #cat-menu.cdd-menu[data-owner="cat-cdd"], #svc-menu.cdd-menu[data-owner="svc-cdd"] {
+  max-width:min(100%,560px)!important; min-width:0!important; width:100%!important; box-sizing:border-box!important;
+  border:1px solid rgba(239,181,66,.34)!important; border-radius:14px!important; background:#202022!important;
+  box-shadow:0 15px 30px rgba(0,0,0,.40)!important; overflow-x:hidden!important;
+}
+#pg-order #cat-options, #pg-order #svc-options { width:100%!important; max-width:100%!important; min-width:0!important; overflow-x:hidden!important; }
+#pg-order #cat-options .cdd-option, #pg-order #svc-options .cdd-option,
+#pg-order #svc-options .sada226-service-card, #pg-order #svc-options .sada1550-service-row, #pg-order #svc-options .sada226-service-row {
+  box-sizing:border-box!important; width:100%!important; max-width:100%!important; min-width:0!important;
+  min-height:58px!important; height:auto!important; max-height:none!important; margin:3px 0!important; padding:10px 11px!important;
+  border:1px solid rgba(255,255,255,.06)!important; border-radius:11px!important;
+  background:#29292b!important; color:#f3f3f3!important; overflow:hidden!important;
+}
+#pg-order #cat-options .cdd-option.selected, #pg-order #svc-options .cdd-option.selected,
+#pg-order #svc-options .sada226-service-card.selected, #pg-order #svc-options .sada1550-service-row.selected,
+#pg-order #svc-options .cdd-option[aria-selected="true"] {
+  border-color:#f6ad37!important; background:linear-gradient(110deg,rgba(246,173,55,.17),#2a2a2c)!important; color:#fff!important;
+}
+#pg-order #svc-options .svc-main-name, #pg-order #svc-options .cdd-opt-name,
+#pg-order #svc-options .sada226-service-name, #pg-order #svc-options .sada1550-service-name {
+  min-width:0!important; max-width:100%!important; white-space:normal!important; overflow:visible!important;
+  overflow-wrap:anywhere!important; word-break:normal!important; text-overflow:clip!important;
+  color:#f4f4f4!important; -webkit-text-fill-color:#f4f4f4!important; font-size:13px!important; line-height:1.55!important; font-weight:850!important;
+}
+#pg-order #svc-options .svc-main-price, #pg-order #svc-options .cdd-opt-price, #pg-order #svc-options .sada226-price-value {
+  color:#45d6a5!important; -webkit-text-fill-color:#45d6a5!important; font-size:12px!important; font-weight:950!important; white-space:nowrap!important;
+}
+#pg-order #order-form-card { padding:13px!important; border:1px solid rgba(239,181,66,.25)!important; border-radius:16px!important; background:linear-gradient(145deg,#29292b,#19191b)!important; overflow:hidden!important; }
+#pg-order #order-link, #pg-order #order-qty {
+  box-sizing:border-box!important; width:100%!important; max-width:100%!important; min-width:0!important; min-height:50px!important;
+  border:1px solid rgba(239,181,66,.24)!important; border-radius:12px!important; background:#181819!important; color:#f4f4f4!important;
+  box-shadow:none!important; font-size:14px!important;
+}
+#pg-order #order-qty { min-height:57px!important; height:auto!important; font-size:24px!important; }
+#pg-order #order-form-card .btn.bp { min-height:48px!important; width:100%!important; border-radius:12px!important; background:linear-gradient(135deg,#ffad42,#f97316)!important; border-color:rgba(255,190,120,.42)!important; color:#171717!important; box-shadow:0 5px 14px rgba(249,115,22,.16)!important; }
+#pg-order .order-total-bar { border-color:rgba(239,181,66,.25)!important; border-radius:12px!important; }
+#pg-order .order-qty-box, #pg-order #svc-info-box { width:100%!important; max-width:100%!important; min-width:0!important; box-sizing:border-box!important; }
+@media(max-width:480px) {
+  #pg-order .pg-hd { padding:13px 12px 14px!important; border-radius:15px!important; }
+  #pg-order .order-layout { gap:9px!important; }
+  #pg-order .order-layout>.card { padding:10px!important; border-radius:14px!important; }
+  #pg-order .order-field-label { margin-bottom:8px!important; font-size:11.5px!important; }
+  #pg-order #order-plat-grid .plat-ic-btn { min-height:64px!important; padding:7px 3px!important; }
+  #pg-order #order-plat-grid .plat-lbl { font-size:9.5px!important; }
+  #pg-order #cat-btn, #pg-order #svc-btn { min-height:48px!important; padding:9px!important; }
+  #pg-order #svc-options .sada226-service-card, #pg-order #svc-options .sada1550-service-row, #pg-order #svc-options .cdd-option { min-height:54px!important; padding:9px!important; }
+}
+/* User orders: one working row of three primary filters; remove the duplicate dead status buttons below. */
+#pg-orders .sada1605-mainfilters { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:8px!important; margin:13px 0 11px!important; }
+#pg-orders .sada1605-filter { min-width:0!important; min-height:46px!important; padding:8px 6px!important; border-radius:12px!important; font-size:12px!important; line-height:1.45!important; white-space:normal!important; }
+#pg-orders .sada1605-filter.active { background:linear-gradient(135deg,#ffad42,#f97316)!important; color:#171717!important; border-color:#ffd5a2!important; }
+#pg-orders .sada1605-statuses { display:none!important; visibility:hidden!important; }
+/* Common admin layout: prevent controls and section headers overflowing on phones. */
+#adm-panel, #adm-panel * { box-sizing:border-box; }
+#adm-panel .adm-main, #adm-panel .adm-sub { min-width:0!important; max-width:100%!important; }
+#adm-panel .adm-sec-hd { display:flex!important; flex-wrap:wrap!important; gap:9px!important; align-items:center!important; }
+#adm-panel .adm-sec-ttl { min-width:0!important; overflow-wrap:anywhere!important; line-height:1.55!important; }
+#adm-panel .adm-sub input, #adm-panel .adm-sub select, #adm-panel .adm-sub textarea { max-width:100%!important; }
+#adm-panel .adm-sub .btn { min-height:39px; max-width:100%; white-space:normal; overflow-wrap:anywhere; line-height:1.45; }
+@media(max-width:640px) {
+  #adm-panel .adm-sub { padding:11px!important; }
+  #adm-panel .adm-sec-hd { padding-bottom:10px!important; margin-bottom:10px!important; }
+  #adm-panel .adm-sub .card { padding:11px!important; }
+  #adm-panel .adm-sb-item { min-height:42px; }
+}
 </style>
