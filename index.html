@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="sada-version" content="5.3">
-<meta name="sada-build-id" content="SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028">
+<meta name="sada-version" content="5.4">
+<meta name="sada-build-id" content="SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029">
 <script id="sada168-session-presence">try{window.__SADA_BOOT_HAD_SESSION=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'));}catch(_){window.__SADA_BOOT_HAD_SESSION=false}</script>
 
 <style id="sada167-preboot-splash-style">
@@ -2836,7 +2836,7 @@ html.sada-lite-motion .ks-particle{display:none!important}
         </div>
         <i class="fas fa-ellipsis" style="color:var(--t2);font-size:12px;flex-shrink:0"></i>
       </div>
-      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 5.3"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>5.3</b></div>
+      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 5.4"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>5.4</b></div>
     </div>
   </div>
 
@@ -6635,7 +6635,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
   };
   // Refresh the catalog index only; never rewrite every service's image on page load.
   setTimeout(()=>{hydrateAllCategoryMeta().then(()=>{repairServiceIndex();try{window.buildCatDD?.();window.buildSvcDD?.(SEL_CAT||'__all__')}catch(_){}})},900);
-  window.SadaIraqBuildId='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+  window.SadaIraqBuildId='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
 })();
 
 </script>
@@ -8350,7 +8350,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
 ═══════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  const SADA_VERSION='5.3';
+  const SADA_VERSION='5.4';
   const RATE=1250;
   const ATHIR_NUMBER='07903221783';
     window.SadaIraqVersion=SADA_VERSION;
@@ -8371,7 +8371,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
       b=document.createElement('div'); b.id='sadairaq-version-badge';
       document.body.appendChild(b);
     }
-    const EXPECTED_BUILD='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+    const EXPECTED_BUILD='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
     const applyClientVersion=()=>{
       b.dataset.deployState='checking';
       b.textContent='صدى العراق · الإصدار '+SADA_VERSION+' · جارٍ فحص الخادم…';
@@ -8721,7 +8721,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
   const ensure=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   window.SECTION_META=window.SECTION_META||{};
   window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+window.SadaIraqBuildId='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
 
   function safe(v){return txt(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
   function appLabel(id){const p=(CFG.platforms||[]).find(x=>x.id===id);return p?.lbl||id||'عام';}
@@ -9142,13 +9142,13 @@ window.SadaIraqBuildId='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028
 <script>
 (function(){
 'use strict';
-const V='5.3';
+const V='5.4';
 const $=id=>document.getElementById(id);
 const safe=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 const api=window.apiJSON||((p,o)=>fetch(p,Object.assign({credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'}},o||{})).then(async r=>{const t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch(_){d={error:t}}if(!r.ok||d.error)throw new Error(d.error||('HTTP '+r.status));return d;}));
 const mk=window.mk||((tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;});
 window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+window.SadaIraqBuildId='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
 
 function setVersion(){
   const b=$('sadairaq-version-badge');
@@ -12405,7 +12405,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   document.addEventListener('DOMContentLoaded',startFinal);window.addEventListener('load',()=>setTimeout(startFinal,100));setTimeout(startFinal,250);setTimeout(startFinal,1200);
   // Observe the whole document so both independent controls survive page/route re-renders.
   if(document.body){const mo=new MutationObserver(()=>{ensureOrderWhatsApp();});mo.observe(document.body,{childList:true,subtree:true});}
-  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028',hasFetchGuard:true,orderAudit:true};
+  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029',hasFetchGuard:true,orderAudit:true};
 })();
 </script>
 
@@ -13238,7 +13238,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada1666-welcome-refunds-admin-splash">
 (function(){
  'use strict';
- const BUILD='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+ const BUILD='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -13444,7 +13444,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada167-earn-notifications-dashboard">
 (function(){
 'use strict';
-const BUILD='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+const BUILD='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=v=>'$'+Math.max(0,Number(v)||0).toFixed(2);
@@ -14095,8 +14095,8 @@ window.SADA_V1626_RELEASE={version:'1.6.86',features:['earn-page-premium-order',
 <script id="sada1629-runtime-version-badge-fix">
 (function(){
   'use strict';
-  const EXPECTED_VERSION='5.3';
-  const EXPECTED_BUILD='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+  const EXPECTED_VERSION='5.4';
+  const EXPECTED_BUILD='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
   const $=id=>document.getElementById(id);
   function ensureBadge(){
     let b=$('sadairaq-version-badge');
@@ -15481,6 +15481,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+
 </body>
 
 
@@ -15564,6 +15565,9 @@ window.SADA_V1599_FIXES={version:'1.6.86',features:['telegram-stable-server-deri
 })();
 </script>
 
+
+
+
 </html>
 
 <style id="sada174-register-orders-fixes">
@@ -15602,7 +15606,7 @@ window.SADA_V1599_FIXES={version:'1.6.86',features:['telegram-stable-server-deri
 </style>
 <script id="sada174-version-fix">
 (function(){
-  const version='5.3';
+  const version='5.4';
   document.querySelectorAll('[data-sada-version]').forEach(el=>{el.textContent=version});
   const versionNodes=[...document.querySelectorAll('body *')].filter(el=>el.children.length===0 && /^1\.5\.73$/.test((el.textContent||'').trim()));
   versionNodes.forEach(el=>{if(!el.closest('script,style,code,pre'))el.textContent=version});
@@ -16322,7 +16326,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 .sada-sidebar-version{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px 9px;border:1px solid rgba(48,221,199,.2);border-radius:12px;background:linear-gradient(110deg,rgba(48,221,199,.07),rgba(124,111,247,.08));color:var(--t2);font-size:10px;font-weight:800;letter-spacing:.15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}.sada-sidebar-version i{color:var(--teal);filter:drop-shadow(0 0 5px rgba(48,221,199,.25))}.sada-sidebar-version b{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:4px 8px;border:1px solid rgba(48,221,199,.32);border-radius:999px;background:rgba(48,221,199,.1);color:var(--teal);font-size:11px;font-weight:1000;box-shadow:0 0 14px rgba(48,221,199,.06)}.sb-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 </style>
 <script id="sada-v2-sidebar-only-version">
-(function(){'use strict';const shown='5.3';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
+(function(){'use strict';const shown='5.4';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
 </script>
 
 <script id="sada-free-services-21">
@@ -16759,7 +16763,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 </style>
 <script id="sada-1.6.86-final-ui-enforcement">
 (()=>{'use strict';
- const BUILD='SADA-5.3-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028';
+ const BUILD='SADA-5.4-ORDER-CATEGORY-DROPDOWN-ORANGE-STORE-20261029';
  const $=id=>document.getElementById(id);
  const oldPromo=/(?:اشتراكات\s*و\s*خدمات\s*خاصة|تصفح\s*الخدمات\s*الخاصة|خدمات\s+مستقلة\s+عن\s+المزود)/i;
  const browse=/تصفح\s*الخدمات\s*الخاصة/i;
@@ -17390,5 +17394,172 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
     wrapped.__sada53Dedupe=true;window.loadAdmSvcsFull=wrapped;
   }
   window.SADAIRAQ_V53={orders:'compact',allPlatformServices:'grouped-by-platform',adminCatalogLoadDeduped:true};
+})();
+</script>
+
+<!-- Final v5.4 overrides intentionally kept after legacy scripts so they cannot be overwritten by old dropdown/search patches. -->
+<style id="sadairaq-v54-final-mobile-order-store">
+/* Version 5.4: consistent warm charcoal/orange theme on order creation and store. */
+#pg-order{--sada54-orange:#ff941f;--sada54-gold:#ffc45b;--sada54-charcoal:#222224;--sada54-panel:#29292b;}
+#pg-order .pg-hd h1{color:#fff4e2!important}
+#pg-order .pg-hd p{color:#d0c4b4!important}
+#pg-order .card,#pg-order .order-layout>.card{background:linear-gradient(155deg,#29292b,#1d1d1f 82%)!important;border-color:rgba(255,164,54,.26)!important;box-shadow:0 7px 20px rgba(0,0,0,.14)!important}
+#pg-order .order-field-label{color:#ffc45b!important}
+#pg-order .order-field-label i{color:#ffab3f!important}
+#pg-order .plat-ic-btn{background:linear-gradient(150deg,#2b2b2d,#202022)!important;border:1px solid rgba(255,164,54,.22)!important;color:#f3eee6!important;box-shadow:none!important}
+#pg-order .plat-ic-btn:hover{border-color:rgba(255,164,54,.55)!important;transform:translateY(-1px)!important}
+#pg-order .plat-ic-btn.on,#pg-order .plat-ic-btn.active{border:1px solid #ff941f!important;background:linear-gradient(145deg,rgba(255,173,66,.18),rgba(249,115,22,.08))!important;box-shadow:0 0 0 1px rgba(255,148,31,.18),0 8px 20px rgba(249,115,22,.10)!important}
+#pg-order .plat-ic-btn .plat-lbl{color:#f4eee5!important}
+#pg-order .cdd-trigger{background:linear-gradient(145deg,#29292b,#1f1f21)!important;border:1px solid rgba(255,164,54,.32)!important;color:#f7f2ea!important;box-shadow:none!important}
+#pg-order .cdd-trigger.active,#pg-order .cdd-trigger:focus-visible{border-color:#ff941f!important;box-shadow:0 0 0 2px rgba(255,148,31,.12)!important;outline:none!important}
+#pg-order .cdd-label{color:#f7f2ea!important}
+#pg-order .cdd-arrow{color:#ffc45b!important}
+#cat-menu.cdd-menu[data-owner="cat-cdd"].open,#svc-menu.cdd-menu[data-owner="svc-cdd"].open{background:#202022!important;border:1px solid rgba(255,164,54,.48)!important;border-radius:17px!important;box-shadow:0 18px 42px rgba(0,0,0,.50),0 0 0 1px rgba(255,148,31,.06)!important;color:#f4eee5!important}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] .cdd-search-wrap,#svc-menu.cdd-menu[data-owner="svc-cdd"] .cdd-search-wrap{padding:9px!important;background:#202022!important;border-bottom:1px solid rgba(255,164,54,.20)!important}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] .cdd-search-input,#svc-menu.cdd-menu[data-owner="svc-cdd"] .cdd-search-input{background:#171719!important;border:1px solid rgba(255,164,54,.25)!important;color:#fff!important;border-radius:12px!important;min-height:44px!important}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] .cdd-search-input:focus,#svc-menu.cdd-menu[data-owner="svc-cdd"] .cdd-search-input:focus{border-color:#ff941f!important;box-shadow:0 0 0 2px rgba(255,148,31,.12)!important;outline:none!important}
+#cat-options .cdd-option,#svc-options .cdd-option{background:#29292b!important;border-color:rgba(255,164,54,.13)!important;color:#f4eee5!important}
+#cat-options .cdd-option:hover,#svc-options .cdd-option:hover{background:#33291f!important;border-color:rgba(255,164,54,.4)!important}
+#cat-options .cdd-option.selected,#svc-options .cdd-option.selected{background:rgba(255,148,31,.13)!important;border-color:#ff941f!important}
+#cat-options .cdd-opt-name,#svc-options .cdd-opt-name,#svc-options .svc-main-name,#svc-options .sada1550-service-name{color:#f7f2ea!important;-webkit-text-fill-color:#f7f2ea!important;white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.65!important}
+#cat-options .cdd-opt-badge{background:rgba(255,148,31,.10)!important;border-color:rgba(255,164,54,.27)!important;color:#ffc45b!important}
+#pg-order #svc-info-box .card{background:linear-gradient(150deg,#2a2a2c,#1d1d1f)!important;border-color:rgba(255,164,54,.28)!important}
+#pg-order #svc-info-box .sada-v1522-price{color:#ffc45b!important}
+#pg-order #order-form-card .inp{background:#171719!important;border-color:rgba(255,164,54,.27)!important;color:#fff!important}
+#pg-order #order-form-card .inp:focus{border-color:#ff941f!important;box-shadow:0 0 0 2px rgba(255,148,31,.12)!important;outline:none!important}
+#pg-order #order-form-card .qty-range,#pg-order #order-form-card .qty-range span{color:#d2c6b7!important}
+#pg-order #order-form-card .order-qty-box{background:#211f1d!important;border-color:rgba(255,164,54,.22)!important}
+#pg-order #order-total-bar{background:linear-gradient(135deg,rgba(255,148,31,.16),rgba(255,196,91,.06))!important;border:1px solid rgba(255,164,54,.40)!important;border-radius:13px!important;color:#fff!important}
+#pg-order #order-total-val{color:#ffc45b!important;font-weight:950!important}
+#pg-order #order-bal-info{color:#d8c7b1!important}
+#pg-order #order-form-card .btn.bp,#pg-order #order-form-card .btn.bok{background:linear-gradient(135deg,#ffd16a,#ff941f 62%,#f97316)!important;border:1px solid #ffdf9e!important;color:#24180b!important;box-shadow:0 8px 20px rgba(249,115,22,.18)!important;font-weight:950!important}
+#pg-order #order-form-card .btn.bp:disabled{opacity:.65!important}
+#pg-order #qty-min-label,#pg-order #qty-max-label{color:#d3c6b5!important}
+/* Category dropdown is grouped by platform; category names stay inside their platform group. */
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options{padding:7px!important;overflow-x:hidden!important}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .sada54-category-group{display:block;margin:0 0 9px;padding:4px;border:1px solid rgba(255,164,54,.22);border-radius:13px;background:#252527;overflow:hidden}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .sada54-category-heading{display:flex;align-items:center;gap:8px;padding:8px 8px;margin:0 0 4px;color:#ffc45b;font-size:12px;font-weight:950;line-height:1.7;background:linear-gradient(90deg,rgba(255,148,31,.10),transparent)}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .sada54-category-heading i{font-style:normal;display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:9px;background:#36302a;color:#ffbd69}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .sada54-category-heading span{flex:1;min-width:0}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .sada54-category-heading small{font-size:9px;color:#c1b6a7;border:1px solid rgba(255,164,54,.18);border-radius:99px;padding:2px 6px}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .sada54-platform-all{border:1px solid rgba(255,164,54,.24)!important;background:rgba(255,148,31,.09)!important}
+#cat-menu.cdd-menu[data-owner="cat-cdd"] #cat-options .sada54-platform-all .cdd-opt-name{color:#ffc45b!important;font-weight:950}
+/* Store public catalog and its manager share the orange/gold brand. */
+#sada-custom-shop-public-catalog{color:#f4eee5!important}
+#sada-custom-shop-public-catalog .sada32-store-hero{border-color:rgba(255,164,54,.38)!important;background:radial-gradient(ellipse at 8% 0,rgba(255,164,54,.18),transparent 48%),radial-gradient(ellipse at 100% 100%,rgba(249,115,22,.12),transparent 50%),linear-gradient(135deg,#292522,#1e1c1b 62%,#181818)!important;box-shadow:0 15px 36px rgba(0,0,0,.24)!important}
+#sada-custom-shop-public-catalog .sada32-store-hero p{color:#d3c6b5!important}
+#sada-custom-shop-public-catalog .sada38-store-welcome,#sada-custom-shop-public-catalog .card{border-color:rgba(255,164,54,.24)!important}
+#sada-custom-shop-public-catalog .sada38-store-welcome{background:linear-gradient(140deg,rgba(255,148,31,.12),rgba(255,255,255,.02))!important;color:#f2e5d3!important}
+#sada-custom-shop-public-catalog .sada54-store-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;align-items:stretch!important;min-width:0!important}
+#sada-custom-shop-public-catalog .sada38-category-card{background:linear-gradient(155deg,#2a2a2c,#1c1c1e)!important;border-color:rgba(255,164,54,.3)!important;box-shadow:0 8px 20px rgba(0,0,0,.18)!important}
+#sada-custom-shop-public-catalog .sada38-category-card:active{transform:scale(.99)!important}
+#sada-custom-shop-public-catalog article.card:not(.sada38-category-card),#sada-custom-shop-public-catalog .sada54-store-service{background:linear-gradient(155deg,#2a2927,#1c1c1e)!important;border-color:rgba(255,164,54,.28)!important;box-shadow:0 8px 20px rgba(0,0,0,.18)!important}
+#sada-custom-shop-public-catalog article.card:not(.sada38-category-card) h3,#sada-custom-shop-public-catalog .sada54-store-service h3{color:#fff5e8!important}
+#sada-custom-shop-public-catalog article.card:not(.sada38-category-card) p,#sada-custom-shop-public-catalog .sada54-store-service p{color:#d3c9bd!important}
+#sada-custom-shop-public-catalog article.card:not(.sada38-category-card) b,#sada-custom-shop-public-catalog .sada54-store-service b{color:#ffc45b!important}
+#sada-custom-shop-public-catalog article.card:not(.sada38-category-card) button,#sada-custom-shop-public-catalog .sada54-store-service button{background:linear-gradient(135deg,#ffd16a,#ff941f 62%,#f97316)!important;color:#24180b!important;border:1px solid #ffdf9e!important;border-radius:12px!important;box-shadow:0 6px 16px rgba(249,115,22,.12)!important}
+#modal-box.sada54-store-modal .m-hd{border-bottom-color:rgba(255,164,54,.25)!important}
+#modal-box.sada54-store-modal .m-ttl{color:#ffc45b!important}
+#modal-box.sada54-store-modal .m-body .card{background:linear-gradient(150deg,#29292b,#1d1d1f)!important;border-color:rgba(255,164,54,.25)!important;color:#f4eee5!important}
+#modal-box.sada54-store-modal .m-body .btn.bp,#modal-box.sada54-store-modal .m-body .btn.bok{background:linear-gradient(135deg,#ffd16a,#ff941f 62%,#f97316)!important;color:#24180b!important;border-color:#ffdf9e!important}
+#modal-box.sada54-store-modal .sada54-store-admin-root .card{background:linear-gradient(150deg,#29292b,#1d1d1f)!important;border-color:rgba(255,164,54,.25)!important;color:#f4eee5!important}
+#modal-box.sada54-store-modal .sada54-store-admin-root input:focus,#modal-box.sada54-store-modal .sada54-store-admin-root select:focus,#modal-box.sada54-store-modal .sada54-store-admin-root textarea:focus{border-color:#ff941f!important;box-shadow:0 0 0 2px rgba(255,148,31,.12)!important}
+@media(max-width:420px){#sada-custom-shop-public-catalog .sada54-store-list{grid-template-columns:minmax(0,1fr)!important}#pg-order .plat-grid{gap:7px!important}#pg-order .plat-ic-btn{min-width:0!important}}
+/* The detached dropdown must never fall back into the form as an inline, full-width block. */
+#cat-menu.cdd-menu:not(.open),#svc-menu.cdd-menu:not(.open){display:none!important;pointer-events:none!important}
+#cat-menu.cdd-menu[data-owner="cat-cdd"].open,#svc-menu.cdd-menu[data-owner="svc-cdd"].open{display:flex!important;pointer-events:auto!important}
+</style>
+
+<script id="sadairaq-v54-final-category-picker-and-dropdown-fix">
+(function(){
+ 'use strict';
+ const byId=id=>document.getElementById(id);
+ const defs=[
+  {id:'instagram',label:'إنستغرام',icon:'📸',rx:/instagram|insta\b|انستغرام|انستجرام|انستا/},
+  {id:'telegram',label:'تيليجرام',icon:'✈️',rx:/telegram|تيليجرام|تليجرام|تلغرام|تلجرام/},
+  {id:'tiktok',label:'تيك توك',icon:'♪',rx:/tiktok|tik\s*tok|تيك\s*توك|تيكتوك/},
+  {id:'whatsapp',label:'واتساب',icon:'◉',rx:/whatsapp|واتساب/},
+  {id:'facebook',label:'فيسبوك',icon:'f',rx:/facebook|فيسبوك/},
+  {id:'youtube',label:'يوتيوب',icon:'▶',rx:/youtube|يوتيوب/},
+  {id:'twitter',label:'تويتر / X',icon:'𝕏',rx:/twitter|تويتر|(^|\s)x($|\s)/},
+  {id:'snapchat',label:'سناب شات',icon:'👻',rx:/snapchat|سناب/},
+  {id:'threads',label:'ثريدز',icon:'@',rx:/threads|ثريدز/},
+  {id:'spotify',label:'Spotify',icon:'♫',rx:/spotify|سبوتيفاي/},
+  {id:'clubhouse',label:'Clubhouse',icon:'◌',rx:/clubhouse|كلوب هاوس/},
+  {id:'twitch',label:'Twitch',icon:'▣',rx:/twitch|تويتش/},
+  {id:'linkedin',label:'LinkedIn',icon:'in',rx:/linkedin|لينكدان|لينكدإن/},
+  {id:'discord',label:'Discord',icon:'◉',rx:/discord|ديسكورد/},
+  {id:'pubg',label:'PUBG / ببجي',icon:'🎮',rx:/pubg|ببجي/},
+  {id:'other',label:'منصات أخرى',icon:'◆',rx:/(?!)/}
+ ];
+ const norm=v=>String(v??'').toLowerCase().normalize('NFKC').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/[ًٌٍَُِّْـ]/g,'').trim();
+ function services(){try{if(Array.isArray(ALL_SVCS_ARR))return ALL_SVCS_ARR}catch(_){}return Array.isArray(window.ALL_SVCS_ARR)?window.ALL_SVCS_ARR:[]}
+ function catsMap(){try{if(ALL_CATS&&typeof ALL_CATS==='object')return ALL_CATS}catch(_){}return window.ALL_CATS||{}}
+ function selectedPlatform(){let raw='all';try{raw=String(SEL_PLAT||'all')}catch(_){};const z=norm(raw);if(!z||z==='all'||z==='الكل')return 'all';for(const d of defs)if(d.rx.test(z)||norm(d.label)===z||d.id===z)return d.id;return 'all'}
+ function detectPlatform(s){
+  const explicit=[s?.app,s?.platform,s?.serviceApp,s?.servicePlatform,s?.platformName,s?.platform_name,s?.network,s?.appName,s?.application,s?.providerCategory,...(Array.isArray(s?.apps)?s.apps:[]),...(Array.isArray(s?.platforms)?s.platforms:[]),...(Array.isArray(s?.supportedPlatforms)?s.supportedPlatforms:[])].filter(Boolean).map(norm).join(' ');
+  for(const d of defs)if(d.id!=='other'&&d.rx.test(explicit))return d.id;
+  const name=norm([s?.name,s?.serviceName,s?.service,s?.title,s?.description,s?.serviceDescription].filter(Boolean).join(' '));for(const d of defs)if(d.id!=='other'&&d.rx.test(name))return d.id;
+  const metadata=norm([s?.category,s?.section,s?.sectionName,...(Array.isArray(s?.groups)?s.groups:[]),...(Array.isArray(s?.categories)?s.categories:[])].filter(Boolean).join(' '));for(const d of defs)if(d.id!=='other'&&d.rx.test(metadata))return d.id;
+  return 'other';
+ }
+ function serviceGroups(s){const out=[];for(const x of [...(Array.isArray(s?.groups)?s.groups:[]),...(Array.isArray(s?.categories)?s.categories:[]),s?.category,s?.section,s?.sectionName]){const v=String(x||'').trim();if(v&&!out.some(a=>norm(a)===norm(v)))out.push(v)}return out}
+ function categories(){const src=catsMap(),names=[];const seen=new Set();const add=v=>{const z=String(v||'').trim(),k=norm(z);if(z&&k&&k!=='__all__'&&!k.startsWith('__sada54')&&!defs.some(d=>d.id===k||norm(d.label)===k)&&!seen.has(k)){seen.add(k);names.push(z)}};Object.keys(src||{}).forEach(add);try{Object.keys(window.SECTION_META||{}).forEach(add)}catch(_){};services().forEach(s=>serviceGroups(s).forEach(add));return names}
+ function categoryRows(cat){const map=catsMap();if(Array.isArray(map?.[cat]))return map[cat].slice();const k=norm(cat);return services().filter(s=>serviceGroups(s).some(g=>norm(g)===k))}
+ function createOption({key,label,platform,count,icon,allPlatform=false}){const row=document.createElement('div');row.className='cdd-option sada54-cat-option'+(allPlatform?' sada54-platform-all':'');row.dataset.sada54Category=key;row.dataset.sada54Platform=platform||'';row.setAttribute('role','option');row.tabIndex=0;const im=document.createElement('span');im.className='sada54-cat-option-icon';im.textContent=icon||'◆';const name=document.createElement('span');name.className='cdd-opt-name';name.textContent=label;name.style.cssText='flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere';const badge=document.createElement('span');badge.className='cdd-opt-badge';badge.textContent=Number(count||0).toLocaleString('ar-IQ');row.append(im,name,badge);const choose=ev=>{ev?.preventDefault?.();ev?.stopPropagation?.();const plat=platform||'';window.SADA_CATEGORY_PLATFORM=plat;const chosen=String(key||'__all__');try{SEL_CAT=chosen;SEL_SVC=null}catch(_){};window.SEL_CAT=chosen;window.SEL_SVC=null;const labelEl=byId('cat-label');if(labelEl)labelEl.textContent=label;const iconEl=byId('cat-icon');if(iconEl){const x=document.createElement('span');x.className='sada54-cat-trigger-icon';x.textContent=icon||'◆';iconEl.replaceChildren(x)};try{window.closeAllCDD?.()}catch(_){};try{window.buildSvcDD?.(chosen)}catch(err){console.error('Sada 5.4 service picker render failed',err)};const svcLabel=byId('svc-label');if(svcLabel)svcLabel.textContent='اختر الخدمة...';const info=byId('svc-info-box');if(info){info.style.display='none';info.replaceChildren()}const total=byId('order-total-bar');if(total)total.style.display='none';};row.addEventListener('click',choose);row.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){choose(ev)}});return row}
+ function buildCategoryMenu(){
+  const menu=byId('cat-options');if(!menu)return;menu.replaceChildren();
+  const currentPlat=selectedPlatform(),all=services(),cats=categories(),displayDefs=defs.filter(d=>d.id!=='other'&&(currentPlat==='all'||currentPlat===d.id));
+  const allGroup=document.createElement('div');allGroup.className='sada54-category-group sada54-all-category-group';
+  const allCount=currentPlat==='all'?all.length:all.filter(s=>detectPlatform(s)===currentPlat).length;
+  allGroup.appendChild(createOption({key:'__all__',label:currentPlat==='all'?'الكل':'كل خدمات '+(defs.find(d=>d.id===currentPlat)?.label||currentPlat),platform:'',count:allCount,icon:'▱'}));menu.appendChild(allGroup);
+  for(const d of displayDefs){
+    const platformServices=all.filter(s=>detectPlatform(s)===d.id);
+    if(!platformServices.length)continue;
+    const section=document.createElement('section');section.className='sada54-category-group';section.dataset.platform=d.id;
+    const head=document.createElement('div');head.className='sada54-category-heading';const ico=document.createElement('i');ico.textContent=d.icon;const title=document.createElement('span');title.textContent=d.label;const n=document.createElement('small');n.textContent=platformServices.length.toLocaleString('ar-IQ')+' خدمة';head.append(ico,title,n);section.appendChild(head);
+    section.appendChild(createOption({key:'__platform__'+d.id,label:'كل خدمات '+d.label,platform:d.id,count:platformServices.length,icon:d.icon,allPlatform:true}));
+    for(const cat of cats){const members=categoryRows(cat).filter(s=>detectPlatform(s)===d.id);if(!members.length)continue;section.appendChild(createOption({key:cat,label:cat,platform:d.id,count:members.length,icon:'▰'}));}
+    menu.appendChild(section);
+  }
+  if(displayDefs.length===0||!displayDefs.some(d=>all.some(s=>detectPlatform(s)===d.id))){const other=all.filter(s=>detectPlatform(s)==='other');if(other.length){const sec=document.createElement('section');sec.className='sada54-category-group';const h=document.createElement('div');h.className='sada54-category-heading';h.innerHTML='<i>◆</i><span>منصات أخرى</span><small>'+other.length.toLocaleString('ar-IQ')+' خدمة</small>';sec.appendChild(h);const seen=new Set();for(const cat of cats){const members=categoryRows(cat).filter(s=>detectPlatform(s)==='other');if(members.length&&!seen.has(norm(cat))){seen.add(norm(cat));sec.appendChild(createOption({key:cat,label:cat,platform:'other',count:members.length,icon:'▰'}))}}menu.appendChild(sec)}}
+ }
+ // Preserve the existing proven service-card renderer, but scope its source to a selected platform/category.
+ const baseBuildSvc=window.buildSvcDD;
+ window.buildSvcDD=function(category){
+   const originalCat=String(category||'__all__');let forced='';
+   if(originalCat.startsWith('__platform__'))forced=originalCat.slice('__platform__'.length);
+   else forced=String(window.SADA_CATEGORY_PLATFORM||'');
+   if(!forced||typeof baseBuildSvc!=='function')return baseBuildSvc?.apply(this,arguments);
+   const all=services();let raw;
+   if(originalCat==='__all__'||originalCat.startsWith('__platform__'))raw=all.slice();
+   else raw=categoryRows(originalCat);
+   const filtered=raw.filter(s=>detectPlatform(s)===forced);
+   const map=catsMap(),temp='__sada54_scoped__'+forced+'__'+norm(originalCat).replace(/[^a-z0-9\u0600-\u06ff]+/g,'_');
+   const had=Object.prototype.hasOwnProperty.call(map,temp),old=map[temp];map[temp]=filtered;
+   const target=byId('svc-options');if(target)target.dataset.sadaLastKey='';
+   let oldPlat;try{oldPlat=SEL_PLAT;SEL_PLAT='all'}catch(_){}
+   try{return baseBuildSvc.call(this,temp)}finally{try{if(oldPlat!==undefined)SEL_PLAT=oldPlat}catch(_){};if(had)map[temp]=old;else delete map[temp]}
+ };
+ window.buildCatDD=buildCategoryMenu;
+ window.filterCatDD=function(){const q=norm(byId('cat-search')?.value||'');const menu=byId('cat-options');if(!menu)return;menu.querySelectorAll('.cdd-option').forEach(row=>{const match=!q||norm(row.textContent).includes(q);row.style.display=match?'':'none'});menu.querySelectorAll('.sada54-category-group').forEach(group=>{const has=[...group.querySelectorAll('.cdd-option')].some(row=>row.style.display!=='none');group.style.display=has?'':'none';const h=group.querySelector('.sada54-category-heading');if(h)h.style.display=has?'':'none'})};
+ const baseFilterSvcDD=window.filterSvcDD;
+ function syncServiceGroupVisibility(){const menu=byId('svc-options');if(!menu)return;menu.querySelectorAll('.sada53-platform-group').forEach(group=>{const rows=[...group.querySelectorAll('.cdd-option,.sada1550-service-row,.sada226-service-card')];group.style.display=rows.some(row=>getComputedStyle(row).display!=='none')?'':'none'});}
+ window.filterSvcDD=function(){const menu=byId('svc-options');if(!menu)return;const q=norm(byId('svc-search-inp')?.value||'');if(typeof menu._sada1550RenderSearch==='function'&&typeof baseFilterSvcDD==='function'){baseFilterSvcDD.apply(this,arguments);setTimeout(syncServiceGroupVisibility,100);return;}const rows=[...menu.querySelectorAll('.cdd-option,.sada1550-service-row,.sada226-service-card')];rows.forEach(row=>{row.style.display=!q||norm(row.textContent).includes(q)?'':'none'});syncServiceGroupVisibility();};
+ // Explicit platform grid selection clears temporary category-scoped filtering.
+ const oldSelectPlat=window.selectPlat;if(typeof oldSelectPlat==='function'&&!oldSelectPlat.__sada54ResetFilter){const patched=function(){window.SADA_CATEGORY_PLATFORM='';return oldSelectPlat.apply(this,arguments)};patched.__sada54ResetFilter=true;window.selectPlat=patched;}
+ // Fix detached-menu lifecycle: remove ownership on close so search panels never render inline in the page.
+ const oldClose=window.closeAllCDD;
+ function cleanupMenuListeners(menu){const fn=menu?._reposFn;if(fn){window.removeEventListener('scroll',fn);window.removeEventListener('resize',fn);if(menu._scrollParents)menu._scrollParents.forEach(p=>p.removeEventListener('scroll',fn));if(window.visualViewport&&menu._vvReposFn){window.visualViewport.removeEventListener('scroll',fn);window.visualViewport.removeEventListener('resize',fn)}}if(menu){menu._reposFn=null;menu._vvReposFn=null;menu._scrollParents=null}}
+ window.closeAllCDD=function(){try{oldClose?.apply(this,arguments)}finally{document.querySelectorAll('#cat-menu.cdd-menu,#svc-menu.cdd-menu').forEach(menu=>{if(!menu.classList.contains('open')){cleanupMenuListeners(menu);if(menu._origParent&&menu.parentElement===document.body){try{menu._origParent.appendChild(menu)}catch(_){}}menu.removeAttribute('data-owner');menu.removeAttribute('style');menu._triggerBtn=null;}})}};
+ window.toggleCDD=function(id,e){if(e)e.stopPropagation();const wrap=byId(id);if(!wrap)return;let menu=wrap.querySelector('.cdd-menu')||document.querySelector('.cdd-menu[data-owner="'+id+'"]');const btn=wrap.querySelector('.cdd-trigger');if(!menu||!btn)return;const wasOpen=menu.classList.contains('open');window.closeAllCDD();if(wasOpen)return;menu=wrap.querySelector('.cdd-menu')||document.querySelector('#'+(id==='cat-cdd'?'cat-menu':'svc-menu'));if(!menu)return;menu.setAttribute('data-owner',id);if(menu.parentElement!==document.body){menu._origParent=wrap;document.body.appendChild(menu)}menu._triggerBtn=btn;menu._cddId=id;menu.classList.add('open');btn.classList.add('active');try{if(typeof window._cddPos==='function')window._cddPos(btn,menu,id);else if(typeof _cddPos==='function')_cddPos(btn,menu,id);else{const r=btn.getBoundingClientRect(),w=Math.min(r.width,innerWidth-20),h=Math.min(id==='svc-cdd'?Math.round(innerHeight*.62):Math.round(innerHeight*.48),innerHeight-20),top=Math.max(10,Math.min(r.bottom+6,innerHeight-h-10));menu.style.cssText='position:fixed;right:'+Math.max(10,innerWidth-r.right)+'px;top:'+top+'px;width:'+w+'px;height:'+h+'px;display:flex;flex-direction:column;overflow:hidden;z-index:999999'}}catch(err){console.warn('Sada 5.4 dropdown positioning',err)};const reposition=()=>{if(menu.classList.contains('open')){try{if(typeof _cddPos==='function')_cddPos(btn,menu,id)}catch(_){}}};menu._reposFn=reposition;try{menu._scrollParents=typeof _getScrollParents==='function'?_getScrollParents(btn):[];menu._scrollParents.forEach(parent=>parent.addEventListener('scroll',reposition,{passive:true}))}catch(_){}window.addEventListener('scroll',reposition,{passive:true});window.addEventListener('resize',reposition,{passive:true});if(window.visualViewport){menu._vvReposFn=reposition;window.visualViewport.addEventListener('scroll',reposition,{passive:true});window.visualViewport.addEventListener('resize',reposition,{passive:true});}};
+ // Style the manual store dynamically rendered cards and tint its modal consistently.
+ function styleStore(){const root=byId('sada-custom-shop-public-catalog');if(root){const list=[...root.children].find(el=>String(el.style?.gridTemplateColumns||el.style?.cssText||'').includes('repeat(2,minmax(0,1fr)')&&el!==root.querySelector('.sada38-store-welcome'));if(list){list.classList.add('sada54-store-list');[...list.children].forEach(child=>{if(child.matches('article.card')&&!child.classList.contains('sada38-category-card'))child.classList.add('sada54-store-service')})}}
+   const title=byId('m-title'),box=byId('modal-box');if(!title||!box)return;const text=String(title.textContent||'');const store=/متجر صدى العراق|تأكيد شراء|تم الشراء بنجاح/.test(text);box.classList.toggle('sada54-store-modal',store);const body=byId('m-body');const admin=/إدارة الأقسام والخدمات/.test(text);if(admin&&body?.firstElementChild)body.firstElementChild.classList.add('sada54-store-admin-root');
+ }
+ const observer=new MutationObserver(()=>{try{styleStore()}catch(_){}});const title=byId('m-title'),body=byId('m-body');if(title)observer.observe(title,{childList:true,subtree:true,characterData:true});if(body)observer.observe(body,{childList:true});styleStore();
+ window.SADAIRAQ_V54={version:'5.4',categoryGroupsByPlatform:true,serviceDropdownReopenFix:true,orderTheme:'orange-gold-charcoal',storeTheme:'orange-gold-charcoal',detectPlatform,categoryRows};
+ const initialPickerRefresh=()=>{try{if(byId('cat-options')&&services().length){window.buildCatDD?.(selectedPlatform());window.buildSvcDD?.(window.SEL_CAT||'__all__')}}catch(err){console.warn('Sada 5.4 initial picker refresh failed',err)}};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(initialPickerRefresh,0),{once:true});else setTimeout(initialPickerRefresh,0);
 })();
 </script>
