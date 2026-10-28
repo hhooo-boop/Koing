@@ -1,2 +1,2 @@
 // Sada Iraq current release marker.
-window.SadaIraqAPI = window.SadaIraqAPI || {version:'3.6',buildId:'SADA-3.6-ROOT-SAFE-BUILD-PREFLIGHT-20261028'};
+window.SadaIraqAPI = window.SadaIraqAPI || {version:'3.7',buildId:'SADA-3.7-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261028'};
