@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="sada-version" content="6.0">
-<meta name="sada-build-id" content="SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029">
+<meta name="sada-version" content="6.1">
+<meta name="sada-build-id" content="SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029">
 <script id="sada168-session-presence">try{window.__SADA_BOOT_HAD_SESSION=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'));}catch(_){window.__SADA_BOOT_HAD_SESSION=false}</script>
 
 <style id="sada167-preboot-splash-style">
@@ -2853,21 +2853,21 @@ html.sada-lite-motion .ks-particle{display:none!important}
         </div>
         <div class="sada-side-main">
           <div class="sada-side-copy">
-            <div class="sada-side-eyebrow"><span></span> من العراق إلى العالم</div>
+            <div class="sada-side-eyebrow"><span></span> SADA IRAQ · من العراق إلى العالم</div>
             <h3>خطوتك إلى <em>الانتشار</em></h3>
-            <p>خدماتك الاجتماعية في مكان واحد، وبواجهة عراقية واضحة.</p>
+            <p>خدمات اجتماعية متنوعة، واختيار أوضح، ومتابعة أسهل لطلباتك.</p>
           </div>
           <div class="sada-side-orbit" aria-hidden="true">
             <div class="sada-side-ring r2"></div><div class="sada-side-ring"></div><div class="sada-side-ring r3"></div>
             <div class="sada-side-core"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17.5 9 12.5l3.5 2.6L20 6.8" stroke="#fffaf2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.8 6.8H20v4.1" stroke="#fffaf2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <span class="sada-side-chip c1">♥</span><span class="sada-side-chip c2">✦</span><span class="sada-side-chip c3">↗</span>
+            <div class="sada-side-orbiting-chips" aria-hidden="true"><span class="sada-side-chip c1"><i class="fas fa-heart"></i></span><span class="sada-side-chip c2"><i class="fas fa-star"></i></span><span class="sada-side-chip c3"><i class="fas fa-user-plus"></i></span></div>
           </div>
         </div>
         <div class="sada-side-bottom">
-          <div class="sada-side-reach"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 12h17M12 3c2.2 2.5 3.2 5.5 3.2 9S14.2 18.5 12 21M12 3C9.8 5.5 8.8 8.5 8.8 12S9.8 18.5 12 21" stroke="currentColor" stroke-width="1.5"/></svg><span>مجتمع عربي</span></div>
+          <div class="sada-side-reach"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 12h17M12 3c2.2 2.5 3.2 5.5 3.2 9S14.2 18.5 12 21M12 3C9.8 5.5 8.8 8.5 8.8 12S9.8 18.5 12 21" stroke="currentColor" stroke-width="1.5"/></svg><span>خدمات من صدى العراق</span></div>
           <div class="sada-side-flags" aria-label="أعلام عربية"><span title="العراق">🇮🇶</span><span title="السعودية">🇸🇦</span><span title="الإمارات">🇦🇪</span><span title="الكويت">🇰🇼</span><span title="قطر">🇶🇦</span><span title="البحرين">🇧🇭</span></div>
         </div>
-        <div class="sada-side-note">صدى العراق · تصميم أصلي خاص بالمشروع</div>
+        <button type="button" class="sada-side-about-cta" onclick="nav('about');closeSB()"><span>من نحن</span><i class="fas fa-arrow-left" aria-hidden="true"></i></button><div class="sada-side-note">صدى العراق © 2026 · جميع الحقوق محفوظة</div>
       </section>
 
       <!-- Currency selector (mobile drawer only) -->
@@ -2889,6 +2889,8 @@ html.sada-lite-motion .ks-particle{display:none!important}
       <div class="sb-link on" id="snav-order" onclick="nav('order');closeSB()"><i class="fas fa-plus-circle"></i><span>إنشاء طلب</span></div>
       <div class="sb-link" id="snav-home" onclick="showUserModal();closeSB()"><i class="fas fa-user-circle"></i><span>حسابي</span></div>
       <div class="sb-link" id="snav-orders" onclick="nav('orders');closeSB()"><i class="fas fa-cart-shopping"></i><span>طلباتي</span><span class="sbn sbn-b" id="ord-badge" style="display:none">0</span></div>
+      <div class="sb-grp">عن صدى العراق</div>
+      <div class="sb-link" id="snav-about" onclick="nav('about');closeSB()"><i class="fas fa-circle-info"></i><span>من نحن</span></div>
       <div class="sb-grp">الحساب</div>
       <div class="sb-link" id="snav-api" onclick="nav('api');closeSB()"><i class="fas fa-plug"></i><span>API</span></div>
       <div class="sb-link" id="snav-wallet" onclick="nav('wallet');closeSB()"><i class="fas fa-wallet"></i><span>شحن الرصيد</span></div>
@@ -2907,7 +2909,7 @@ html.sada-lite-motion .ks-particle{display:none!important}
         </div>
         <i class="fas fa-ellipsis" style="color:var(--t2);font-size:12px;flex-shrink:0"></i>
       </div>
-      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 6.0"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>6.0</b></div>
+      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 6.1"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>6.1</b></div>
     </div>
   </div>
 
@@ -2926,6 +2928,66 @@ html.sada-lite-motion .ks-particle{display:none!important}
 
     <!-- Page content -->
     <div class="pc">
+
+      <!-- SADA IRAQ: Original animated About Us page -->
+      <section id="pg-about" class="pg sada61-about-page" aria-labelledby="sada61-about-title">
+        <div class="sada61-about-hero">
+          <div class="sada61-about-hero-top">
+            <div class="sada61-about-brandmark" aria-hidden="true">ص</div>
+            <div class="sada61-about-brandtext"><b>صدى العراق</b><span>منصة عراقية لخدمات التواصل الاجتماعي</span></div>
+            <span class="sada61-about-badge"><i class="fas fa-sparkles" aria-hidden="true"></i> هويتنا عراقية</span>
+          </div>
+          <div class="sada61-about-hero-main">
+            <div class="sada61-about-copy">
+              <span class="sada61-about-eyebrow"><i class="fas fa-circle-nodes" aria-hidden="true"></i> من العراق إلى العالم</span>
+              <h1 id="sada61-about-title">أهلاً بك في <em>صدى العراق</em></h1>
+              <p>نرتّب لك خدمات التواصل الاجتماعي في تجربة عربية واضحة؛ تختار الخدمة، تتابع طلبك، وتبقى تفاصيلك أمامك بسهولة.</p>
+              <div class="sada61-about-actions">
+                <button type="button" class="sada61-about-primary" onclick="nav('order')">ابدأ الآن <i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+                <button type="button" class="sada61-about-secondary" onclick="document.getElementById('sada61-about-story')?.scrollIntoView({behavior:'smooth',block:'start'})">تعرّف علينا <i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+              </div>
+            </div>
+            <div class="sada61-about-visual" aria-label="رسم متحرك يرمز إلى نمو التواصل الاجتماعي">
+              <div class="sada61-about-map-glow"></div>
+              <div class="sada61-about-orbit orbit-a"></div><div class="sada61-about-orbit orbit-b"></div><div class="sada61-about-orbit orbit-c"></div>
+              <div class="sada61-about-center"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 45 22 31l10 7 19-23" fill="none" stroke="#fff7e8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 15h11v11" fill="none" stroke="#fff7e8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="45" r="3" fill="#fff"/><circle cx="22" cy="31" r="3" fill="#fff"/><circle cx="32" cy="38" r="3" fill="#fff"/><circle cx="51" cy="15" r="3" fill="#fff"/></svg></div>
+              <span class="sada61-about-social instagram"><i class="fab fa-instagram" aria-hidden="true"></i></span>
+              <span class="sada61-about-social tiktok"><i class="fab fa-tiktok" aria-hidden="true"></i></span>
+              <span class="sada61-about-social telegram"><i class="fab fa-telegram-plane" aria-hidden="true"></i></span>
+              <span class="sada61-about-social youtube"><i class="fab fa-youtube" aria-hidden="true"></i></span>
+              <span class="sada61-about-social facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></span>
+              <span class="sada61-about-spark spark-a"></span><span class="sada61-about-spark spark-b"></span><span class="sada61-about-spark spark-c"></span>
+            </div>
+          </div>
+          <div class="sada61-about-pill-row"><span><i class="fas fa-layer-group"></i> خدمات متنوعة</span><span><i class="fas fa-list-check"></i> متابعة أوضح</span><span><i class="fas fa-mobile-screen"></i> تجربة مناسبة للهاتف</span></div>
+        </div>
+
+        <section id="sada61-about-story" class="sada61-about-section">
+          <div class="sada61-about-section-head"><span>قصتنا</span><h2>خدمات أقرب، وتجربة أوضح</h2><p>صدى العراق مشروع يهدف إلى جمع خيارات الخدمات في واجهة عربية سهلة، مع إظهار تفاصيل الطلب وحالته بطريقة مفهومة.</p></div>
+          <div class="sada61-about-values">
+            <article class="sada61-about-value"><span class="sada61-about-value-icon"><i class="fas fa-compass"></i></span><h3>اختيار منظّم</h3><p>تصفح المنصات والفئات والخدمات ضمن قوائم مرتّبة بدلاً من التشتت بين الصفحات.</p></article>
+            <article class="sada61-about-value"><span class="sada61-about-value-icon"><i class="fas fa-receipt"></i></span><h3>تفاصيل واضحة</h3><p>معلومات الطلب والسعر والكمية والرابط والحالة في مكان يسهل الرجوع إليه.</p></article>
+            <article class="sada61-about-value"><span class="sada61-about-value-icon"><i class="fas fa-arrows-rotate"></i></span><h3>متابعة الطلب</h3><p>عرض حالة الطلب حسب البيانات التي تصل من نظام التنفيذ، مع سجل يمكن مراجعته.</p></article>
+            <article class="sada61-about-value"><span class="sada61-about-value-icon"><i class="fas fa-wand-magic-sparkles"></i></span><h3>تطوير مستمر</h3><p>نعمل على تحسين سهولة الاستخدام وتنظيم القوائم مع الحفاظ على بيانات المستخدمين.</p></article>
+          </div>
+        </section>
+
+        <section class="sada61-about-journey">
+          <div class="sada61-about-section-head"><span>كيف تستخدم صدى العراق؟</span><h2>ثلاث خطوات بسيطة</h2><p>واجهة واضحة من اختيار الخدمة وحتى متابعة الطلب.</p></div>
+          <div class="sada61-about-steps">
+            <div class="sada61-about-step"><b>01</b><div><h3>اختر المنصة والخدمة</h3><p>حدد المنصة، ثم الفئة والخدمة المناسبة من الخيارات المتاحة.</p></div></div>
+            <div class="sada61-about-step"><b>02</b><div><h3>أدخل تفاصيل الطلب</h3><p>أدخل رابط الحساب أو المنشور والكمية المطلوبة، وراجع السعر قبل التأكيد.</p></div></div>
+            <div class="sada61-about-step"><b>03</b><div><h3>تابع حالة طلبك</h3><p>افتح صفحة «طلباتي» لمراجعة الحالة والتفاصيل عند توفر تحديثات التنفيذ.</p></div></div>
+          </div>
+        </section>
+
+        <section class="sada61-about-platforms">
+          <div><span class="sada61-about-platform-kicker">كل شيء في مكان واحد</span><h2>منصات متعددة، وواجهة واحدة</h2><p>تختلف الخدمات المتاحة بحسب الكتالوج الحالي، وتظهر المنصة وفئتها لتسهيل الاختيار.</p></div>
+          <div class="sada61-about-platform-chips"><span><i class="fab fa-instagram"></i> إنستغرام</span><span><i class="fab fa-tiktok"></i> تيك توك</span><span><i class="fab fa-telegram-plane"></i> تيليجرام</span><span><i class="fab fa-youtube"></i> يوتيوب</span><span><i class="fab fa-facebook-f"></i> فيسبوك</span><span><i class="fab fa-whatsapp"></i> واتساب</span></div>
+        </section>
+
+        <section class="sada61-about-final"><div class="sada61-about-final-orb" aria-hidden="true"><i class="fas fa-crown"></i></div><h2>جاهز تبدأ مع صدى العراق؟</h2><p>تصفّح الخدمات المتاحة واختر ما يناسبك، وتأكد من تفاصيل الطلب قبل تأكيده.</p><button type="button" class="sada61-about-primary" onclick="nav('order')">إنشاء طلب جديد <i class="fas fa-arrow-left" aria-hidden="true"></i></button><small>صدى العراق © 2026 · جميع الحقوق محفوظة</small></section>
+      </section>
 
       <!-- HOME PAGE -->
       <div id="pg-home" class="pg on">
@@ -3853,7 +3915,7 @@ function updateUI() {
 }
 
 // ── NAVIGATION ───────────────────────────────────────────
-const PG = {home:"حسابي",order:"طلب خدمة",orders:"طلباتي",wallet:"المحفظة",support:"الدعم الفني",admin:"الإدارة",converter:"محول العملات"};
+const PG = {home:"حسابي",order:"طلب خدمة",orders:"طلباتي",wallet:"المحفظة",support:"الدعم الفني",admin:"الإدارة",converter:"محول العملات",about:"من نحن"};
 function nav(name) {
   document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
   const pg=$("pg-"+name); if(pg) pg.classList.add("on");
@@ -6719,7 +6781,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
   };
   // Refresh the catalog index only; never rewrite every service's image on page load.
   setTimeout(()=>{hydrateAllCategoryMeta().then(()=>{repairServiceIndex();try{window.buildCatDD?.();window.buildSvcDD?.(SEL_CAT||'__all__')}catch(_){}})},900);
-  window.SadaIraqBuildId='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+  window.SadaIraqBuildId='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
 })();
 
 </script>
@@ -8434,7 +8496,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
 ═══════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  const SADA_VERSION='6.0';
+  const SADA_VERSION='6.1';
   const RATE=1250;
   const ATHIR_NUMBER='07903221783';
     window.SadaIraqVersion=SADA_VERSION;
@@ -8455,7 +8517,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
       b=document.createElement('div'); b.id='sadairaq-version-badge';
       document.body.appendChild(b);
     }
-    const EXPECTED_BUILD='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+    const EXPECTED_BUILD='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
     const applyClientVersion=()=>{
       b.dataset.deployState='checking';
       b.textContent='صدى العراق · الإصدار '+SADA_VERSION+' · جارٍ فحص الخادم…';
@@ -8805,7 +8867,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
   const ensure=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   window.SECTION_META=window.SECTION_META||{};
   window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+window.SadaIraqBuildId='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
 
   function safe(v){return txt(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
   function appLabel(id){const p=(CFG.platforms||[]).find(x=>x.id===id);return p?.lbl||id||'عام';}
@@ -9226,13 +9288,13 @@ window.SadaIraqBuildId='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029
 <script>
 (function(){
 'use strict';
-const V='6.0';
+const V='6.1';
 const $=id=>document.getElementById(id);
 const safe=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 const api=window.apiJSON||((p,o)=>fetch(p,Object.assign({credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'}},o||{})).then(async r=>{const t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch(_){d={error:t}}if(!r.ok||d.error)throw new Error(d.error||('HTTP '+r.status));return d;}));
 const mk=window.mk||((tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;});
 window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+window.SadaIraqBuildId='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
 
 function setVersion(){
   const b=$('sadairaq-version-badge');
@@ -12489,7 +12551,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   document.addEventListener('DOMContentLoaded',startFinal);window.addEventListener('load',()=>setTimeout(startFinal,100));setTimeout(startFinal,250);setTimeout(startFinal,1200);
   // Observe the whole document so both independent controls survive page/route re-renders.
   if(document.body){const mo=new MutationObserver(()=>{ensureOrderWhatsApp();});mo.observe(document.body,{childList:true,subtree:true});}
-  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029',hasFetchGuard:true,orderAudit:true};
+  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029',hasFetchGuard:true,orderAudit:true};
 })();
 </script>
 
@@ -13322,7 +13384,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada1666-welcome-refunds-admin-splash">
 (function(){
  'use strict';
- const BUILD='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+ const BUILD='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -13528,7 +13590,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada167-earn-notifications-dashboard">
 (function(){
 'use strict';
-const BUILD='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+const BUILD='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=v=>'$'+Math.max(0,Number(v)||0).toFixed(2);
@@ -14179,8 +14241,8 @@ window.SADA_V1626_RELEASE={version:'1.6.86',features:['earn-page-premium-order',
 <script id="sada1629-runtime-version-badge-fix">
 (function(){
   'use strict';
-  const EXPECTED_VERSION='6.0';
-  const EXPECTED_BUILD='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+  const EXPECTED_VERSION='6.1';
+  const EXPECTED_BUILD='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
   const $=id=>document.getElementById(id);
   function ensureBadge(){
     let b=$('sadairaq-version-badge');
@@ -15697,7 +15759,7 @@ window.SADA_V1599_FIXES={version:'1.6.86',features:['telegram-stable-server-deri
 </style>
 <script id="sada174-version-fix">
 (function(){
-  const version='6.0';
+  const version='6.1';
   document.querySelectorAll('[data-sada-version]').forEach(el=>{el.textContent=version});
   const versionNodes=[...document.querySelectorAll('body *')].filter(el=>el.children.length===0 && /^1\.5\.73$/.test((el.textContent||'').trim()));
   versionNodes.forEach(el=>{if(!el.closest('script,style,code,pre'))el.textContent=version});
@@ -16417,7 +16479,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 .sada-sidebar-version{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px 9px;border:1px solid rgba(48,221,199,.2);border-radius:12px;background:linear-gradient(110deg,rgba(48,221,199,.07),rgba(124,111,247,.08));color:var(--t2);font-size:10px;font-weight:800;letter-spacing:.15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}.sada-sidebar-version i{color:var(--teal);filter:drop-shadow(0 0 5px rgba(48,221,199,.25))}.sada-sidebar-version b{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:4px 8px;border:1px solid rgba(48,221,199,.32);border-radius:999px;background:rgba(48,221,199,.1);color:var(--teal);font-size:11px;font-weight:1000;box-shadow:0 0 14px rgba(48,221,199,.06)}.sb-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 </style>
 <script id="sada-v2-sidebar-only-version">
-(function(){'use strict';const shown='6.0';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
+(function(){'use strict';const shown='6.1';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
 </script>
 
 <script id="sada-free-services-21">
@@ -16854,7 +16916,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 </style>
 <script id="sada-1.6.86-final-ui-enforcement">
 (()=>{'use strict';
- const BUILD='SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+ const BUILD='SADA-6.1-ABOUT-PAGE-ANIMATED-SIDEBAR-20261029';
  const $=id=>document.getElementById(id);
  const oldPromo=/(?:اشتراكات\s*و\s*خدمات\s*خاصة|تصفح\s*الخدمات\s*الخاصة|خدمات\s+مستقلة\s+عن\s+المزود)/i;
  const browse=/تصفح\s*الخدمات\s*الخاصة/i;
@@ -17982,9 +18044,73 @@ body.sada56-order-page-theme #pg-order{background:linear-gradient(145deg,#202022
  function updateOrderPageTheme(){const page=$('pg-order');let active=false;try{active=!!(page&&!page.hidden&&getComputedStyle(page).display!=='none'&&page.getClientRects().length>0);}catch(_){}document.body.classList.toggle('sada56-order-page-theme',active);}
  let orderThemeQueued=false;function scheduleOrderTheme(){if(orderThemeQueued)return;orderThemeQueued=true;requestAnimationFrame(()=>{orderThemeQueued=false;updateOrderPageTheme();});}
  updateOrderPageTheme();const appRoot=$('app');if(appRoot&&window.MutationObserver)new MutationObserver(scheduleOrderTheme).observe(appRoot,{attributes:true,attributeFilter:['class','style','hidden'],subtree:true});document.addEventListener('click',scheduleOrderTheme,true);window.addEventListener('hashchange',scheduleOrderTheme);
- window.SADAIRAQ_V60={version:'6.0',platformIcons:'bundled-svg-single-icon',duplicateIconCleanup:true,ordersRendererFallback:true,ordersFetchTimeoutMs:18000,ordersRetry:true};
+ window.SADAIRAQ_V61={version:'6.1',platformIcons:'bundled-svg-single-icon',duplicateIconCleanup:true,ordersRendererFallback:true,ordersFetchTimeoutMs:18000,ordersRetry:true};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(normalizeAll,0),{once:true});else setTimeout(normalizeAll,0);
 })();
 </script>
+
+<style id="sada61-about-us-animations">
+/* Original Sada Iraq animation system: transforms/opacity only for light mobile rendering. */
+.sada-side-orbiting-chips{position:absolute;inset:0;pointer-events:none;animation:sada61-side-orbit 19s linear infinite;transform-origin:50% 50%}
+.sada-side-orbiting-chips .sada-side-chip{animation:sada61-side-counter 19s linear infinite!important}
+.sada-side-orbiting-chips .sada-side-chip i{font-size:9px}
+.sada-side-about-cta{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin-top:8px;padding:7px 9px;border:1px solid rgba(255,177,78,.34);border-radius:10px;background:linear-gradient(100deg,rgba(240,133,34,.16),rgba(255,187,91,.045));color:#ffd08d;font:900 10px var(--font,'Cairo',sans-serif);cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.sada-side-about-cta:hover{background:rgba(240,133,34,.22);border-color:rgba(255,177,78,.6)}
+.sada-side-about-cta i{font-size:10px}
+.sada61-about-page{padding-bottom:22px;color:#f6f0e5;--sada61-orange:#ff922c;--sada61-gold:#ffd078;--sada61-muted:#c3b7a5}
+.sada61-about-hero{position:relative;isolation:isolate;overflow:hidden;margin:0 0 18px;padding:18px 16px 14px;border:1px solid rgba(255,169,69,.42);border-radius:22px;background:radial-gradient(ellipse at 76% 36%,rgba(255,139,34,.15),transparent 40%),radial-gradient(ellipse at 12% 95%,rgba(243,94,24,.08),transparent 36%),linear-gradient(145deg,#211e1c 0%,#121314 54%,#211911 100%);box-shadow:0 14px 34px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.04)}
+.sada61-about-hero:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.17;background-image:radial-gradient(rgba(255,197,116,.9) .75px,transparent 1px);background-size:15px 15px;mask-image:linear-gradient(115deg,transparent 4%,black 50%,transparent 100%)}
+.sada61-about-hero:after{content:"";position:absolute;top:-20%;bottom:-20%;left:-40%;width:26%;z-index:-1;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,180,78,.09),transparent);transform:skewX(-16deg);animation:sada61-about-sheen 9s ease-in-out infinite}
+.sada61-about-hero-top{display:flex;align-items:center;gap:10px;position:relative;z-index:1;padding-bottom:12px;border-bottom:1px solid rgba(255,197,116,.15)}
+.sada61-about-brandmark{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border:1px solid rgba(255,231,178,.75);border-radius:13px;background:linear-gradient(145deg,#ffd983,#f18a23);color:#25180b;font-size:26px;font-weight:1000;box-shadow:0 0 24px rgba(255,143,36,.18)}
+.sada61-about-brandtext{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}.sada61-about-brandtext b{font-size:16px;font-weight:1000;color:#fff8eb}.sada61-about-brandtext span{font-size:10px;line-height:1.5;color:#c6b7a4}
+.sada61-about-badge{display:flex;align-items:center;gap:4px;padding:6px 7px;border:1px solid rgba(255,181,82,.22);border-radius:999px;background:rgba(244,148,49,.09);font-size:8px;font-weight:900;color:#ffc66d;white-space:nowrap}.sada61-about-badge i{font-size:9px}
+.sada61-about-hero-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(116px,.82fr);gap:8px;align-items:center;padding:11px 0 6px}
+.sada61-about-copy{position:relative;z-index:2;min-width:0}.sada61-about-eyebrow{display:inline-flex;align-items:center;gap:5px;margin-bottom:8px;color:#ffad4b;font-size:9px;font-weight:1000}.sada61-about-eyebrow i{font-size:10px}
+.sada61-about-copy h1{margin:0;color:#fff8ec;font-size:clamp(21px,5.5vw,31px);font-weight:1000;line-height:1.35;letter-spacing:-.45px}.sada61-about-copy h1 em{font-style:normal;color:#ff9e31;text-shadow:0 0 20px rgba(255,132,25,.2)}.sada61-about-copy p{margin:8px 0 0;max-width:540px;color:#d0c3b2;font-size:11px;line-height:1.9;font-weight:600}
+.sada61-about-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.sada61-about-primary,.sada61-about-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:39px;padding:9px 13px;border-radius:11px;font:900 11px var(--font,'Cairo',sans-serif);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}.sada61-about-primary{border:1px solid #ffd18b;background:linear-gradient(115deg,#ffc05a,#ff8722);color:#241608;box-shadow:0 6px 18px rgba(243,127,29,.18)}.sada61-about-secondary{border:1px solid rgba(255,192,105,.3);background:rgba(255,255,255,.035);color:#f4d4a6}.sada61-about-primary:hover,.sada61-about-secondary:hover{transform:translateY(-1px)}
+.sada61-about-visual{position:relative;justify-self:center;width:min(100%,220px);aspect-ratio:1/1;display:grid;place-items:center;isolation:isolate}
+.sada61-about-map-glow{position:absolute;inset:15%;border-radius:50%;background:radial-gradient(circle,rgba(255,145,35,.18),rgba(255,143,28,.035) 52%,transparent 72%);filter:blur(2px);animation:sada61-about-glow 5.5s ease-in-out infinite}
+.sada61-about-orbit{position:absolute;inset:6%;border:1px solid rgba(255,173,79,.38);border-radius:50%;box-shadow:0 0 0 6px rgba(255,155,48,.025),inset 0 0 18px rgba(255,145,37,.06);animation:sada61-about-orbit 24s linear infinite}.sada61-about-orbit.orbit-b{inset:0;border-style:dashed;border-color:rgba(255,193,120,.24);animation-duration:34s;animation-direction:reverse}.sada61-about-orbit.orbit-c{inset:19%;border-color:rgba(255,229,177,.24);animation-duration:16s}
+.sada61-about-center{position:relative;z-index:2;width:35%;aspect-ratio:1/1;display:grid;place-items:center;border:1px solid #ffdc9b;border-radius:50%;background:radial-gradient(circle at 32% 22%,#ffce79,#ee811e 60%,#a84d16);box-shadow:0 0 0 7px rgba(247,141,30,.09),0 0 32px rgba(255,132,23,.27);animation:sada61-about-center-float 4.8s ease-in-out infinite}.sada61-about-center svg{width:58%;height:58%;filter:drop-shadow(0 1px 4px rgba(0,0,0,.22))}
+.sada61-about-social{position:absolute;z-index:3;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;border:1px solid rgba(255,255,255,.68);box-shadow:0 4px 12px rgba(0,0,0,.36);font-size:13px;animation:sada61-about-social-float 4.1s ease-in-out infinite}.sada61-about-social.instagram{top:15%;right:12%;background:#d62976;color:white;animation-delay:-1s}.sada61-about-social.tiktok{top:43%;left:2%;background:#13151a;color:#fff;border-color:#56e5de;animation-delay:-2.1s}.sada61-about-social.telegram{bottom:13%;left:15%;background:#159bd4;color:#fff;animation-delay:-.6s}.sada61-about-social.youtube{right:2%;bottom:31%;background:#f32727;color:#fff;animation-delay:-1.5s}.sada61-about-social.facebook{right:20%;bottom:5%;background:#1877f2;color:#fff;animation-delay:-2.8s}
+.sada61-about-spark{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffd07c;box-shadow:0 0 12px 3px rgba(255,170,58,.26);animation:sada61-about-spark 3.3s ease-in-out infinite}.sada61-about-spark.spark-a{top:18%;left:23%}.sada61-about-spark.spark-b{top:61%;right:12%;animation-delay:-1.2s}.sada61-about-spark.spark-c{bottom:17%;right:43%;animation-delay:-2.2s}
+.sada61-about-pill-row{display:flex;flex-wrap:wrap;gap:6px;position:relative;z-index:1;padding-top:11px;border-top:1px dashed rgba(255,190,108,.21)}.sada61-about-pill-row span{display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid rgba(255,181,83,.2);border-radius:9px;background:rgba(255,255,255,.035);font-size:9px;font-weight:900;color:#edd8b7}.sada61-about-pill-row i{color:#ffad49}
+.sada61-about-section,.sada61-about-journey,.sada61-about-platforms,.sada61-about-final{margin:15px 0;padding:17px 14px;border:1px solid rgba(255,178,80,.18);border-radius:18px;background:linear-gradient(145deg,rgba(39,35,32,.95),rgba(24,23,22,.97));box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.sada61-about-section-head{text-align:center;max-width:620px;margin:0 auto 15px}.sada61-about-section-head>span,.sada61-about-platform-kicker{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;border:1px solid rgba(255,178,78,.25);background:rgba(241,142,38,.075);color:#ffc16a;font-size:9px;font-weight:1000}.sada61-about-section-head h2,.sada61-about-platforms h2,.sada61-about-final h2{margin:8px 0;color:#fff3de;font-size:clamp(19px,4.8vw,25px);font-weight:1000;line-height:1.5}.sada61-about-section-head p,.sada61-about-platforms p,.sada61-about-final p{margin:0;color:#c6b9a8;font-size:11px;line-height:1.95;font-weight:600}
+.sada61-about-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.sada61-about-value{min-width:0;padding:12px 10px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.012));transition:border-color .2s ease,transform .2s ease}.sada61-about-value:hover{border-color:rgba(255,177,76,.34);transform:translateY(-2px)}.sada61-about-value-icon{display:grid;place-items:center;width:34px;height:34px;margin-bottom:8px;border:1px solid rgba(255,173,75,.25);border-radius:10px;background:rgba(245,143,37,.09);color:#ffb34f;font-size:15px}.sada61-about-value h3{margin:0 0 5px;color:#ffe1ad;font-size:12px;font-weight:1000}.sada61-about-value p{margin:0;color:#c5b9aa;font-size:10px;line-height:1.85}
+.sada61-about-journey{background:radial-gradient(ellipse at 90% 0,rgba(255,139,27,.1),transparent 45%),linear-gradient(135deg,#211f1d,#171717)}.sada61-about-steps{display:grid;gap:9px}.sada61-about-step{display:flex;align-items:flex-start;gap:11px;padding:11px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(0,0,0,.12)}.sada61-about-step>b{display:grid;place-items:center;width:37px;height:37px;flex:0 0 37px;border:1px solid rgba(255,194,103,.38);border-radius:11px;background:linear-gradient(145deg,rgba(255,190,91,.18),rgba(238,117,21,.06));color:#ffc56f;font-size:13px;font-weight:1000}.sada61-about-step h3{margin:0 0 3px;color:#f8e6c9;font-size:12px;font-weight:1000}.sada61-about-step p{margin:0;color:#c2b7a9;font-size:10px;line-height:1.8}
+.sada61-about-platforms{display:grid;grid-template-columns:1fr;gap:13px;background:radial-gradient(ellipse at 80% 10%,rgba(243,131,29,.12),transparent 45%),linear-gradient(140deg,#211e1b,#171717)}.sada61-about-platforms h2{margin-top:9px}.sada61-about-platform-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.sada61-about-platform-chips span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:61px;padding:8px 3px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.14);color:#e9dfd0;font-size:10px;font-weight:900}.sada61-about-platform-chips i{font-size:18px;color:#ffb44f}.sada61-about-platform-chips span:nth-child(1) i{color:#e94886}.sada61-about-platform-chips span:nth-child(2) i{color:#fff}.sada61-about-platform-chips span:nth-child(3) i{color:#38bdf8}.sada61-about-platform-chips span:nth-child(4) i{color:#ff5757}.sada61-about-platform-chips span:nth-child(5) i{color:#4f9cff}.sada61-about-platform-chips span:nth-child(6) i{color:#38d58e}
+.sada61-about-final{position:relative;isolation:isolate;overflow:hidden;text-align:center;padding:22px 14px;background:radial-gradient(ellipse at 50% 0,rgba(255,151,40,.16),transparent 55%),linear-gradient(145deg,#26211b,#171717);border-color:rgba(255,177,78,.35)}.sada61-about-final-orb{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 6px;border-radius:50%;border:1px solid #ffcc7f;background:radial-gradient(circle at 30% 25%,#ffd57d,#ed8120 68%,#a95216);color:#fff6e6;font-size:23px;box-shadow:0 0 0 7px rgba(255,151,40,.08),0 0 24px rgba(255,151,40,.18);animation:sada61-about-center-float 5s ease-in-out infinite}.sada61-about-final .sada61-about-primary{margin-top:13px;min-width:185px}.sada61-about-final small{display:block;margin-top:13px;color:#8e8374;font-size:9px}
+@keyframes sada61-side-orbit{to{transform:rotate(360deg)}}
+@keyframes sada61-side-counter{to{transform:rotate(-360deg)}}
+@keyframes sada61-about-orbit{to{transform:rotate(360deg)}}
+@keyframes sada61-about-center-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes sada61-about-social-float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.035)}}
+@keyframes sada61-about-glow{0%,100%{opacity:.48;transform:scale(.94)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes sada61-about-spark{0%,100%{opacity:.35;transform:scale(.75)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes sada61-about-sheen{0%,68%{left:-40%;opacity:0}76%{opacity:1}100%{left:130%;opacity:0}}
+@media(max-width:520px){.sada61-about-hero{padding:14px 11px 12px;border-radius:17px}.sada61-about-hero-main{grid-template-columns:minmax(0,1.1fr) minmax(106px,.72fr);gap:3px}.sada61-about-brandmark{width:36px;height:36px;flex-basis:36px;font-size:23px}.sada61-about-brandtext b{font-size:14px}.sada61-about-brandtext span{font-size:9px}.sada61-about-badge{font-size:7px;padding:5px}.sada61-about-copy h1{font-size:22px}.sada61-about-copy p{font-size:10px}.sada61-about-visual{width:100%;max-width:160px}.sada61-about-social{width:23px;height:23px;font-size:11px}.sada61-about-actions{gap:6px}.sada61-about-primary,.sada61-about-secondary{font-size:10px;padding:8px 10px}.sada61-about-pill-row span{font-size:8px;padding:5px 6px}.sada61-about-section,.sada61-about-journey,.sada61-about-platforms,.sada61-about-final{padding:14px 11px;margin:12px 0}.sada61-about-values{gap:7px}.sada61-about-value{padding:10px 8px}.sada61-about-value h3{font-size:11px}.sada61-about-value p{font-size:9px}.sada61-about-platform-chips{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:760px){.sada61-about-hero{padding:22px 22px 16px}.sada61-about-hero-main{grid-template-columns:1.1fr .9fr;min-height:245px}.sada61-about-visual{max-width:245px}.sada61-about-values{grid-template-columns:repeat(4,minmax(0,1fr))}.sada61-about-platforms{grid-template-columns:1fr .9fr;align-items:center}.sada61-about-step{padding:13px 15px}}
+/* The app reduces most animations on low-power phones. Keep only a few cheap transform/opacity animations alive on this branded artwork. */
+@media(prefers-reduced-motion:no-preference){
+ html.sada-lite-motion .sada-side-motion:after{animation:sada-side-sheen-v60 10s ease-in-out infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada-side-live i{animation:sada-side-pulse-v60 3.6s ease-in-out infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada-side-motion .sada-side-ring{animation:sada-side-spin-v60 32s linear infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada-side-motion .sada-side-ring.r2{animation:sada-side-spin-v60 46s linear infinite reverse!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada-side-motion .sada-side-ring.r3{animation:sada-side-spin-v60 28s linear infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada-side-orbiting-chips{animation:sada61-side-orbit 34s linear infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada-side-orbiting-chips .sada-side-chip{animation:sada61-side-counter 34s linear infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada-side-core,html.sada-lite-motion .sada-side-chip{animation:sada-side-float-v60 5.6s ease-in-out infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada61-about-hero:after{animation:sada61-about-sheen 12s ease-in-out infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada61-about-orbit{animation:sada61-about-orbit 36s linear infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada61-about-orbit.orbit-b{animation:sada61-about-orbit 48s linear infinite reverse!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada61-about-center,html.sada-lite-motion .sada61-about-final-orb{animation:sada61-about-center-float 6s ease-in-out infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada61-about-social{animation:sada61-about-social-float 6s ease-in-out infinite!important;animation-iteration-count:infinite!important}
+ html.sada-lite-motion .sada61-about-map-glow{animation:sada61-about-glow 7s ease-in-out infinite!important;animation-iteration-count:infinite!important}
+}
+@media(prefers-reduced-motion:reduce){.sada-side-motion:after,.sada-side-live i,.sada-side-ring,.sada-side-orbiting-chips,.sada-side-chip,.sada-side-core,.sada61-about-hero:after,.sada61-about-orbit,.sada61-about-center,.sada61-about-social,.sada61-about-spark,.sada61-about-map-glow,.sada61-about-final-orb{animation:none!important;transition:none!important}}
+</style>
+
 </body>
 </html>
