@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '6.6';
-const BUILD_ID = 'SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+const BUILD_ID = 'SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -2775,7 +2775,7 @@ function calculateVerifiedRefundTarget(charged,status,order={},providerData={}){
   if(status==='cancelled')return {ok:true,target:Math.round(amount*10000)/10000,quantity:Number(order.quantity||order.qty||0),remains:null};
   if(status!=='partial')return {ok:false,reason:'status-not-refundable'};
   const quantity=Number(order.quantity||order.qty||0);
-  const remainsValue=providerData.remains??providerData.remaining??providerData.data?.remains??order.remains;
+  const remainsValue=providerData.remains??providerData.remaining??providerData.data?.remains??providerData.data?.remaining??providerData.result?.remains??providerData.result?.remaining??order.remains;
   const remains=Number(remainsValue);
   if(!Number.isFinite(quantity)||quantity<=0||remainsValue===undefined||remainsValue===null||String(remainsValue).trim()===''||!Number.isFinite(remains)||remains<0||remains>quantity)return {ok:false,reason:'partial-status-without-reliable-remains'};
   if(remains===0)return {ok:true,target:0,quantity,remains:0};
@@ -2828,7 +2828,7 @@ async function applyVerifiedOrderRefund(inputOrder={},providerData={},normalized
       const cumulative=Math.min(charged,Math.max(previous,target));const delta=Math.round((cumulative-previous)*10000)/10000;
       if(delta<=0)return {write:false,result:{credited:false,state:'already-credited',totalRefundIQD:previous,balanceIQD:Number(current.balance||0)}};
       const before=Number(current.balance||0);if(!Number.isFinite(before)||before<0)return {write:false,result:{error:'invalid-user-balance'}};const after=Math.round((before+delta)*10000)/10000;const at=nowISO();
-      const event={id:sha256(key+'|'+cumulative).slice(0,32),orderId:String(order.id||order.siteOrderId||order.orderId||''),providerOrderId:String(order.providerOrderId||order.smmpartyOrderId||''),providerId:String(order.providerId||''),serviceName:String(order.serviceName||order.name||order.service||'خدمة'),serviceId:String(order.serviceId||''),status,refundState:status==='partial'?'partial_credited':'credited',quantity:Number(order.quantity||order.qty||0),remains:providerData.remains??order.remains??null,amountIQD:delta,totalRefundIQD:cumulative,amountUSD:Number((delta/FIXED_RATE).toFixed(6)),reason:status==='cancelled'?'استرداد بعد تأكيد إلغاء الطلب من المزود':'استرداد الجزء غير المنفذ بعد تأكيد الحالة الجزئية من المزود',createdAt:at};
+      const event={id:sha256(key+'|'+cumulative).slice(0,32),orderId:String(order.id||order.siteOrderId||order.orderId||''),providerOrderId:String(order.providerOrderId||order.smmpartyOrderId||''),providerId:String(order.providerId||''),serviceName:String(order.serviceName||order.name||order.service||'خدمة'),serviceId:String(order.serviceId||''),status,refundState:status==='partial'?'partial_credited':'credited',quantity:Number(order.quantity||order.qty||0),remains:providerData.remains??providerData.remaining??providerData.data?.remains??providerData.data?.remaining??providerData.result?.remains??providerData.result?.remaining??order.remains??null,amountIQD:delta,totalRefundIQD:cumulative,amountUSD:Number((delta/FIXED_RATE).toFixed(6)),reason:status==='cancelled'?'استرداد بعد تأكيد إلغاء الطلب من المزود':'استرداد الجزء غير المنفذ بعد تأكيد الحالة الجزئية من المزود',createdAt:at};
       const events=Array.isArray(old.events)?old.events.slice(-50):[];events.push(event);
       refunds[key]={key,orderId:event.orderId,providerOrderId:event.providerOrderId,providerId:event.providerId,serviceName:event.serviceName,status,totalIQD:cumulative,amountUSD:Number((cumulative/FIXED_RATE).toFixed(6)),events,updatedAt:at};
       current.balance=after;current.sadaRefunds=refunds;current.updatedAt=at;
@@ -2863,9 +2863,10 @@ async function syncVerifiedOrderStatus(order,providerData,normalizedStatus){
   const providerRaw=String(providerData?.status??providerData?.data?.status??providerData?.result?.status??normalized).trim();
   const checkedAt=nowISO();
   const update={providerStatus:providerRaw,providerStatusConfirmed:true,lastCheckedAt:checkedAt,updatedAt:checkedAt,status:normalized};
-  if(providerData?.remains!==undefined)update.remains=providerData.remains;
-  else if(providerData?.remaining!==undefined)update.remains=providerData.remaining;
-  if(providerData?.start_count!==undefined||providerData?.startCount!==undefined)update.startCount=providerData.start_count??providerData.startCount;
+  const providerRemains=providerData?.remains??providerData?.remaining??providerData?.data?.remains??providerData?.data?.remaining??providerData?.result?.remains??providerData?.result?.remaining;
+  if(providerRemains!==undefined)update.remains=providerRemains;
+  const providerStartCount=providerData?.start_count??providerData?.startCount??providerData?.data?.start_count??providerData?.data?.startCount??providerData?.result?.start_count??providerData?.result?.startCount;
+  if(providerStartCount!==undefined)update.startCount=providerStartCount;
 
   const full=await resolveFinancialOrder(order);
   const fbKey=String(full._firebaseKey||full.firebaseKey||'').trim();

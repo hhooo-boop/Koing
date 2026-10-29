@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="sada-version" content="6.6">
-<meta name="sada-build-id" content="SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029">
+<meta name="sada-build-id" content="SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029">
 <script id="sada168-session-presence">try{window.__SADA_BOOT_HAD_SESSION=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'));}catch(_){window.__SADA_BOOT_HAD_SESSION=false}</script>
 
 <style id="sada167-preboot-splash-style">
@@ -18,7 +18,7 @@
 #sada-preboot-splash .sada-preboot-title span{color:#23d9c9;text-shadow:0 0 24px rgba(35,217,201,.25)}
 #sada-preboot-splash .sada-preboot-sub{font-size:12px;color:#a9b8d4;line-height:1.8;margin-bottom:22px}
 #sada-preboot-splash .sada-preboot-bar{height:6px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;margin:0 auto;width:min(270px,80%);box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
-#sada-preboot-splash .sada-preboot-bar span{display:block;width:0;height:100%;border-radius:999px;background:linear-gradient(90deg,#10a5a6,#2be4c4,#9587ff,#2be4c4);background-size:220% 100%;box-shadow:0 0 16px rgba(43,228,196,.55);animation:sada-preboot-progress .45s linear forwards,sada-preboot-sheen 1.3s linear infinite}
+#sada-preboot-splash .sada-preboot-bar span{display:block;width:0;height:100%;border-radius:999px;background:linear-gradient(90deg,#10a5a6,#2be4c4,#9587ff,#2be4c4);background-size:220% 100%;box-shadow:0 0 16px rgba(43,228,196,.55);animation:sada-preboot-progress 3s linear forwards,sada-preboot-sheen 1.3s linear infinite}
 #sada-preboot-splash .sada-preboot-foot{font-size:10px;color:#7182a4;margin-top:15px;letter-spacing:1.2px}
 #sada-preboot-splash~#wa-float{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 @keyframes sada-preboot-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}@keyframes sada-preboot-progress{to{width:100%}}@keyframes sada-preboot-orbit{to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes sada-preboot-enter{from{opacity:0;transform:translateY(16px) scale(.975);filter:blur(4px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}@keyframes sada-preboot-sheen{to{background-position:200% 0}}@keyframes sada-preboot-glow{0%,100%{filter:drop-shadow(0 0 3px rgba(43,228,196,.08))}50%{filter:drop-shadow(0 0 13px rgba(43,228,196,.25))}}
@@ -3928,7 +3928,7 @@ document.addEventListener("DOMContentLoaded", () => {
   buildOrdChips();
   buildPlatGrids();
   buildPms();
-  checkSavedAuth();
+  window.__SADA_SESSION_RESTORE_PROMISE = checkSavedAuth();
   setInterval(pollNotifs, 30000);
   $("chat-inp").addEventListener("keypress", e => { if (e.key==="Enter") sendChat(); });
   $("l-pass").addEventListener("keypress", e => { if (e.key==="Enter") doLogin(); });
@@ -4082,7 +4082,10 @@ function checkSavedAuth() {
   let savedUser={};try{savedUser=saved?JSON.parse(saved)||{}:{}}catch(_){}
   let token='';try{token=String(localStorage.getItem('sadairaq_session_token')||'').trim()}catch(_){}
   const headers={};if(token){headers['X-Sada-Session']=token;headers.Authorization='Bearer '+token;}
-  fetch('/api/session',{method:'GET',credentials:'include',cache:'no-store',headers})
+  // Bound session restoration so a cold Railway wake-up never leaves the first screen hanging forever.
+  const sessionController=typeof AbortController==='function'?new AbortController():null;
+  const sessionTimeout=sessionController?setTimeout(()=>sessionController.abort(),8000):null;
+  return fetch('/api/session',{method:'GET',credentials:'include',cache:'no-store',headers,...(sessionController?{signal:sessionController.signal}:{})})
     .then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error('HTTP '+r.status);return d;})
     .then(async d=>{
       if(d&&d.authenticated){
@@ -4090,16 +4093,18 @@ function checkSavedAuth() {
         const u=d.user||{};
         CU={u:d.username||savedUser.u,name:u.name||savedUser.name||d.username,role:d.role||savedUser.role||'user',bal:Number(u.balance??savedUser.bal??0),level:u.level||savedUser.level||(d.role==='admin'?'مسؤول':'مبتدئ'),tg:u.telegram??savedUser.tg??'',ph:u.phone??savedUser.ph??'',joined:u.joined||savedUser.joined||new Date().toISOString(),spent:Number(u.totalSpent??savedUser.spent??0),ords:Number(u.totalOrders??savedUser.ords??0)};
         BAL=CU.role==='admin'?999999:CU.bal;try{localStorage.setItem('tz_u',JSON.stringify(CU))}catch(_){}
-        try{await Promise.resolve(fbReady)}catch(_){};await Promise.resolve(window.syncSadaFirebaseAuth?.()).catch(()=>false);launchApp();return;
+        // fbReady already performs the Firebase custom-token sync; do not repeat that network call.
+        try{await Promise.resolve(fbReady)}catch(_){};window.__SADA_ENTRY_SOURCE='restore';launchApp();return;
       }
       if(saved||token){try{localStorage.removeItem('tz_u');localStorage.removeItem('sadairaq_session_token')}catch(_){}CU=null;BAL=0;}
       showHero();
     })
     .catch(()=>{
       // Preserve local session data during a temporary deploy/network failure.
-      if(saved&&token){CU=savedUser;BAL=Number(savedUser?.bal||0);launchApp();return;}
+      if(saved&&token){CU=savedUser;BAL=Number(savedUser?.bal||0);window.__SADA_ENTRY_SOURCE='restore';launchApp();return;}
       showHero();
-    });
+    })
+    .finally(()=>{if(sessionTimeout)clearTimeout(sessionTimeout)});
 }
 
 function logout() {
@@ -7044,7 +7049,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
   };
   // Refresh the catalog index only; never rewrite every service's image on page load.
   setTimeout(()=>{hydrateAllCategoryMeta().then(()=>{repairServiceIndex();try{window.buildCatDD?.();window.buildSvcDD?.(SEL_CAT||'__all__')}catch(_){}})},900);
-  window.SadaIraqBuildId='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+  window.SadaIraqBuildId='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
 })();
 
 </script>
@@ -8780,7 +8785,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
       b=document.createElement('div'); b.id='sadairaq-version-badge';
       document.body.appendChild(b);
     }
-    const EXPECTED_BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+    const EXPECTED_BUILD='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
     const applyClientVersion=()=>{
       b.dataset.deployState='checking';
       b.textContent='صدى العراق · الإصدار '+SADA_VERSION+' · جارٍ فحص الخادم…';
@@ -9130,7 +9135,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
   const ensure=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   window.SECTION_META=window.SECTION_META||{};
   window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+window.SadaIraqBuildId='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
 
   function safe(v){return txt(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
   function appLabel(id){const p=(CFG.platforms||[]).find(x=>x.id===id);return p?.lbl||id||'عام';}
@@ -9557,7 +9562,7 @@ const safe=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':
 const api=window.apiJSON||((p,o)=>fetch(p,Object.assign({credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'}},o||{})).then(async r=>{const t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch(_){d={error:t}}if(!r.ok||d.error)throw new Error(d.error||('HTTP '+r.status));return d;}));
 const mk=window.mk||((tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;});
 window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+window.SadaIraqBuildId='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
 
 function setVersion(){
   const b=$('sadairaq-version-badge');
@@ -12814,7 +12819,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   document.addEventListener('DOMContentLoaded',startFinal);window.addEventListener('load',()=>setTimeout(startFinal,100));setTimeout(startFinal,250);setTimeout(startFinal,1200);
   // Observe the whole document so both independent controls survive page/route re-renders.
   if(document.body){const mo=new MutationObserver(()=>{ensureOrderWhatsApp();});mo.observe(document.body,{childList:true,subtree:true});}
-  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029',hasFetchGuard:true,orderAudit:true};
+  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029',hasFetchGuard:true,orderAudit:true};
 })();
 </script>
 
@@ -13657,7 +13662,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada1666-welcome-refunds-admin-splash">
 (function(){
  'use strict';
- const BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+ const BUILD='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -13699,24 +13704,26 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
  let entrySequenceRunning=false;
  let initialSplashDone=false;
  let initialSplashPromise=null;
- async function waitForSavedSession66(startedAt){
-   // Keep the animated splash over the authentication screen while a previously saved
-   // session is being validated. The normal animation still lasts at least 3 seconds;
-   // this is only an extra safety window for slow mobile networks.
+ async function waitForSavedSession66(){
+   // Keep the logo visible until auth restoration has made a final routing decision.
+   // /api/session is bounded to 8 seconds, and the local saved-session fallback is handled in checkSavedAuth.
+   const restoration=window.__SADA_SESSION_RESTORE_PROMISE;
+   if(restoration&&typeof restoration.then==='function'){
+     await Promise.resolve(restoration).catch(()=>{});
+     return;
+   }
    if(!window.__SADA_BOOT_HAD_SESSION)return;
-   const deadline=Number(startedAt||Date.now())+1200;
+   const deadline=Date.now()+8500;
    while(Date.now()<deadline){
-     const current=window.CU&&(window.CU.u||window.CU.username);
-     if(current)return;
-     let saved=false;
-     try{saved=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'))}catch(_){}
+     if(window.CU&&(window.CU.u||window.CU.username))return;
+     let saved=false;try{saved=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'))}catch(_){}
      if(!saved)return;
-     await sleep(120);
+     await sleep(100);
    }
  }
  function startInitialSplash67(){
    if(initialSplashPromise)return initialSplashPromise;
-   initialSplashPromise=(async()=>{let overlay=null;const began=Number(window.__SADA_PREBOOT_STARTED)||Date.now();const configPromise=getWelcome66().catch(()=>({splashEnabled:true}));try{overlay=document.getElementById('sada-preboot-splash')||createSplash66();}catch(_){}await sleep(Math.max(0,450-(Date.now()-began)));await waitForSavedSession66(began);if(overlay)overlay.remove();initialSplashDone=true;return await configPromise;})();
+   initialSplashPromise=(async()=>{let overlay=null;const began=Number(window.__SADA_PREBOOT_STARTED)||Date.now();const configPromise=getWelcome66().catch(()=>({splashEnabled:true}));try{overlay=document.getElementById('sada-preboot-splash')||createSplash66();}catch(_){}await sleep(Math.max(0,3000-(Date.now()-began)));await waitForSavedSession66();if(overlay)overlay.remove();initialSplashDone=true;return await configPromise;})();
    return initialSplashPromise;
  }
  // Draw the logo before the user sees the app or login form. Session restore continues underneath.
@@ -13724,7 +13731,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
  async function launchExperience66(){if(entrySequenceRunning)return;entrySequenceRunning=true;try{const cfg=await startInitialSplash67();showWelcome66({...((cfg||await getWelcome66())||{}),showEveryEntry:true});}catch(e){const old=$('sada1666-splash');if(old)old.remove();showWelcome66({enabled:true,showEveryEntry:true,title:'مرحباً بكم في صدى العراق!',subtitle:'مرحباً بك، يسعدنا حضورك. نحن إلى جانبك في كل وقت.',whatsappUrl:'https://wa.me/9647762267959',telegramUrl:'https://t.me/jbhbhg58'});}finally{entrySequenceRunning=false;}}
  // Make the splash and the welcome dialog part of every successful app entry/login.
  const baseLaunch66=window.launchApp;
- if(typeof baseLaunch66==='function'&&!baseLaunch66.__sada1666Wrapped){const wrapped=function(){const r=baseLaunch66.apply(this,arguments);setTimeout(()=>launchExperience66(),0);return r};wrapped.__sada1666Wrapped=true;window.launchApp=wrapped;}
+ if(typeof baseLaunch66==='function'&&!baseLaunch66.__sada1666Wrapped){const wrapped=function(){const source=String(window.__SADA_ENTRY_SOURCE||'manual');window.__SADA_ENTRY_SOURCE='';const r=baseLaunch66.apply(this,arguments);if(source!=='restore')setTimeout(()=>launchExperience66(),0);return r};wrapped.__sada1666Wrapped=true;window.launchApp=wrapped;}
 
  // User-side refund page.
  function ensureRefundPage66(){
@@ -13863,7 +13870,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada167-earn-notifications-dashboard">
 (function(){
 'use strict';
-const BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+const BUILD='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=v=>'$'+Math.max(0,Number(v)||0).toFixed(2);
@@ -14515,7 +14522,7 @@ window.SADA_V1626_RELEASE={version:'1.6.86',features:['earn-page-premium-order',
 (function(){
   'use strict';
   const EXPECTED_VERSION='6.6';
-  const EXPECTED_BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+  const EXPECTED_BUILD='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
   const $=id=>document.getElementById(id);
   function ensureBadge(){
     let b=$('sadairaq-version-badge');
@@ -17158,7 +17165,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 </style>
 <script id="sada-1.6.86-final-ui-enforcement">
 (()=>{'use strict';
- const BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
+ const BUILD='SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
  const $=id=>document.getElementById(id);
  const oldPromo=/(?:اشتراكات\s*و\s*خدمات\s*خاصة|تصفح\s*الخدمات\s*الخاصة|خدمات\s+مستقلة\s+عن\s+المزود)/i;
  const browse=/تصفح\s*الخدمات\s*الخاصة/i;
