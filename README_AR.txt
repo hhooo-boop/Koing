@@ -15,7 +15,7 @@
 تشغيل Railway أو Render
 1) استخدم Node.js 22 أو أحدث.
 2) ثبّت الاعتمادات بواسطة npm install.
-3) نفّذ npm test أو npm run build للفحص الأساسي.
+3) نفّذ npm run build لفحص النشر الأساسي، وnpm test لتشغيل اختبارات المزود الوهمي الكاملة (تحتاج مجلد tests).
 4) شغّل npm start.
 5) لا تغيّر Root Directory: يجب أن يكون المجلد الذي يحتوي server.js وpackage.json وrailway.json.
 

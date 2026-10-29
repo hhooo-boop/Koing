@@ -1,19 +1,20 @@
 {
   "name": "sada-iraq",
-  "version": "5.7.0",
+  "version": "5.8.0",
   "private": true,
   "description": "صدى العراق — Railway Node.js service with Netlify compatibility",
   "scripts": {
     "start": "node server.js",
-    "test": "node --check server.js && node -e \"const fs=require('node:fs'); for(const f of ['server.js','index.html','package.json','config.json']) if(!fs.existsSync(f)) throw new Error('Missing required root file: '+f); const p=JSON.parse(fs.readFileSync('package.json','utf8')); const c=JSON.parse(fs.readFileSync('config.json','utf8')); const s=fs.readFileSync('server.js','utf8'); if(String(p.version).split('.').slice(0,2).join('.')!==String(c.version)) throw new Error('package/config version mismatch'); if(String(p.buildId)!==String(c.buildId)||!s.includes(p.buildId)) throw new Error('release buildId mismatch'); console.log('PASS: release metadata checks.');\" && node tests/mock-provider-audit.js",
-    "build": "npm test",
+    "test": "npm run preflight && node tests/mock-provider-audit.js",
+    "build": "npm run preflight",
     "release:bump": "node scripts/bump-release.js",
-    "prestart": "node --check server.js"
+    "prestart": "node --check server.js",
+    "preflight": "node --check server.js && node -e \"const fs=require('node:fs'); for(const f of ['server.js','index.html','package.json','config.json']) if(!fs.existsSync(f)) throw new Error('Missing required root file: '+f); const p=JSON.parse(fs.readFileSync('package.json','utf8')); const c=JSON.parse(fs.readFileSync('config.json','utf8')); const s=fs.readFileSync('server.js','utf8'); if(String(p.version).split('.').slice(0,2).join('.')!==String(c.version)) throw new Error('package/config version mismatch'); if(String(p.buildId)!==String(c.buildId)||!s.includes(p.buildId)) throw new Error('release buildId mismatch'); console.log('PASS: deploy preflight checks.');\""
   },
   "engines": {
     "node": ">=22"
   },
-  "buildId": "SADA-5.7-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029",
+  "buildId": "SADA-5.8-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029",
   "dependencies": {
     "google-auth-library": "^11.2.0",
     "firebase-admin": "^14.5.0",
