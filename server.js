@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '6.2';
-const BUILD_ID = 'SADA-6.2-REFERRAL-DIGITS-ICON-ABOUT-20261029';
+const APP_VERSION = '6.3';
+const BUILD_ID = 'SADA-6.3-REFERRAL-PAGE-REPAIR-ORDER-METRICS-20261029';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -4690,6 +4690,38 @@ function uniqueActualOrders(remoteOrders,localOrders=[]){
   return [...map.values()];
 }
 
+// Public dashboard metric: count unique order records, never confuse the latest public order number with total orders.
+let PUBLIC_SITE_ORDER_STATS_CACHE={at:0,value:null};
+let PUBLIC_SITE_ORDER_STATS_PROMISE=null;
+const PUBLIC_SITE_ORDER_STATS_CACHE_MS=30000;
+async function getPublicSiteOrderStats(){
+  const now=Date.now();
+  if(PUBLIC_SITE_ORDER_STATS_CACHE.value&&now-PUBLIC_SITE_ORDER_STATS_CACHE.at<PUBLIC_SITE_ORDER_STATS_CACHE_MS)return {...PUBLIC_SITE_ORDER_STATS_CACHE.value,cached:true};
+  if(PUBLIC_SITE_ORDER_STATS_PROMISE)return PUBLIC_SITE_ORDER_STATS_PROMISE;
+  PUBLIC_SITE_ORDER_STATS_PROMISE=(async()=>{
+    const localOrders=readJSON('orders.json',[]);
+    let remoteOrders=null,firebaseOk=false,firebaseError='';
+    try{remoteOrders=await firebaseGetJson('orders',10000);firebaseOk=true;}
+    catch(e){firebaseError=String(e?.message||e).slice(0,140);}
+    const rows=uniqueActualOrders(firebaseOk?remoteOrders:null,localOrders);
+    if(!firebaseOk&&rows.length===0)throw new Error('تعذر قراءة الطلبات من Firebase ولا توجد سجلات محلية موثوقة؛ لم نعرض رقماً تخمينياً. '+firebaseError);
+    const latest=Math.max(maxPublicOrderNumberFromRows(firebaseOk?remoteOrders:null),maxPublicOrderNumberFromRows(localOrders));
+    const result={
+      ok:true,
+      count:rows.length,
+      totalOrders:rows.length,
+      latestPublicOrderNo:latest>=3000?latest:null,
+      source:firebaseOk?'firebase+local':'local-partial',
+      complete:firebaseOk,
+      warning:firebaseOk?'':'تم عرض السجلات المحلية فقط لأن الاتصال بقاعدة Firebase تعذر؛ قد لا يشمل العدد كل الطلبات. '+firebaseError,
+      updatedAt:nowISO()
+    };
+    PUBLIC_SITE_ORDER_STATS_CACHE={at:Date.now(),value:result};
+    return {...result,cached:false};
+  })();
+  try{return await PUBLIC_SITE_ORDER_STATS_PROMISE;}finally{PUBLIC_SITE_ORDER_STATS_PROMISE=null;}
+}
+
 const MATH_CAPTCHA_CHALLENGES=new Map();
 const NETLIFY_CAPTCHA_CONSUMED=new Map();
 function netlifyCaptchaKey(){return crypto.createHash('sha256').update('SadaIraq|netlify-math-captcha|v1|'+String(SESSION_SECRET||'')).digest();}
@@ -6053,12 +6085,8 @@ async function routeAPI(req,res,urlObj){
   }
 
   if(p==='/api/public/site-order-count'&&req.method==='GET'){
-    try{
-      const latest=await ensurePublicOrderCounter();
-      const latestPublicOrderNo=latest>=3000?latest:null;
-      // The homepage needs the latest public number; never download the whole orders collection per visitor.
-      return json(res,200,{ok:true,count:latestPublicOrderNo||0,latestPublicOrderNo,source:'firebase-counter',complete:false,totalOrders:null,updatedAt:nowISO()});
-    }catch(e){return json(res,503,{ok:false,error:'تعذر قراءة عدّاد الطلبات من Firebase؛ لم نعرض رقماً تخمينياً.',complete:false});}
+    try{return json(res,200,await getPublicSiteOrderStats());}
+    catch(e){return json(res,503,{ok:false,error:'تعذر قراءة إجمالي الطلبات الحقيقي من قاعدة الموقع؛ لم نعرض رقماً تخمينياً.',detail:String(e?.message||e).slice(0,180),complete:false,updatedAt:nowISO()});}
   }
 
   if(p==='/api/admin/users-directory'&&req.method==='GET'){
