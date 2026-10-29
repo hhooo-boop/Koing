@@ -1,7 +1,7 @@
 {
   "appName": "صدى العراق",
-  "version": "5.9",
-  "buildId": "SADA-5.9-RESTORE-PLATFORM-SVG-ORDERS-LOADER-FIX-20261029",
+  "version": "6.0",
+  "buildId": "SADA-6.0-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029",
   "currency": "USD",
   "exchangeRate": 1250,
   "fixedRecharge": "5000 IQD = 4 USD",
