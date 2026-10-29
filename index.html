@@ -23,6 +23,93 @@
 #sada-preboot-splash~#wa-float{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 @keyframes sada-preboot-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}@keyframes sada-preboot-progress{to{width:100%}}@keyframes sada-preboot-orbit{to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes sada-preboot-enter{from{opacity:0;transform:translateY(16px) scale(.975);filter:blur(4px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}@keyframes sada-preboot-sheen{to{background-position:200% 0}}@keyframes sada-preboot-glow{0%,100%{filter:drop-shadow(0 0 3px rgba(43,228,196,.08))}50%{filter:drop-shadow(0 0 13px rgba(43,228,196,.25))}}
 @media(prefers-reduced-motion:reduce){#sada-preboot-splash *{animation:none!important}}
+
+#auth-page.sada-integrated-auth{--bg:#06080f;--panel:#0c111d;--panel2:#101726;--line:#202a3b;--text:#f5f7ff;--muted:#8d99b2;--blue:#3974ff;--blue2:#275ce8;--pink:#e12e76;--cyan:#26b8ee;--red:#ef3045;--green:#31d2a0;--gold:#f0b74c;--radius:22px}
+#auth-page.sada-integrated-auth *{box-sizing:border-box}#auth-page.sada-integrated-auth [hidden]{display:none!important}#auth-page.sada-integrated-auth{background:var(--bg);scroll-behavior:smooth;scroll-padding-top:18px}#auth-page.sada-integrated-auth{margin:0;background:var(--bg);color:var(--text);font-family:"Cairo","Tajawal",Tahoma,Arial,sans-serif;line-height:1.55;overflow-x:hidden}#auth-page.sada-integrated-auth button, #auth-page.sada-integrated-auth input{font:inherit}#auth-page.sada-integrated-auth button, #auth-page.sada-integrated-auth a{-webkit-tap-highlight-color:transparent}#auth-page.sada-integrated-auth button{cursor:pointer}#auth-page.sada-integrated-auth a{color:inherit;text-decoration:none}#auth-page.sada-integrated-auth .wrap{width:min(100%,760px);margin:auto;padding:0 16px}#auth-page.sada-integrated-auth .announcement{height:28px;background:linear-gradient(90deg,#225be3,#3878ff,#2357d6);display:flex;align-items:center;gap:7px;color:#eef4ff;font-size:10px;white-space:nowrap;overflow:hidden;padding:0 10px}#auth-page.sada-integrated-auth .announcement .live{display:inline-block;width:6px;height:6px;flex:none;border-radius:50%;background:#70ffd1;margin-inline:2px;box-shadow:0 0 0 4px #ffffff14}#auth-page.sada-integrated-auth .announcement-window{flex:1;min-width:0;overflow:hidden}#auth-page.sada-integrated-auth .announcement-track{display:flex;align-items:center;width:max-content;gap:42px;direction:rtl;animation:sadaMerged_tickerMove 23s linear infinite}#auth-page.sada-integrated-auth .announcement-track span{display:block;flex:none}#auth-page.sada-integrated-auth .announcement:hover .announcement-track{animation-play-state:paused}@keyframes sadaMerged_tickerMove{from{transform:translateX(0)}to{transform:translateX(50%)}}#auth-page.sada-integrated-auth .site-header{height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff0b;gap:9px}#auth-page.sada-integrated-auth .brand{display:flex;align-items:center;gap:9px;min-width:0}#auth-page.sada-integrated-auth .brand-logo{width:39px;height:39px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#3474ff,#162e77);border:1px solid #6b91ff55;box-shadow:0 5px 20px #245de72c;flex-shrink:0}#auth-page.sada-integrated-auth .brand-logo svg{width:25px;height:25px}#auth-page.sada-integrated-auth .brand-label{font-size:15px;font-weight:900;line-height:1.25}#auth-page.sada-integrated-auth .brand-sub{font-size:9px;color:#8291ac;margin-top:2px}#auth-page.sada-integrated-auth .header-actions{display:flex;gap:6px;align-items:center}#auth-page.sada-integrated-auth .head-btn{height:33px;min-width:33px;border:1px solid #263147;border-radius:10px;background:#101726;color:#c9d7f1;padding:0 8px;font-size:11px;font-weight:700}#auth-page.sada-integrated-auth .head-btn.primary{background:#172d63;border-color:#315cbd;color:#e7eeff}#auth-page.sada-integrated-auth .hero{padding:22px 0 14px}#auth-page.sada-integrated-auth .hero-label{display:inline-flex;align-items:center;gap:7px;border:1px solid #294d8a;background:#102044a8;color:#c7d8ff;border-radius:999px;padding:6px 10px;font-size:10px}#auth-page.sada-integrated-auth .hero-label i{width:7px;height:7px;background:#66a0ff;box-shadow:0 0 0 3px #66a0ff22;border-radius:50%}#auth-page.sada-integrated-auth .hero h1{margin:13px 0 8px;font-size:clamp(25px,6.5vw,35px);line-height:1.42;font-weight:900;letter-spacing:-.6px}#auth-page.sada-integrated-auth .hero h1 span{color:#fff;text-shadow:0 0 23px #3b72ff35}#auth-page.sada-integrated-auth .hero p{color:#96a2ba;font-size:12px;line-height:1.95;margin:0;max-width:630px}#auth-page.sada-integrated-auth .entry-label{font-size:10px;color:#8591a9;margin:16px 0 8px}#auth-page.sada-integrated-auth .login-methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}#auth-page.sada-integrated-auth .method{min-width:0;border:1px solid #26334b;border-radius:11px;background:#0d1523;padding:9px 3px;color:#a9bddc;font-size:10px;display:flex;justify-content:center;align-items:center;gap:5px;white-space:nowrap}#auth-page.sada-integrated-auth .method svg{width:15px;height:15px;flex:none}#auth-page.sada-integrated-auth .method.active{border-color:#317fa0;background:#0c2530;color:#9be6ff}#auth-page.sada-integrated-auth .auth-panel{border:1px solid #202a3b;border-radius:21px;padding:9px;background:linear-gradient(155deg,#0d1320,#080d16);box-shadow:0 18px 45px #0005}#auth-page.sada-integrated-auth .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#0d1421;border:1px solid #182235;border-radius:14px;margin-bottom:11px}#auth-page.sada-integrated-auth .auth-tab{border:0;border-radius:10px;padding:11px 7px;background:transparent;color:#7786a2;font-size:12px;font-weight:800}#auth-page.sada-integrated-auth .auth-tab.active{background:#070c15;color:#f4f7ff;box-shadow:inset 0 0 0 1px #ffffff08}#auth-page.sada-integrated-auth .form-stack{display:flex;flex-direction:column;gap:8px}#auth-page.sada-integrated-auth .field{display:flex;align-items:center;gap:10px;min-height:47px;padding:0 12px;border:1px solid #222c40;border-radius:13px;background:#101725;transition:border-color .15s}#auth-page.sada-integrated-auth .field:focus-within{border-color:#407dff;box-shadow:0 0 0 3px #3974ff16}#auth-page.sada-integrated-auth .field .glyph{color:#8593ad;font-size:15px;min-width:17px;text-align:center}#auth-page.sada-integrated-auth .field input{width:100%;min-width:0;background:transparent;border:0;outline:none;color:#f4f7ff;font-size:12px;direction:rtl}#auth-page.sada-integrated-auth .field input::placeholder{color:#8995ab}#auth-page.sada-integrated-auth .field .show-pass{background:none;border:0;color:#9da9bf;padding:3px;font-size:14px}#auth-page.sada-integrated-auth .form-options{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#9eabc3;font-size:10px;padding:1px 3px 3px}#auth-page.sada-integrated-auth .remember{display:flex;align-items:center;gap:7px;white-space:nowrap}#auth-page.sada-integrated-auth .remember input{appearance:none;width:17px;height:17px;margin:0;border:1px solid #34415b;border-radius:5px;background:#111b2d;display:grid;place-items:center}#auth-page.sada-integrated-auth .remember input:checked{background:#3974ff;border-color:#3974ff}#auth-page.sada-integrated-auth .remember input:checked:after{content:"✓";font-size:11px;color:#fff;font-weight:900}#auth-page.sada-integrated-auth .link-btn{border:0;background:none;color:#a8c0ff;font-size:10px;padding:4px}#auth-page.sada-integrated-auth .submit-btn{min-height:49px;border:0;border-radius:12px;background:linear-gradient(110deg,#3c78ff,#2e62ec);color:#fff;font-size:14px;font-weight:900;box-shadow:0 8px 21px #245ee926;display:flex;justify-content:center;align-items:center;gap:9px}#auth-page.sada-integrated-auth .submit-btn:active{transform:scale(.99)}#auth-page.sada-integrated-auth .form-foot{display:flex;justify-content:center;align-items:center;gap:7px;color:#77859e;font-size:9px;padding:4px 0 0}#auth-page.sada-integrated-auth .form-foot i{width:6px;height:6px;border-radius:50%;background:#38d4ab;box-shadow:0 0 0 3px #38d4ab17}#auth-page.sada-integrated-auth .toast{display:none;margin-top:8px;padding:9px 10px;background:#0b2925;border:1px solid #267c6a;border-radius:10px;color:#adf4df;font-size:11px}#auth-page.sada-integrated-auth .toast.show{display:block}#auth-page.sada-integrated-auth .site-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 15px}#auth-page.sada-integrated-auth .stat{background:#0b101b;border:1px solid #20293a;border-radius:18px;min-height:69px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}#auth-page.sada-integrated-auth .stat strong{font-size:22px;line-height:1.35;font-weight:900;letter-spacing:.2px;font-variant-numeric:tabular-nums}#auth-page.sada-integrated-auth .stat span{font-size:11px;color:#9ca8bf}#auth-page.sada-integrated-auth .social-rail{margin:0 -16px 17px;padding:13px 16px 14px;border-top:1px solid #1a2231;border-bottom:1px solid #1a2231;background:#080d17;overflow:hidden}#auth-page.sada-integrated-auth .rail-items{display:flex;gap:11px;overflow-x:auto;scrollbar-width:none;padding:1px 0}#auth-page.sada-integrated-auth .rail-items::-webkit-scrollbar{display:none}#auth-page.sada-integrated-auth .rail-icon{flex:0 0 55px;width:55px;height:55px;display:grid;place-items:center;border:1px solid var(--icline,#25324a);border-radius:17px;background:var(--icbg,#101827);color:var(--ic,#a6b8dc);transition:transform .16s,border-color .16s}#auth-page.sada-integrated-auth .rail-icon:active{transform:scale(.94)}#auth-page.sada-integrated-auth .rail-icon svg{width:26px;height:26px}#auth-page.sada-integrated-auth .rail-icon.selected{outline:1px solid var(--ic);outline-offset:1px}#auth-page.sada-integrated-auth .platform-block{padding:3px 0 26px;margin-bottom:17px;border-bottom:1px solid #1c2432;scroll-margin-top:18px}#auth-page.sada-integrated-auth .platform-card{position:relative;min-height:178px;overflow:visible;border:1px solid #30384a;border-radius:29px;background:radial-gradient(circle at 8% 13%,var(--glow,#642b69) 0%,transparent 31%),radial-gradient(circle,var(--dots,#26314a) 1px,transparent 1.4px),linear-gradient(145deg,#0d1422,#0b1220 72%);background-size:auto,18px 18px,auto;box-shadow:inset 0 1px 0 #ffffff09; padding:17px 15px 30px}#auth-page.sada-integrated-auth .platform-card:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(105deg,transparent 25%,#ffffff02 100%);pointer-events:none}#auth-page.sada-integrated-auth .platform-top{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1}#auth-page.sada-integrated-auth .platform-title{display:flex;align-items:center;gap:9px;min-width:0}#auth-page.sada-integrated-auth .platform-logo{width:40px;height:40px;display:grid;place-items:center;border-radius:14px;background:var(--icbg,#32162c);color:var(--ic,#ec3477);border:1px solid var(--icline,#55213e);flex-shrink:0}#auth-page.sada-integrated-auth .platform-logo svg{width:23px;height:23px}#auth-page.sada-integrated-auth .platform-name{font-size:14px;font-weight:900;line-height:1.35}#auth-page.sada-integrated-auth .platform-sub{font-size:10px;color:#7786a2;margin-top:3px}#auth-page.sada-integrated-auth .platform-link{border:1px solid #2b3960;background:#18274a;color:#9bb8ff;border-radius:10px;padding:7px 9px;font-size:10px;white-space:nowrap}#auth-page.sada-integrated-auth .accent-line{height:5px;border-radius:99px;background:var(--accent,#df2c76);width:56%;margin:10px 0 10px auto;position:relative;z-index:1;box-shadow:0 0 17px color-mix(in srgb,var(--accent,#df2c76) 25%,transparent)}#auth-page.sada-integrated-auth .metric-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;position:relative;z-index:1}#auth-page.sada-integrated-auth .metric{min-width:0;min-height:49px;background:#111929;border:1px solid #253047;border-radius:14px;padding:8px 8px 7px;display:flex;flex-direction:column;justify-content:center;gap:2px}#auth-page.sada-integrated-auth .metric span{color:#7d8aa4;font-size:9px;white-space:nowrap}#auth-page.sada-integrated-auth .metric strong{font-size:13px;font-weight:900;color:#f1f5ff;direction:ltr;text-align:right;white-space:nowrap}#auth-page.sada-integrated-auth .price-metric strong{font-size:12px}#auth-page.sada-integrated-auth .platform-badge{position:absolute;bottom:-12px;left:14px;display:flex;align-items:center;gap:8px;border:1px solid #263247;border-radius:14px;background:#0b1220;padding:7px 11px;color:#e7edfb;font-size:11px;font-weight:800;box-shadow:0 5px 12px #0004}#auth-page.sada-integrated-auth .platform-badge svg{width:14px;height:14px;color:var(--accent)}#auth-page.sada-integrated-auth .platform-badge.invite-badge{left:auto;right:14px}#auth-page.sada-integrated-auth .section-copy{padding:19px 2px 0}#auth-page.sada-integrated-auth .section-eyebrow{display:flex;align-items:center;gap:7px;color:var(--accent,#e6387c);font-weight:800;font-size:11px;margin-bottom:6px}#auth-page.sada-integrated-auth .section-eyebrow svg{width:16px;height:16px}#auth-page.sada-integrated-auth .section-copy h2{font-size:clamp(22px,5.9vw,29px);line-height:1.48;letter-spacing:-.4px;margin:0 0 9px;font-weight:900}#auth-page.sada-integrated-auth .section-copy p{font-size:12px;color:#929fb9;line-height:2;margin:0 0 13px}#auth-page.sada-integrated-auth .chips{display:flex;align-items:center;flex-wrap:wrap;gap:7px}#auth-page.sada-integrated-auth .chip{border:1px solid #202a3c;border-radius:11px;background:#0d1421;color:#aebbd3;padding:7px 10px;font-size:11px;transition:.15s}#auth-page.sada-integrated-auth .chip.active{background:#12254a;border-color:#3466d4;color:#e3ebff}#auth-page.sada-integrated-auth .service-list{display:none;margin-top:12px;gap:7px}#auth-page.sada-integrated-auth .service-list.show{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#auth-page.sada-integrated-auth .service-item{border:1px solid #202a3d;border-radius:12px;background:#0d1420;padding:10px}#auth-page.sada-integrated-auth .service-item b{font-size:11px;display:block;margin-bottom:4px}#auth-page.sada-integrated-auth .service-item span{font-size:9px;color:#8f9db7}#auth-page.sada-integrated-auth .service-item strong{display:block;color:#f1f5ff;font-size:11px;margin-top:4px}#auth-page.sada-integrated-auth .section-separator{height:1px;background:#202637;margin:0 -16px 23px}#auth-page.sada-integrated-auth .info-section{padding:19px 0 22px}#auth-page.sada-integrated-auth .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}#auth-page.sada-integrated-auth .section-head h2{font-size:21px;line-height:1.4;margin:0;font-weight:900}#auth-page.sada-integrated-auth .section-head p{font-size:10px;color:#7f8ca5;margin:4px 0 0}#auth-page.sada-integrated-auth .small-label{font-size:9px;color:#7895d6;border:1px solid #253964;background:#101c36;padding:5px 8px;border-radius:8px;white-space:nowrap}#auth-page.sada-integrated-auth .how-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#auth-page.sada-integrated-auth .how-card, #auth-page.sada-integrated-auth .why-card{border:1px solid #202a3b;border-radius:15px;background:linear-gradient(145deg,#0e1522,#0a101b);padding:13px;min-height:92px}#auth-page.sada-integrated-auth .how-number{width:25px;height:25px;border-radius:9px;display:grid;place-items:center;background:#182b53;color:#94b7ff;font-size:11px;font-weight:900;margin-bottom:8px}#auth-page.sada-integrated-auth .how-card b, #auth-page.sada-integrated-auth .why-card b{font-size:12px;display:block;margin-bottom:4px}#auth-page.sada-integrated-auth .how-card p, #auth-page.sada-integrated-auth .why-card p{font-size:10px;color:#8492ac;line-height:1.8;margin:0}#auth-page.sada-integrated-auth .why-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#auth-page.sada-integrated-auth .why-icon{width:28px;height:28px;border-radius:9px;background:#121f38;color:#8eb5ff;display:grid;place-items:center;margin-bottom:8px}#auth-page.sada-integrated-auth .why-icon svg{width:16px;height:16px}#auth-page.sada-integrated-auth .platform-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}#auth-page.sada-integrated-auth .mini-platform{border:1px solid #202a3a;border-radius:13px;background:#0d1420;min-height:71px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:#bdc9de;font-size:9px;transition:.15s}#auth-page.sada-integrated-auth .mini-platform:active{transform:scale(.97);border-color:#3d6ed7}#auth-page.sada-integrated-auth .mini-logo{width:26px;height:26px;display:grid;place-items:center;border-radius:8px;background:var(--icbg,#141f32);color:var(--ic,#92a9ce)}#auth-page.sada-integrated-auth .mini-logo svg{width:16px;height:16px}#auth-page.sada-integrated-auth .subscriptions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#auth-page.sada-integrated-auth .sub-card{background:#0c1421;border:1px solid #202a3b;border-radius:14px;padding:12px;display:flex;align-items:center;gap:9px;min-width:0}#auth-page.sada-integrated-auth .sub-icon{width:34px;height:34px;display:grid;place-items:center;flex-shrink:0;border-radius:11px;background:#121e32;color:var(--ic,#97b7ff)}#auth-page.sada-integrated-auth .sub-icon svg{width:19px;height:19px}#auth-page.sada-integrated-auth .sub-card b{font-size:11px;display:block}#auth-page.sada-integrated-auth .sub-card span{font-size:9px;color:#8492aa;display:block;margin-top:2px}#auth-page.sada-integrated-auth .levels{display:flex;flex-direction:column;gap:7px}#auth-page.sada-integrated-auth .level{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #202a3c;background:#0d1420;border-radius:13px;padding:11px 12px}#auth-page.sada-integrated-auth .level b{font-size:11px}#auth-page.sada-integrated-auth .level span{font-size:10px;color:#8593ad}#auth-page.sada-integrated-auth .level em{font-style:normal;color:#e8bc51;font-size:10px}#auth-page.sada-integrated-auth .review-card{border:1px solid #202a3b;background:linear-gradient(135deg,#111827,#0b111c);border-radius:17px;padding:15px}#auth-page.sada-integrated-auth .review-top{display:flex;align-items:center;justify-content:space-between;gap:9px}#auth-page.sada-integrated-auth .review-top strong{font-size:30px;line-height:1;color:#fff}#auth-page.sada-integrated-auth .stars{color:#ffc754;letter-spacing:2px;font-size:17px}#auth-page.sada-integrated-auth .review-card p{font-size:11px;color:#97a4bd;line-height:1.9;margin:10px 0}#auth-page.sada-integrated-auth .review-bottom{display:flex;align-items:center;justify-content:space-between;color:#7b8aa5;font-size:9px}#auth-page.sada-integrated-auth .security-list{display:grid;gap:7px}#auth-page.sada-integrated-auth .security{display:flex;gap:10px;align-items:flex-start;border:1px solid #202a3b;background:#0d1420;border-radius:12px;padding:11px}#auth-page.sada-integrated-auth .security-icon{width:26px;height:26px;display:grid;place-items:center;border-radius:8px;color:#71d7ba;background:#123027;flex-shrink:0}#auth-page.sada-integrated-auth .security-icon svg{width:15px;height:15px}#auth-page.sada-integrated-auth .security b{font-size:11px;display:block}#auth-page.sada-integrated-auth .security p{font-size:10px;color:#8492aa;line-height:1.8;margin:3px 0 0}#auth-page.sada-integrated-auth .payment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}#auth-page.sada-integrated-auth .payment{border:1px solid #202a3a;background:#0d1420;border-radius:10px;padding:10px 5px;text-align:center;color:#aebbd2;font-size:10px}#auth-page.sada-integrated-auth .payment i{display:block;color:#63baff;font-size:17px;font-style:normal;margin-bottom:3px}#auth-page.sada-integrated-auth .support-card{border:1px solid #2a3a5a;background:radial-gradient(circle at 90% 0%,#14306466,transparent 38%),#0d1421;border-radius:20px;padding:17px;margin:12px 0 18px}#auth-page.sada-integrated-auth .support-card h2{font-size:20px;margin:0 0 5px}#auth-page.sada-integrated-auth .support-card p{font-size:11px;color:#93a1bb;line-height:1.9;margin:0 0 13px}#auth-page.sada-integrated-auth .support-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#auth-page.sada-integrated-auth .support-option{display:flex;align-items:center;gap:7px;border:1px solid #25324a;background:#101b2d;border-radius:11px;padding:10px;font-size:10px;color:#d4e1f8}#auth-page.sada-integrated-auth .support-option svg{width:16px;height:16px;color:#72cfff;flex-shrink:0}#auth-page.sada-integrated-auth .support-cta{width:100%;margin-top:12px;min-height:43px;border:0;border-radius:10px;color:#fff;background:#346dff;font-size:12px;font-weight:900}#auth-page.sada-integrated-auth .footer{border-top:1px solid #1b2434;padding:18px 0 30px;color:#75839e;font-size:10px}#auth-page.sada-integrated-auth .footer-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}#auth-page.sada-integrated-auth .footer-brand{color:#ecf2ff;font-size:14px;font-weight:900}#auth-page.sada-integrated-auth .footer-links{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}#auth-page.sada-integrated-auth .footer-links a{display:block;margin-top:7px;color:#8391aa}#auth-page.sada-integrated-auth .floating-up{opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s;position:fixed;z-index:8;bottom:16px;left:max(16px,calc((100vw - 760px)/2 + 16px));width:43px;height:43px;border:1px solid #29344a;border-radius:50%;background:#0d1524;color:#d7e4ff;box-shadow:0 7px 25px #0006;display:grid;place-items:center;font-size:20px}#auth-page.sada-integrated-auth .floating-chat{opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s;position:fixed;z-index:7;bottom:68px;left:max(16px,calc((100vw - 760px)/2 + 16px));width:48px;height:48px;border:0;border-radius:50%;background:#3974ff;color:white;display:grid;place-items:center;box-shadow:0 8px 25px #346cff55}#auth-page.sada-integrated-auth .floating-chat svg{width:22px;height:22px}#auth-page.sada-integrated-auth .floating-nav{display:none}#auth-page.sada-integrated-auth.scrolled .floating-chat, #auth-page.sada-integrated-auth.scrolled .floating-up{opacity:1;pointer-events:auto;transform:translateY(0)}
+@media(min-width:600px){#auth-page.sada-integrated-auth .wrap{padding:0 23px}#auth-page.sada-integrated-auth .announcement{height:31px}#auth-page.sada-integrated-auth .hero{padding-top:28px}#auth-page.sada-integrated-auth .site-header{height:69px}#auth-page.sada-integrated-auth .auth-panel{padding:12px}#auth-page.sada-integrated-auth .field{min-height:51px}#auth-page.sada-integrated-auth .stat{min-height:77px}#auth-page.sada-integrated-auth .stat strong{font-size:25px}#auth-page.sada-integrated-auth .rail-icon{flex-basis:61px;width:61px;height:61px}#auth-page.sada-integrated-auth .platform-card{min-height:205px;padding:20px 19px 34px}#auth-page.sada-integrated-auth .metric{min-height:57px}#auth-page.sada-integrated-auth .platform-name{font-size:16px}#auth-page.sada-integrated-auth .section-copy h2{font-size:29px}#auth-page.sada-integrated-auth .platform-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:360px){#auth-page.sada-integrated-auth .wrap{padding:0 12px}#auth-page.sada-integrated-auth .announcement{font-size:9px}#auth-page.sada-integrated-auth .brand-label{font-size:13px}#auth-page.sada-integrated-auth .header-actions{gap:4px}#auth-page.sada-integrated-auth .head-btn{min-width:29px;padding:0 5px}#auth-page.sada-integrated-auth .method{font-size:9px}#auth-page.sada-integrated-auth .metric{padding-inline:5px}#auth-page.sada-integrated-auth .metric span{font-size:8px}#auth-page.sada-integrated-auth .metric strong{font-size:11px}#auth-page.sada-integrated-auth .platform-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#auth-page.sada-integrated-auth .platform-card{padding-inline:11px}#auth-page.sada-integrated-auth .platform-link{font-size:9px;padding:6px 7px}}
+@media(prefers-reduced-motion:reduce){#auth-page.sada-integrated-auth{scroll-behavior:auto!important}#auth-page.sada-integrated-auth *, #auth-page.sada-integrated-auth *::before, #auth-page.sada-integrated-auth *::after{transition:none!important}}
+
+/* Revision 2: reliable icon marquee, live data presentation, touch ripple, and real account flow. */
+#auth-page.sada-integrated-auth .social-rail{position:relative;touch-action:pan-y}
+#auth-page.sada-integrated-auth .rail-items{display:flex;flex-direction:row;align-items:center;gap:0;width:max-content;overflow:visible;white-space:nowrap;will-change:transform;animation:sadaMerged_sadaIconMarquee 33s linear infinite;direction:ltr}
+#auth-page.sada-integrated-auth .rail-items .rail-set{display:flex;align-items:center;gap:11px;flex:none;padding-inline-end:11px;width:max-content}
+#auth-page.sada-integrated-auth .rail-items .rail-icon{flex:0 0 55px}
+#auth-page.sada-integrated-auth .social-rail:hover .rail-items, #auth-page.sada-integrated-auth .social-rail:focus-within .rail-items{animation-play-state:paused}
+@keyframes sadaMerged_sadaIconMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+#auth-page.sada-integrated-auth .stats-source{font-size:10px;line-height:1.7;color:#6f819d;margin:-5px 1px 14px;min-height:17px;text-align:center}
+#auth-page.sada-integrated-auth .stats-source.live{color:#48d8ae}#auth-page.sada-integrated-auth .stats-source.partial{color:#f0bd63}#auth-page.sada-integrated-auth .stats-source.error{color:#e8a0a0}
+#auth-page.sada-integrated-auth .metric strong[data-live-value]{font-variant-numeric:tabular-nums}
+#auth-page.sada-integrated-auth .captcha-box{display:grid;grid-template-columns:minmax(0,1fr) 92px 76px;gap:7px;align-items:center;padding:9px 10px;border:1px solid #253149;background:#0d1421;border-radius:13px}
+#auth-page.sada-integrated-auth .captcha-prompt{min-width:0;display:flex;flex-direction:column;gap:2px}#auth-page.sada-integrated-auth .captcha-prompt span{font-size:9px;color:#7f8ca6}#auth-page.sada-integrated-auth .captcha-prompt strong{font-size:12px;color:#dce8ff;direction:rtl}
+#auth-page.sada-integrated-auth .captcha-answer{min-width:0;width:100%;height:35px;border:1px solid #2a3852;border-radius:9px;background:#111b2d;color:#fff;text-align:center;outline:none;direction:ltr}
+#auth-page.sada-integrated-auth .captcha-refresh{height:35px;border:1px solid #2c4275;background:#17264b;color:#bdd0ff;border-radius:9px;font-size:10px;font-weight:800;padding:0 5px}
+#auth-page.sada-integrated-auth .touch-ripple-host{position:relative;isolation:isolate;overflow:hidden}
+#auth-page.sada-integrated-auth .touch-ripple{position:absolute;z-index:0;pointer-events:none;border-radius:50%;background:rgba(255,255,255,.28);transform:scale(0);animation:sadaMerged_sadaTouchRipple .48s ease-out forwards}
+@keyframes sadaMerged_sadaTouchRipple{to{transform:scale(1);opacity:0}}
+#auth-page.sada-integrated-auth button, #auth-page.sada-integrated-auth a, #auth-page.sada-integrated-auth .field{transition:transform .15s ease,filter .15s ease,border-color .15s ease,box-shadow .15s ease}
+#auth-page.sada-integrated-auth button:active, #auth-page.sada-integrated-auth a:active, #auth-page.sada-integrated-auth .field:active{filter:brightness(1.12)}
+#auth-page.sada-integrated-auth button:focus-visible, #auth-page.sada-integrated-auth a:focus-visible{outline:2px solid #6b96ff;outline-offset:3px}
+#auth-page.sada-integrated-auth .auth-panel.register-mode{box-shadow:0 0 0 1px #3974ff18,0 18px 45px #0005}
+#auth-page.sada-integrated-auth .auth-panel.register-mode .auth-tabs{border-color:#2f4c89}
+#auth-page.sada-integrated-auth .auth-panel.register-mode .submit-btn{background:linear-gradient(110deg,#3267ee,#427cff)}
+#auth-page.sada-integrated-auth .form-foot{flex-wrap:wrap;text-align:center}#auth-page.sada-integrated-auth .toast.error{background:#30161c;border-color:#7b2e3d;color:#ffd2d8}#auth-page.sada-integrated-auth .toast.success{background:#0b2925;border-color:#267c6a;color:#adf4df}#auth-page.sada-integrated-auth .submit-btn:disabled, #auth-page.sada-integrated-auth .captcha-refresh:disabled{opacity:.6;cursor:wait}#auth-page.sada-integrated-auth .submit-btn.loading{filter:saturate(.7);opacity:.82}#auth-page.sada-integrated-auth .chip-feedback{margin-top:8px;color:#83b5ff;font-size:10px;line-height:1.7}
+#auth-page.sada-integrated-auth .review-carousel{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:8px;align-items:stretch}
+#auth-page.sada-integrated-auth .review-nav{border:1px solid #27334a;background:#111a2a;color:#dbe6fb;border-radius:13px;font-size:23px;min-width:0}
+#auth-page.sada-integrated-auth .review-card[hidden]{display:none!important}#auth-page.sada-integrated-auth .review-card{min-width:0}
+#auth-page.sada-integrated-auth .review-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}#auth-page.sada-integrated-auth .review-dots button{border:0;width:7px;height:7px;padding:0;border-radius:99px;background:#39445b}#auth-page.sada-integrated-auth .review-dots button.active{width:20px;background:#3974ff}
+
+#auth-page.sada-integrated-auth .demo-offer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;padding:11px 12px;border:1px dashed #34466a;border-radius:13px;background:linear-gradient(105deg,#0e1829,#0a111d);min-width:0}#auth-page.sada-integrated-auth .demo-offer-copy{display:flex;flex-direction:column;gap:2px;min-width:0}#auth-page.sada-integrated-auth .demo-offer-copy small{color:#78a7ff;font-size:9px}#auth-page.sada-integrated-auth .demo-offer-copy strong{font-size:12px;color:#eef3ff}#auth-page.sada-integrated-auth .demo-offer-copy span{font-size:9px;color:#7f8ea8;line-height:1.7}#auth-page.sada-integrated-auth .demo-offer-price{direction:ltr;white-space:nowrap;color:#a9f1db;font-size:14px;font-weight:900;border:1px solid #245c52;background:#0e2a27;border-radius:10px;padding:7px 9px;font-variant-numeric:tabular-nums}#auth-page.sada-integrated-auth .price-metric span{color:#85aaff}#auth-page.sada-integrated-auth .stats-source.live{color:#8ae5c6}#auth-page.sada-integrated-auth .stats-source.partial{color:#f0c56f}
+@media(max-width:420px){#auth-page.sada-integrated-auth .captcha-box{grid-template-columns:minmax(0,1fr) 64px 67px;gap:5px;padding:8px}#auth-page.sada-integrated-auth .captcha-answer, #auth-page.sada-integrated-auth .captcha-refresh{height:33px;font-size:10px}#auth-page.sada-integrated-auth .rail-icon{width:55px;height:55px}}
+@media(prefers-reduced-motion:reduce){#auth-page.sada-integrated-auth{scroll-behavior:auto!important}#auth-page.sada-integrated-auth *, #auth-page.sada-integrated-auth *::before, #auth-page.sada-integrated-auth *::after{transition:none!important}}
+
+
+/* Usable header menu: opens on tap and closes after navigation/outside tap/Escape. */
+#auth-page.sada-integrated-auth .header-actions{position:relative}
+#auth-page.sada-integrated-auth .quick-menu{position:absolute;z-index:40;inset-inline-start:0;top:calc(100% + 9px);width:min(255px,84vw);padding:7px;border:1px solid #2b3851;border-radius:15px;background:linear-gradient(155deg,#121b2d,#080e18);box-shadow:0 18px 42px #000a;display:grid;gap:3px;direction:rtl}
+#auth-page.sada-integrated-auth .quick-menu[hidden]{display:none!important}
+#auth-page.sada-integrated-auth .quick-menu a{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:10px;color:#d7e3fa;font-size:12px;border:1px solid transparent;min-height:38px}
+#auth-page.sada-integrated-auth .quick-menu a span{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#17274a;color:#8fb2ff;font-size:13px;flex:none}
+#auth-page.sada-integrated-auth .quick-menu a:hover, #auth-page.sada-integrated-auth .quick-menu a:focus-visible{background:#15223a;border-color:#2d4778}
+#auth-page.sada-integrated-auth #menuToggle[aria-expanded="true"]{border-color:#4b7cff;background:#17264b;color:#fff}
+@media(max-width:360px){#auth-page.sada-integrated-auth .quick-menu{width:min(238px,86vw)}}
+
+/* Integrated auth layer: retain the v6.6 auth handlers, captcha and session storage while using the new presentation. */
+#auth-page.sada-integrated-auth{display:block!important;position:fixed;inset:0;z-index:9000;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;background:#06080f;color:#f5f7ff;padding-bottom:max(20px,env(safe-area-inset-bottom,0px))}
+#auth-page.sada-integrated-auth .sada-auth-card{border:1px solid #202a3b;border-radius:21px;padding:9px;background:linear-gradient(155deg,#0d1320,#080d16);box-shadow:0 18px 45px #0005}
+#auth-page.sada-integrated-auth .sada-auth-content{padding:1px 2px 5px}
+#auth-page.sada-integrated-auth #box-login,#auth-page.sada-integrated-auth #box-register,#auth-page.sada-integrated-auth #box-forgot{width:100%;box-sizing:border-box;padding:0 2px 3px}
+#auth-page.sada-integrated-auth .form-title{font-family:"Cairo","Tajawal",Tahoma,sans-serif;font-size:16px;line-height:1.65;font-weight:900;text-align:right;color:#f5f7ff;margin:12px 2px 2px}
+#auth-page.sada-integrated-auth .form-sub{font-size:10px;line-height:1.8;text-align:right;color:#8d99b2;margin:0 2px 9px}
+#auth-page.sada-integrated-auth .auth-err{display:none;margin:7px 0;padding:9px 10px;border:1px solid #7b2e3d;border-radius:10px;background:#30161c;color:#ffd2d8;font-size:11px;line-height:1.7}
+#auth-page.sada-integrated-auth .auth-err.on{display:block}
+#auth-page.sada-integrated-auth .fg{margin:9px 0 0;min-width:0}
+#auth-page.sada-integrated-auth .fg>label{display:block;margin:0 1px 5px;color:#aebbd2;font-family:"Cairo","Tajawal",Tahoma,sans-serif;font-size:10px;font-weight:700}
+#auth-page.sada-integrated-auth .fg .opt{font-size:9px;color:#7888a5}
+#auth-page.sada-integrated-auth .fi-wrap{position:relative;display:flex;align-items:center;min-height:47px;width:100%;border:1px solid #222c40;border-radius:13px;background:#101725;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+#auth-page.sada-integrated-auth .fi-wrap:focus-within{border-color:#407dff;box-shadow:0 0 0 3px #3974ff16}
+#auth-page.sada-integrated-auth .fi-right-ico{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#8593ad;font-size:13px;pointer-events:none}
+#auth-page.sada-integrated-auth .fi-wrap .fi{display:block;flex:1;min-width:0;width:100%;height:45px;margin:0;padding:0 37px 0 11px;background:transparent!important;border:0!important;outline:none!important;box-shadow:none!important;color:#f4f7ff!important;font:500 12px "Cairo","Tajawal",Tahoma,sans-serif;direction:rtl;text-align:right}
+#auth-page.sada-integrated-auth .fi-wrap .fi::placeholder{color:#8995ab}
+#auth-page.sada-integrated-auth .fi-eye{align-self:stretch;flex:none;width:38px;border:0;background:transparent;color:#9da9bf;padding:0;font-size:12px}
+#auth-page.sada-integrated-auth .fi:not(.fi-wrap .fi){width:100%;min-width:0;min-height:45px;padding:10px 12px;background:#101725!important;border:1px solid #222c40!important;border-radius:13px;color:#f4f7ff!important;box-shadow:none!important;font:500 12px "Cairo","Tajawal",Tahoma,sans-serif;direction:rtl}
+#auth-page.sada-integrated-auth .btn-auth{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:47px;margin:10px 0 0;padding:10px 12px;border:0;border-radius:12px;background:linear-gradient(110deg,#3c78ff,#2e62ec);color:#fff;font:800 13px "Cairo","Tajawal",Tahoma,sans-serif;box-shadow:0 8px 21px #245ee926;transition:transform .15s,filter .15s}
+#auth-page.sada-integrated-auth .btn-auth-purple{background:linear-gradient(110deg,#3c78ff,#2e62ec)!important}
+#auth-page.sada-integrated-auth #btn-login,#auth-page.sada-integrated-auth #box-register .btn-auth,#auth-page.sada-integrated-auth #forgot-send,#auth-page.sada-integrated-auth #forgot-reset{background:linear-gradient(110deg,#3c78ff,#2e62ec)!important;color:#fff!important;border:0!important;border-radius:12px!important;box-shadow:0 8px 21px #245ee926!important}
+#auth-page.sada-integrated-auth .afp-back{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:7px;padding:8px;background:transparent;border:0;color:#9fb7f6;font:600 10px "Cairo","Tajawal",Tahoma,sans-serif}
+#auth-page.sada-integrated-auth .sada1563-captcha{margin-top:10px}
+#auth-page.sada-integrated-auth .sada1563-captcha-row{display:grid;grid-template-columns:minmax(0,1fr) 38px minmax(82px,.5fr);gap:5px;align-items:center;direction:rtl}
+#auth-page.sada-integrated-auth .sada1563-captcha-question{font-size:11px;min-width:0;color:#c9d8f5}
+#auth-page.sada-integrated-auth .sada1563-captcha-refresh{min-width:0;width:38px;height:36px;border:1px solid #2c4275;border-radius:9px;background:#17264b;color:#bdd0ff}
+#auth-page.sada-integrated-auth .sada1563-captcha-row .fi{min-width:0!important;width:100%;height:36px;padding:5px;text-align:center;direction:ltr;background:#111b2d!important;border:1px solid #2a3852!important;border-radius:9px;font-size:12px}
+#auth-page.sada-integrated-auth .auth-divider,#auth-page.sada-integrated-auth .sada1563-google-wrap{display:none!important}
+#auth-page.sada-integrated-auth .auth-security-notice{display:flex;justify-content:center;align-items:center;gap:7px;color:#73839e;font-size:9px;text-align:center;line-height:1.8}
+#auth-page.sada-integrated-auth .auth-security-notice i{color:#38d4ab}
+#auth-page.sada-integrated-auth .floating-up,#auth-page.sada-integrated-auth .floating-chat{position:absolute}
+#auth-page.sada-integrated-auth .stats-source{min-height:18px}
+@media(min-width:900px){#auth-page.sada-integrated-auth .wrap{width:min(100%,760px);padding-inline:23px}#auth-page.sada-integrated-auth .hero h1{font-size:35px}#auth-page.sada-integrated-auth .sada-auth-card{padding:12px}}
+@media(max-width:420px){#auth-page.sada-integrated-auth .sada-auth-card{padding:8px}#auth-page.sada-integrated-auth .form-title{font-size:15px}#auth-page.sada-integrated-auth .sada1563-captcha-row{grid-template-columns:minmax(0,1fr) 34px minmax(75px,.48fr);gap:4px}#auth-page.sada-integrated-auth .sada1563-captcha-refresh{width:34px}}
+
 </style>
 
 <script id="SADA38_EARLY_API_SESSION_PATCH">
@@ -2612,172 +2699,75 @@ html.sada-lite-motion .ks-particle{display:none!important}
 </svg>
 
 <!-- ═══════ AUTH PAGE ═══════ -->
-<div id="auth-page">
-  <div class="auth-hero-screen" id="auth-hero">
-    <div class="ah-nav">
-      <button class="btn-ghost" style="color:var(--t0);font-size:17px"><i class="fas fa-bars"></i></button>
-      <div class="ah-sp"></div>
-      <div class="ah-nav-user">
-        <div class="ah-av"><i class="fas fa-user" style="font-size:10px;color:var(--t1)"></i></div>
-        <i class="fas fa-chevron-down"></i>
-      </div>
-      <button class="ah-nav-bell"><i class="fas fa-bell"></i><div class="ah-bell-dot"></div></button>
-      <button class="ah-nav-sun"><i class="fas fa-sun"></i></button>
-      <div class="ah-nav-av">K</div>
-    </div>
-    <div class="ah-body">
-      <div class="ah-tag"><div class="ah-tag-dot"></div>#1 منصة SMM في العالم العربي</div>
-      <h1 class="ah-h1"><span class="ks-hero-brand"><span class="ks-crown"><i class="fas fa-crown" style="font-size:.75em;color:#fdcb6e"></i></span> صدى العراق</span>منصة <span class="ah-accent">SMM</span> الاحترافية<br>لتنمية حساباتك</h1>
-      <p class="ah-p">احصل على متابعين، لايكات، ومشاهدات حقيقية بأسعار تنافسية. تنفيذ فوري، دعم على مدار الساعة، ونتائج مضمونة.</p>
-      <!-- Social icons strip -->
-      <div id="ks-social-strip">
-        <div class="ks-soc-ico" style="background:linear-gradient(135deg,#405de6,#5851db,#833ab4,#c13584,#e1306c,#fd1d1d)"><i class="fab fa-instagram" style="color:#fff"></i></div>
-        <div class="ks-soc-ico" style="background:#000"><i class="fab fa-tiktok" style="color:#fff"></i></div>
-        <div class="ks-soc-ico" style="background:linear-gradient(135deg,#ff0000,#cc0000)"><i class="fab fa-youtube" style="color:#fff"></i></div>
-        <div class="ks-soc-ico" style="background:linear-gradient(135deg,#1877f2,#0d5fba)"><i class="fab fa-facebook" style="color:#fff"></i></div>
-        <div class="ks-soc-ico" style="background:linear-gradient(135deg,#1da1f2,#0d8ac9)"><i class="fab fa-twitter" style="color:#fff"></i></div>
-        <div class="ks-soc-ico" style="background:linear-gradient(135deg,#fffc00,#ffd700)"><i class="fab fa-snapchat" style="color:#000"></i></div>
-        <div class="ks-soc-ico" style="background:linear-gradient(135deg,#229ed9,#1a7ab0)"><i class="fab fa-telegram" style="color:#fff"></i></div>
-        <div class="ks-soc-ico" style="background:linear-gradient(135deg,#0088cc,#005580)"><i class="fab fa-linkedin" style="color:#fff"></i></div>
-      </div>
-      <div class="ah-btns">
-        <button class="ah-btn-p" onclick="showAuthPanel('register')">ابدأ الآن مجاناً <i class="fas fa-arrow-left"></i></button>
-        <button class="ah-btn-s" onclick="showAuthPanel('login')"><i class="fas fa-sign-in-alt" style="font-size:12px"></i> تسجيل الدخول</button>
-      </div>
-      <div class="ah-stats">
-        <div class="ah-stat"><div class="ah-stat-n">500+</div><div class="ah-stat-l">خدمة</div></div>
-        <div class="ah-stat-d"></div>
-        <div class="ah-stat"><div class="ah-stat-n">24/7</div><div class="ah-stat-l">دعم</div></div>
-        <div class="ah-stat-d"></div>
-        <div class="ah-stat"><div class="ah-stat-n">50K+</div><div class="ah-stat-l">عميل</div></div>
-        <div class="ah-stat-d"></div>
-        <div class="ah-stat"><div class="ah-stat-n">&lt;1د</div><div class="ah-stat-l">تنفيذ</div></div>
-      </div>
+<div id="auth-page" class="sada-integrated-auth">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+<symbol id="logo-sada" viewBox="0 0 24 24"><path d="M4 17.5V6.5l8-4 8 4v11l-8 4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 14.5l3-5 3 5 4-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="7.5" r="1.2" fill="currentColor"/></symbol>
+<symbol id="instagram" viewBox="0 0 24 24"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.8" r="1.2" fill="currentColor"/></symbol>
+<symbol id="telegram" viewBox="0 0 24 24"><path d="M21 4 3.7 10.7c-1.1.4-1.1 1.1-.2 1.4l4.4 1.4 1.7 5.2c.2.6.1.9.7.9.4 0 .6-.2.9-.5l2.2-2.2 4.6 3.4c.8.5 1.4.2 1.6-.7L22 5.2C22.3 4.1 21.6 3.6 21 4ZM9 13.2 18.4 7l-7.3 7.5-.3 3.2-1.8-4.5Z" fill="currentColor"/></symbol>
+<symbol id="youtube" viewBox="0 0 24 24"><path d="M21.3 7.1a2.6 2.6 0 0 0-1.8-1.8C17.9 4.9 12 4.9 12 4.9s-5.9 0-7.5.4a2.6 2.6 0 0 0-1.8 1.8A26.5 26.5 0 0 0 2.3 12a26.5 26.5 0 0 0 .4 4.9 2.6 2.6 0 0 0 1.8 1.8c1.6.4 7.5.4 7.5.4s5.9 0 7.5-.4a2.6 2.6 0 0 0 1.8-1.8 26.5 26.5 0 0 0 .4-4.9 26.5 26.5 0 0 0-.4-4.9ZM10 15.3V8.7l5.7 3.3-5.7 3.3Z" fill="currentColor"/></symbol>
+<symbol id="tiktok" viewBox="0 0 24 24"><path d="M14.4 3h3.1c.1 2.2 1.3 3.9 3.5 4.6v3.2a9 9 0 0 1-3.5-1.2v6.1a6 6 0 1 1-6-6c.4 0 .7 0 1.1.1v3.3a2.8 2.8 0 1 0 1.8 2.6V3Z" fill="currentColor"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="M4 3h4.4l4.3 5.8L17.8 3H20l-6.3 7.4L21 21h-4.5l-4.8-6.4L6.1 21H4l6.7-7.9L4 3Zm3.5 1.8 10 14.4h1.8L9.3 4.8H7.5Z" fill="currentColor"/></symbol>
+<symbol id="whatsapp" viewBox="0 0 24 24"><path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.4-4.9a8.5 8.5 0 1 1 16.1-3.9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.1 7.7c.2-.4.5-.4.8-.4h.5c.2 0 .4.1.5.5l.7 1.7c.1.3.1.5-.1.7l-.6.7c-.2.2-.1.4 0 .6.6 1 1.4 1.8 2.4 2.3.3.2.5.2.7-.1l.9-1.1c.2-.2.4-.3.7-.1l1.7.8c.3.2.4.4.3.7-.1.6-.5 1.2-1 1.5-.6.4-1.5.5-2.4.2a9.2 9.2 0 0 1-4.9-4.5c-.5-.9-.7-1.9-.3-2.7.2-.4.5-.7.8-.8Z" fill="currentColor"/></symbol>
+<symbol id="linkedin" viewBox="0 0 24 24"><path d="M5.1 8.5H2.3V21h2.8V8.5ZM3.7 3a1.7 1.7 0 1 0 0 3.4 1.7 1.7 0 0 0 0-3.4ZM21.7 13.8c0-3.8-2-5.6-4.7-5.6a4 4 0 0 0-3.6 2V8.5h-2.8V21h2.8v-6.7c0-1.8.4-3.5 2.6-3.5s2.3 2 2.3 3.6V21h2.8l.6-7.2Z" fill="currentColor"/></symbol>
+<symbol id="threads" viewBox="0 0 24 24"><path d="M12.2 21c-4.9 0-8.1-3.4-8.1-8.9C4.1 6.5 7.4 3 12.1 3c4.2 0 6.8 2.2 7.6 6.1l-2.5.6c-.6-2.8-2.3-4.2-5.1-4.2-3.3 0-5.4 2.5-5.4 6.6 0 4.2 2 6.5 5.5 6.5 2.6 0 4.3-1.3 4.3-3.2 0-1.4-1-2.4-2.8-2.7-.2 2.2-1.4 3.4-3.4 3.4-1.8 0-3-1-3-2.6 0-1.8 1.7-3 4.4-3.1 3.9-.1 6.9 1.7 6.9 5 0 3.5-2.6 5.6-6.4 5.6Zm.7-8.1c-1.7 0-2.8.6-2.8 1.6 0 .6.5 1 1.3 1 1 0 1.5-.8 1.5-2.6Z" fill="currentColor"/></symbol>
+<symbol id="twitch" viewBox="0 0 24 24"><path d="M4 3H22V15.5l-5.1 5.1h-4.2L10 23v-2.4H5.3V5.6L4 3Zm3.4 4.5v10h4.1v2.1l2.2-2.1h3.4l2.5-2.5V5.8H7.4v1.7Z" fill="currentColor"/><path d="M11 8h2v5h-2zm4 0h2v5h-2z" fill="currentColor"/></symbol>
+<symbol id="discord" viewBox="0 0 24 24"><path d="M19.7 5.2A18 18 0 0 0 15.3 4l-.6 1.2a16 16 0 0 0-5.4 0L8.7 4a18 18 0 0 0-4.4 1.2C1.5 9.3.8 13.2 1.2 17c1.8 1.3 3.6 2.1 5.4 2.6l1.2-1.9-1.8-.9.4-.3c3.5 1.6 7.4 1.6 10.9 0l.4.3-1.8.9 1.2 1.9c1.8-.5 3.6-1.3 5.4-2.6.5-4.4-.8-8.3-2.8-11.8ZM8.8 14.4c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm6.4 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z" fill="currentColor"/></symbol>
+<symbol id="spotify" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 14.4a.7.7 0 0 1-1 .2c-2.6-1.6-5.9-2-9.8-1.1a.7.7 0 1 1-.3-1.4c4.2-.9 7.9-.5 10.9 1.3.4.2.5.7.2 1Zm1.3-3a.9.9 0 0 1-1.2.3c-3-1.8-7.6-2.4-11.1-1.3a.9.9 0 1 1-.5-1.7c4-.0 9 .6 12.4 2.7.4.2.6.8.4 1Zm.1-3.2c-3.6-2.1-9.6-2.3-13-.9a1.1 1.1 0 1 1-.8-2.1c4-1.5 10.6-1.2 14.8 1.2a1.1 1.1 0 0 1-1 1.8Z" fill="currentColor"/></symbol>
+<symbol id="soundcloud" viewBox="0 0 24 24"><path d="M3 13h1v5H3zm2-2h1v7H5zm2-2h1v9H7zm2-2h1v11H9zm2 1h1v10h-1zm2 2a5 5 0 0 1 9 3.1A3 3 0 0 1 21 19H13z" fill="currentColor"/></symbol>
+<symbol id="facebook" viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5h1.7V3.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.2v2.1H7.7V13h2.7v8h3.1Z" fill="currentColor"/></symbol>
+<symbol id="snapchat" viewBox="0 0 24 24"><path d="M12 3.2c-2.5 0-4 2-4 4.7 0 .7.1 1.6 0 2.3-.1.5-.6.7-1.2.5-.4-.2-.9-.4-1.2-.4-.6 0-1 .5-.6 1 .4.5 1.4.7 2 1.1.3.2.4.5.2.8-.5.9-1.5 1.6-2.5 2-.5.2-.9.2-1.2.7-.2.4.2.8.7.9.8.2 1.8.1 2.4.9.5.7 1.4 1.1 2.3 1.1 1.2 0 2 .8 3.1.8s1.9-.8 3.1-.8c.9 0 1.8-.4 2.3-1.1.6-.8 1.6-.7 2.4-.9.5-.1.9-.5.7-.9-.3-.5-.7-.5-1.2-.7-1-.4-2-1.1-2.5-2-.2-.3-.1-.6.2-.8.6-.4 1.6-.6 2-1.1.4-.5 0-1-.6-1-.3 0-.8.2-1.2.4-.6.2-1.1 0-1.2-.5-.1-.7 0-1.6 0-2.3 0-2.7-1.5-4.7-4-4.7Z" fill="currentColor"/></symbol>
+<symbol id="pinterest" viewBox="0 0 24 24"><path d="M12.3 2C6.6 2 3.5 6.1 3.5 10.5c0 2.6 1 4.9 3.1 5.8.3.1.6 0 .7-.4l.3-1.2c.1-.4.1-.5-.2-.8-.6-.7-1-1.6-1-2.9 0-3.7 2.8-7 7.2-7 3.9 0 6 2.4 6 5.6 0 4.2-1.8 7.8-4.5 7.8-1.5 0-2.6-1.3-2.2-2.8.4-1.8 1.2-3.7 1.2-4.9 0-1.1-.6-2.1-1.8-2.1-1.4 0-2.5 1.5-2.5 3.5 0 1.3.4 2.2.4 2.2l-1.5 6.2c-.4 1.7-.1 3.8 0 4l.2.1c.2-.1 1.5-1.8 2-3.4l.8-3.1c.4.8 1.7 1.5 3 1.5 4 0 6.7-3.6 6.7-8.5C21.4 5.7 17.8 2 12.3 2Z" fill="currentColor"/></symbol>
+<symbol id="reddit" viewBox="0 0 24 24"><path d="M12 5.1 13 2l5 1.1-.5 1.7A8.7 8.7 0 0 1 21 8a2.4 2.4 0 1 1-1.4 4.3c.1.4.2.8.2 1.2 0 3.4-3.5 5.5-7.8 5.5s-7.8-2.1-7.8-5.5c0-.4.1-.8.2-1.2A2.4 2.4 0 1 1 3 8c.9-1.4 2.2-2.5 3.7-3.2L7.5 3l4.5 2.1Zm-3.2 7.5a1.1 1.1 0 1 0 0-2.2 1.1 1.1 0 0 0 0 2.2Zm6.4 0a1.1 1.1 0 1 0 0-2.2 1.1 1.1 0 0 0 0 2.2ZM8.7 14c-.3-.2-.7.2-.4.5.9 1 2.2 1.5 3.7 1.5s2.8-.5 3.7-1.5c.3-.3-.1-.7-.4-.5-.9.7-2 1-3.3 1s-2.4-.3-3.3-1Z" fill="currentColor"/></symbol>
+<symbol id="behance" viewBox="0 0 24 24"><path d="M3 5h7a4 4 0 0 1 1.1 7.8A4.1 4.1 0 0 1 9.7 21H3V5Zm3 2.6v4h3c1.4 0 2.1-.7 2.1-2S10.4 7.6 9 7.6H6Zm0 6.4v4.4h3.5c1.4 0 2.2-.8 2.2-2.2s-.8-2.2-2.2-2.2H6ZM15 5h6v2h-6V5Zm6 10.3h-5.5c.1 1.7 1 2.6 2.7 2.6 1 0 1.8-.4 2.2-1h2.3c-.6 2.1-2.2 3.3-4.6 3.3-3.2 0-5.1-2.1-5.1-5.3s2-5.4 5-5.4 5 2.3 5 5.5v.3Zm-5.5-1.8h3.2c-.1-1.3-.7-2-1.6-2-1 0-1.5.7-1.6 2Z" fill="currentColor"/></symbol>
+<symbol id="steam" viewBox="0 0 24 24"><path d="M12.3 2a10 10 0 0 0-9.9 11.5l5.1 2.1a3.3 3.3 0 0 0 6.4-.9l3.2-2.3a4.2 4.2 0 1 0-4.2-4.2l-2.2 3.2a3.4 3.4 0 0 0-2.7 1.3l-4-1.6A8.3 8.3 0 1 1 12.3 20.3l-2.9-1.2A3.3 3.3 0 0 0 12.3 22 10 10 0 0 0 12.3 2Zm4.8 4.3a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2ZM10 15a1.7 1.7 0 1 1-3.4 0 1.7 1.7 0 0 1 3.4 0Z" fill="currentColor"/></symbol>
+<symbol id="vimeo" viewBox="0 0 24 24"><path d="M22 7.1c-.1 3.3-2.5 7.9-7.1 13.7-2.4 3-4.4 4.5-6 4.5-1 0-2-.9-2.7-2.8L3.5 13c-.9-3.7-1.8-4.8-2.8-3.3L0 8.2c1.8-2.1 3.5-4.1 5.1-6.2 2.3-2 4-2.2 5.1-.1l2.6 8.9c.7 2.2 1.4 2.9 2.1 2.1 1.2-1.1 2.1-2.8 2.7-4.9.5-2.1-.1-3.1-1.9-3.1-.9 0-1.8.2-2.7.6 1.8-5.9 5.2-8.7 10.3-8.4 2.4.2 3.3 1.8 2.7 4.8Z" fill="currentColor"/></symbol>
+<symbol id="google" viewBox="0 0 24 24"><path d="M21.4 12.2c0-.7-.1-1.3-.2-2H12v3.8h5.3a4.5 4.5 0 0 1-2 3v2.5h3.2c1.9-1.8 2.9-4.4 2.9-7.3Z" fill="currentColor"/><path d="M12 22c2.7 0 5-.9 6.6-2.5l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.9-1.8-5.7-4.2H3v2.6A10 10 0 0 0 12 22Z" fill="currentColor"/><path d="M6.3 13.8a6 6 0 0 1 0-3.8V7.4H3a10 10 0 0 0 0 9l3.3-2.6Z" fill="currentColor"/><path d="M12 5.8c1.5 0 2.9.5 3.9 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-9 5.4l3.3 2.6C7.1 7.6 9.4 5.8 12 5.8Z" fill="currentColor"/></symbol>
+<symbol id="messenger" viewBox="0 0 24 24"><path d="M12 2C6.3 2 2 6.2 2 11.5c0 2.8 1.2 5.3 3.3 7v3.5l3.2-1.8c1.1.3 2.3.5 3.5.5 5.7 0 10-4.2 10-9.5S17.7 2 12 2Zm1 12.8-2.7-2.9-5.2 2.9 5.7-6.1 2.7 2.9 5.2-2.9-5.7 6.1Z" fill="currentColor"/></symbol>
+<symbol id="vk" viewBox="0 0 24 24"><path d="M3 7h3c.5 3.7 2.3 5.3 3.7 5.6V7h2.8v4.8c1.4-.1 3-1.5 3.5-4.8h2.8c-.3 2.3-1.4 4.1-3 5.2 1.6.9 3.1 2.5 3.9 5.8h-3.1c-.6-2.2-2.1-3.8-4.1-4v4H11C6.3 18 3.5 14.7 3 7Z" fill="currentColor"/></symbol>
+<symbol id="apple" viewBox="0 0 24 24"><path d="M16.4 12.8c0-2 1.7-3 1.8-3.1-1-1.4-2.5-1.6-3.1-1.6-1.3-.1-2.6.8-3.3.8-.7 0-1.7-.8-2.8-.7-1.4 0-2.7.8-3.5 2.1-1.5 2.5-.4 6.2 1.1 8.3.7 1 1.5 2.1 2.6 2.1 1 0 1.4-.7 2.7-.7s1.7.7 2.8.7c1.1 0 1.8-1 2.5-2.1.8-1.1 1.1-2.3 1.1-2.3s-1.9-.8-1.9-3.5ZM14.4 6.6c.6-.7 1-1.7.9-2.6-.9 0-2 .6-2.6 1.3-.6.7-1.1 1.7-1 2.6 1 .1 2-.5 2.7-1.3Z" fill="currentColor"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4.3 4.3L19 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5.5c0 4.8-3.2 7.7-8 9.5-4.8-1.8-8-4.7-8-9.5V6l8-3Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8.5 12 2.3 2.3 4.8-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-7 9 7 4 7-4m-14 4 7 4 7-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="bolt" viewBox="0 0 24 24"><path d="m13.5 2-9 12h6l-.5 8 9-12h-6l.5-8Z" fill="currentColor"/></symbol>
+</svg>
 
-      <!-- ══ WHY US SECTION ══ -->
-      <div class="ks-why-section">
-        <div class="ks-section-badge"><i class="fas fa-medal"></i> لماذا تختار صدى العراق؟</div>
-        <div class="ks-features-grid">
-          <div class="ks-feat-card">
-            <div class="ks-feat-ico" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)"><i class="fas fa-bolt"></i></div>
-            <div class="ks-feat-body">
-              <div class="ks-feat-title">تنفيذ فوري في ثوانٍ</div>
-              <div class="ks-feat-desc">بمجرد تأكيد طلبك يبدأ التنفيذ فوراً — لا انتظار، لا تأخير. نظامنا يعمل على مدار الساعة ٢٤/٧.</div>
-            </div>
-          </div>
-          <div class="ks-feat-card">
-            <div class="ks-feat-ico" style="background:linear-gradient(135deg,#00b894,#55efc4)"><i class="fas fa-shield-halved"></i></div>
-            <div class="ks-feat-body">
-              <div class="ks-feat-title">جودة مضمونة ١٠٠٪</div>
-              <div class="ks-feat-desc">متابعين وتفاعل حقيقي من حسابات نشطة. نضمن لك استمرارية النتائج أو نعيد لك رصيدك كاملاً.</div>
-            </div>
-          </div>
-          <div class="ks-feat-card">
-            <div class="ks-feat-ico" style="background:linear-gradient(135deg,#fd79a8,#e84393)"><i class="fas fa-tags"></i></div>
-            <div class="ks-feat-body">
-              <div class="ks-feat-title">أرخص الأسعار في السوق</div>
-              <div class="ks-feat-desc">أسعارنا تنافسية لا تُضاهى. وفّر أكثر مع باقاتنا الخاصة، وكلما زاد طلبك كلما انخفض السعر.</div>
-            </div>
-          </div>
-          <div class="ks-feat-card">
-            <div class="ks-feat-ico" style="background:linear-gradient(135deg,#fdcb6e,#e17055)"><i class="fas fa-headset"></i></div>
-            <div class="ks-feat-body">
-              <div class="ks-feat-title">دعم فني بشري ٢٤/٧</div>
-              <div class="ks-feat-desc">فريق دعمنا جاهز لمساعدتك في أي وقت عبر تلجرام أو واتساب. لا روبوتات، دعم بشري حقيقي.</div>
-            </div>
-          </div>
-          <div class="ks-feat-card">
-            <div class="ks-feat-ico" style="background:linear-gradient(135deg,#74b9ff,#0984e3)"><i class="fas fa-layer-group"></i></div>
-            <div class="ks-feat-body">
-              <div class="ks-feat-title">أكثر من ٥٠٠ خدمة</div>
-              <div class="ks-feat-desc">انستجرام، تيك توك، يوتيوب، فيسبوك، تويتر، سناب، تيليجرام، لينكد إن — كل المنصات في مكان واحد.</div>
-            </div>
-          </div>
-          <div class="ks-feat-card">
-            <div class="ks-feat-ico" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7)"><i class="fas fa-lock"></i></div>
-            <div class="ks-feat-body">
-              <div class="ks-feat-title">آمن تماماً لحسابك</div>
-              <div class="ks-feat-desc">لا نحتاج لكلمة مرورك أبداً. خدماتنا تتوافق مع سياسات المنصات وتحافظ على سلامة حسابك.</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- ══ TESTIMONIALS ══ -->
-      <div class="ks-reviews-section">
-        <div class="ks-section-badge"><i class="fas fa-star"></i> ماذا يقول عملاؤنا؟</div>
-        <div class="ks-reviews-scroll">
-          <div class="ks-review-card">
-            <div class="ks-review-stars">★★★★★</div>
-            <div class="ks-review-text">"صدى العراق غيّرت حياتي على السوشيال ميديا! وصلت لـ١٠٠ألف متابع في أسبوعين بس. الخدمة سريعة والجودة ممتازة جداً."</div>
-            <div class="ks-review-author">
-              <div class="ks-review-av" style="background:linear-gradient(135deg,#6c5ce7,#fd79a8)">أ</div>
-              <div>
-                <div class="ks-review-name">أحمد السيد</div>
-                <div class="ks-review-role"><i class="fab fa-instagram" style="color:#e1306c"></i> انفلونسر · ١٠٠K+</div>
-              </div>
-            </div>
-          </div>
-          <div class="ks-review-card">
-            <div class="ks-review-stars">★★★★★</div>
-            <div class="ks-review-text">"أفضل موقع SMM جربته في حياتي. الأسعار معقولة جداً والتنفيذ فوري. دعم العملاء يرد في ثواني. تسلم إيدك يا صدى العراق!"</div>
-            <div class="ks-review-author">
-              <div class="ks-review-av" style="background:linear-gradient(135deg,#00b894,#55efc4)">س</div>
-              <div>
-                <div class="ks-review-name">سارة محمود</div>
-                <div class="ks-review-role"><i class="fab fa-tiktok" style="color:#010101"></i> كريتور · تيك توك</div>
-              </div>
-            </div>
-          </div>
-          <div class="ks-review-card">
-            <div class="ks-review-stars">★★★★★</div>
-            <div class="ks-review-text">"أعمل في التسويق الرقمي من ٥ سنين وهذا أحسن بانل شغال معاه. النظام سهل جداً والأسعار تنافسية ولا توجد أي مشاكل لحد دلوقتي."</div>
-            <div class="ks-review-author">
-              <div class="ks-review-av" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">م</div>
-              <div>
-                <div class="ks-review-name">محمد عبدالله</div>
-                <div class="ks-review-role"><i class="fas fa-chart-line" style="color:#fdcb6e"></i> مسوّق رقمي</div>
-              </div>
-            </div>
-          </div>
-          <div class="ks-review-card">
-            <div class="ks-review-stars">★★★★★</div>
-            <div class="ks-review-text">"جربت مواقع كثير سابقاً بس صدى العراق الأحسن. المتابعين بيجوا سريع وبيفضلوا. خدمة اليوتيوب خصوصاً تحفة!"</div>
-            <div class="ks-review-author">
-              <div class="ks-review-av" style="background:linear-gradient(135deg,#ff0000,#cc0000)">ن</div>
-              <div>
-                <div class="ks-review-name">نور الدين</div>
-                <div class="ks-review-role"><i class="fab fa-youtube" style="color:#ff0000"></i> يوتيوبر · ٥٠K+</div>
-              </div>
-            </div>
-          </div>
-          <div class="ks-review-card">
-            <div class="ks-review-stars">★★★★★</div>
-            <div class="ks-review-text">"من أول ما اشتغلت مع صدى العراق ارتفع تفاعل صفحتي بشكل مجنون. العملاء الحقيقيين بدأوا يلاقوني بعهذاا. شكراً جزيلاً!"</div>
-            <div class="ks-review-author">
-              <div class="ks-review-av" style="background:linear-gradient(135deg,#1877f2,#0d5fba)">ر</div>
-              <div>
-                <div class="ks-review-name">ريم خالد</div>
-                <div class="ks-review-role"><i class="fab fa-facebook" style="color:#1877f2"></i> صاحبة متجر إلكتروني</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="ks-reviews-dots" id="ks-rev-dots">
-          <div class="ks-rev-dot on"></div>
-          <div class="ks-rev-dot"></div>
-          <div class="ks-rev-dot"></div>
-          <div class="ks-rev-dot"></div>
-          <div class="ks-rev-dot"></div>
-        </div>
-      </div>
-
-    </div>
+<div class="announcement" aria-label="تنبيهات المنصة"><span class="live"></span><div class="announcement-window"><div class="announcement-track"><span>صدى العراق — بدء فوري لمعظم الخدمات</span><span>تابع طلباتك وحالة التنفيذ من مكان واحد</span><span>أسعار واضحة وتفاصيل الخدمة قبل الطلب</span><span aria-hidden="true">صدى العراق — بدء فوري لمعظم الخدمات</span><span aria-hidden="true">تابع طلباتك وحالة التنفيذ من مكان واحد</span><span aria-hidden="true">أسعار واضحة وتفاصيل الخدمة قبل الطلب</span></div></div></div>
+<div class="wrap">
+<header class="site-header">
+ <div class="brand"><span class="brand-logo"><svg><use href="#logo-sada"/></svg></span><div><div class="brand-label">صدى العراق</div><div class="brand-sub">خدمات التواصل الاجتماعي</div></div></div>
+ <div class="header-actions">
+  <button class="head-btn" id="menuToggle" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="quickMenu">☰</button>
+  <button class="head-btn" type="button" onclick="showAuthPanel('login')">دخول</button>
+  <button class="head-btn primary" type="button" onclick="showAuthPanel('register')">حساب جديد</button>
+  <nav class="quick-menu" id="quickMenu" aria-label="القائمة الرئيسية" hidden>
+   <a href="#all-platforms"><span>◈</span> تصفح المنصات والخدمات</a>
+   <a href="#how-it-works"><span>↗</span> كيف تعمل المنصة</a>
+   <a href="#subscriptions"><span>▣</span> الاشتراكات الرقمية</a>
+   <a href="#reviews"><span>★</span> التقييمات</a>
+   <a href="#security"><span>✓</span> الأمان والشفافية</a>
+   <a href="#support"><span>✉</span> دعم العملاء</a>
+  </nav>
+ </div>
+</header>
+<main>
+<section class="hero" id="login">
+ <div class="hero-label"><i></i>منصة صدى العراق — خدمات التواصل الاجتماعي</div>
+ <h1>زوّد متابعيك<br><span>بخطوات واضحة وسعر معلن.</span></h1>
+ <p>منصة صدى العراق تجمع لك خدمات التواصل الاجتماعي في مكان واحد، مع متابعة طلباتك وتجربة استخدام عربية واضحة وسهلة.</p>
+ <div class="entry-label">التسجيل والدخول متاحان عبر:</div>
+ <div class="login-methods">
+  <button class="method active" type="button" data-method="username"><span>♙</span>اسم مستخدم</button>
+  <button class="method" type="button" data-method="email"><span>✉</span>بريد إلكتروني</button>
+  <a class="method" href="https://t.me/jbhbhg58" target="_blank" rel="noopener noreferrer"><svg><use href="#telegram"/></svg>دعم تيليغرام</a>
+ </div>
+ <div class="sada-auth-card" id="sadaAuthCard" aria-label="تسجيل الدخول وإنشاء حساب">
+  <div class="auth-tabs" role="tablist" aria-label="اختيار الحساب">
+    <button class="auth-tab active" type="button" data-sada-auth="login" role="tab" aria-selected="true">تسجيل الدخول</button>
+    <button class="auth-tab" type="button" data-sada-auth="register" role="tab" aria-selected="false">حساب جديد</button>
   </div>
-  <div class="auth-form-panel" id="auth-form-panel">
-    <div class="auth-form-inner">
-      <div class="afp-logo"><img src="sadairaq-logo.jpg" alt="صدى العراق" style="width:72px;height:72px;object-fit:cover;border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.35)"><div class="afp-logo-name">صدى العراق</div></div>
-      <div id="box-login">
+  <div class="sada-auth-content">
+    <div id="box-login">
         <div class="form-title">تسجيل الدخول</div>
         <div class="form-sub">أدخل بياناتك للوصول إلى حسابك</div>
         <div id="err-login" class="auth-err"><i class="fas fa-circle-exclamation"></i><span id="err-login-t"></span></div>
@@ -2791,12 +2781,12 @@ html.sada-lite-motion .ks-particle{display:none!important}
         <div class="sada1563-captcha fg"><label for="l-captcha">تحقق أنك إنسان</label><div class="sada1563-captcha-row"><span id="l-captcha-question" class="sada1563-captcha-question">جاري تحميل السؤال...</span><button type="button" class="sada1563-captcha-refresh" onclick="refreshMathCaptcha('login')" aria-label="تغيير سؤال التحقق"><i class="fas fa-rotate"></i></button><input id="l-captcha" class="fi" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="اكتب الناتج" aria-label="ناتج الجمع"></div><input id="l-captcha-id" type="hidden"></div>
         <button class="btn-auth btn-auth-blue" id="btn-login" onclick="doLogin()"><i class="fas fa-arrow-right-to-bracket"></i> تسجيل الدخول</button>
         <button type="button" class="afp-back" onclick="showForgotPassword()" style="margin-top:6px;color:#8aa9ff"><i class="fas fa-key"></i> نسيت كلمة المرور؟</button>
-        <div class="auth-divider"><span>أو</span></div>
-        <div class="sada1563-google-wrap"><div id="google-signin-login"></div><div id="google-auth-note-login" class="sada1563-google-note"></div></div>
-        <button class="btn-auth btn-auth-purple" onclick="showAuthPanel('register')" style="margin-top:0"><i class="fas fa-user-plus"></i> إنشاء حساب مجاني</button>
-        <button class="afp-back" onclick="showHero()"><i class="fas fa-arrow-right"></i> رجوع</button>
+        
+        
+        
+        
       </div>
-      <div id="box-register" style="display:none">
+    <div id="box-register" style="display:none">
         <div class="form-title">إنشاء حساب جديد</div>
         <div class="form-sub">سجّل مجاناً وابدأ في دقيقة</div>
         <div id="err-reg" class="auth-err"><i class="fas fa-circle-exclamation"></i><span id="err-reg-t"></span></div>
@@ -2806,11 +2796,11 @@ html.sada-lite-motion .ks-particle{display:none!important}
         <div class="fg"><label for="r-pass">كلمة المرور</label><div class="fi-wrap"><i class="fi-right-ico fas fa-lock"></i><input id="r-pass" class="fi" type="password" placeholder="8 أحرف على الأقل" autocomplete="new-password" minlength="8" required style="padding-right:38px"><button class="fi-eye" id="eye2" type="button" onclick="toggleEye('r-pass','eye2')" aria-label="إظهار كلمة المرور"><i class="fas fa-eye"></i></button></div></div>
         <div class="sada1563-captcha fg"><label for="r-captcha">تحقق أنك لست روبوتاً</label><div class="sada1563-captcha-row"><span id="r-captcha-question" class="sada1563-captcha-question">جاري تحميل السؤال...</span><button type="button" class="sada1563-captcha-refresh" onclick="refreshMathCaptcha('register')" aria-label="تغيير سؤال التحقق"><i class="fas fa-rotate"></i></button><input id="r-captcha" class="fi" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="الناتج" aria-label="اكتب ناتج الجمع" required></div><input id="r-captcha-id" type="hidden"></div>
         <button class="btn-auth btn-auth-purple" onclick="doRegister()"><i class="fas fa-user-plus"></i> إنشاء الحساب</button>
-        <div class="auth-divider"><span>أو سجّل عبر Google</span></div><div class="sada1563-google-wrap"><div id="google-signin-register"></div><div id="google-auth-note-register" class="sada1563-google-note"></div></div>
+        
         <button class="afp-back" onclick="showAuthPanel('login')"><i class="fas fa-sign-in-alt"></i> لدي حساب</button>
-        <button class="afp-back" onclick="showHero()"><i class="fas fa-home"></i> الرئيسية</button>
+        
       </div>
-      <div id="box-forgot" style="display:none">
+    <div id="box-forgot" style="display:none">
         <div class="form-title">استعادة كلمة المرور</div><div class="form-sub">سنرسل رمز تحقق حقيقياً إلى البريد المرتبط بحسابك.</div>
         <div id="forgot-status" class="sada1563-google-note" role="status" style="margin:12px 0;line-height:1.9"></div>
         <div class="fg"><label>البريد الإلكتروني</label><input id="forgot-email" class="fi" type="email" placeholder="name@example.com" autocomplete="email"></div>
@@ -2820,13 +2810,214 @@ html.sada-lite-motion .ks-particle{display:none!important}
         <button type="button" class="btn-auth btn-auth-purple" id="forgot-reset" style="display:none" onclick="submitPasswordReset()"><i class="fas fa-lock"></i> تعيين كلمة المرور الجديدة</button>
         <button type="button" class="afp-back" onclick="backToLoginFromForgot()"><i class="fas fa-arrow-right"></i> العودة لتسجيل الدخول</button>
       </div>
-      <!-- Security notice -->
-      <div class="auth-security-notice" style="margin-top:14px">
-        <i class="fas fa-circle-check"></i>
-        محمي · صدى العراق &copy; 2026
-      </div>
-    </div>
+    <div class="auth-security-notice sada-auth-security"><i class="fas fa-circle-check" aria-hidden="true"></i> محمي · صدى العراق © 2026</div>
   </div>
+</div>
+</section>
+<section class="site-stats" aria-label="إحصاءات المنصة">
+ <div class="stat"><strong data-live-stat="orders">—</strong><span>طلب بالموقع</span></div>
+ <div class="stat"><strong data-live-stat="services">—</strong><span>خدمة بالموقع</span></div>
+ <div class="stat"><strong data-live-stat="platforms">—</strong><span>منصة فعّالة</span></div>
+</section>
+<div class="stats-source" id="statsSource" role="status">الإحصاءات الحقيقية تظهر عند فتح الواجهة على خادم صدى العراق.</div>
+<div class="social-rail" aria-label="تصفح المنصات"><div class="rail-items" id="railItems">
+ <a href="#all-platforms" class="rail-icon" style="--ic:#168df4;--icbg:#0d2038;--icline:#183b66" aria-label="لينكدإن"><svg><use href="#linkedin"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#20c878;--icbg:#0b281f;--icline:#174b39" aria-label="واتساب"><svg><use href="#whatsapp"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#dce4f2;--icbg:#1a1e2b;--icline:#394153" aria-label="إكس"><svg><use href="#x"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#ffcf33;--icbg:#2c2612;--icline:#514620" aria-label="سناب شات"><svg><use href="#snapchat"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#448cff;--icbg:#122244;--icline:#1b3c64" aria-label="فيسبوك"><svg><use href="#facebook"/></svg></a>
+ <a href="#youtube-section" class="rail-icon" style="--ic:#ff454b;--icbg:#31121a;--icline:#4a1d2c" aria-label="يوتيوب"><svg><use href="#youtube"/></svg></a>
+ <a href="#tiktok-section" class="rail-icon" style="--ic:#eff4fb;--icbg:#171c28;--icline:#37404d" aria-label="تيك توك"><svg><use href="#tiktok"/></svg></a>
+ <a href="#telegram-section" class="rail-icon" style="--ic:#39bdf5;--icbg:#102c42;--icline:#1b4564" aria-label="تيليغرام"><svg><use href="#telegram"/></svg></a>
+ <a href="#instagram-section" class="rail-icon" style="--ic:#f53e84;--icbg:#30132b;--icline:#4c2044" aria-label="إنستغرام"><svg><use href="#instagram"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#b64eff;--icbg:#211338;--icline:#40235f" aria-label="تويتش"><svg><use href="#twitch"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#7287ff;--icbg:#171f43;--icline:#2e3970" aria-label="ديسكورد"><svg><use href="#discord"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#35d779;--icbg:#0d2a1b;--icline:#1a5134" aria-label="سبوتيفاي"><svg><use href="#spotify"/></svg></a>
+ <a href="#all-platforms" class="rail-icon" style="--ic:#ff7a36;--icbg:#2d1b13;--icline:#5d331d" aria-label="ساوند كلاود"><svg><use href="#soundcloud"/></svg></a>
+ </div></div>
+
+<!-- Instagram -->
+<section class="platform-block" id="instagram-section" style="--accent:#e12e76;--ic:#f04e91;--icbg:#32152d;--icline:#57213f;--glow:#4f1e45;--dots:#20283b">
+ <div class="platform-card">
+  <div class="platform-top"><div class="platform-title"><div class="platform-logo"><svg><use href="#instagram"/></svg></div><div><div class="platform-name">إنستغرام</div><div class="platform-sub" data-platform-summary="instagram">جارٍ تحميل الخدمات…</div></div></div><a href="#instagram-services" class="platform-link">صفحة المنصة</a></div>
+  <div class="accent-line"></div>
+  <div class="metric-row"><div class="metric"><span>الخدمات</span><strong data-platform-stat="instagram-services" data-live-value>—</strong></div><div class="metric"><span>المنصات</span><strong data-platform-stat="instagram-groups" data-live-value>—</strong></div><div class="metric price-metric"><span>سعر مثال</span><strong data-demo-price="instagram">$0.001</strong></div></div>
+  <div class="platform-badge"><svg><use href="#layers"/></svg><span data-platform-badge="instagram">بانتظار بيانات الخدمات</span></div>
+ </div>
+ <div class="section-copy" id="instagram-services">
+  <div class="section-eyebrow"><svg><use href="#instagram"/></svg>إنستغرام</div>
+  <h2>متابعون ومشاهدات إنستغرام</h2>
+  <p>أمثلة مرئية لخدمات المتابعين والإعجابات والمشاهدات. أعداد الخدمات في البطاقة تُقرأ من كتالوج صدى العراق الحقيقي عند النشر.</p>
+  <div class="chips" data-chip-group="instagram"><button class="chip active" data-kind="followers">متابعين</button><button class="chip" data-kind="likes">لايكات</button><button class="chip" data-kind="views">مشاهدات</button></div>
+  <div class="demo-offer" role="note"><div class="demo-offer-copy"><small>مثال تجريبي — ليس طلبًا حقيقيًا</small><strong>متابعون إنستغرام</strong><span>السعر المعروض للمعاينة فقط؛ لا يُضاف إلى قاعدة الخدمات ولا ينشئ طلبًا.</span></div><b class="demo-offer-price">$0.001</b></div>
+  
+ </div>
+</section>
+
+
+<!-- TikTok: demo offer price; counts are read from the real site catalog when hosted on Sada Iraq. -->
+<section class="platform-block" id="tiktok-section" style="--accent:#28c9db;--ic:#edf6ff;--icbg:#171c28;--icline:#37404d;--glow:#103746;--dots:#1d2a3a">
+ <div class="platform-card">
+  <div class="platform-top"><div class="platform-title"><div class="platform-logo"><svg><use href="#tiktok"/></svg></div><div><div class="platform-name">تيك توك</div><div class="platform-sub" data-platform-summary="tiktok">بانتظار بيانات الخدمات الحقيقية…</div></div></div><a href="#tiktok-services" class="platform-link">صفحة المنصة</a></div>
+  <div class="accent-line"></div>
+  <div class="metric-row"><div class="metric"><span>الخدمات الفعلية</span><strong data-platform-stat="tiktok-services" data-live-value>—</strong></div><div class="metric"><span>المنصات</span><strong data-platform-stat="tiktok-groups" data-live-value>—</strong></div><div class="metric price-metric"><span>سعر مثال</span><strong data-demo-price="tiktok">$0.001</strong></div></div>
+  <div class="platform-badge"><svg><use href="#layers"/></svg><span data-platform-badge="tiktok">بانتظار بيانات الخدمات</span></div>
+ </div>
+ <div class="section-copy" id="tiktok-services">
+  <div class="section-eyebrow"><svg><use href="#tiktok"/></svg>تيك توك</div>
+  <h2>متابعون ومشاهدات تيك توك</h2>
+  <p>مثال واجهة لخدمات المتابعين والإعجابات والمشاهدات. السعر الصغير المعروض تجريبي فقط ولا يُنشئ طلبًا؛ أما إحصاء الخدمات فيُقرأ من كتالوج الموقع الحقيقي.</p>
+  <div class="chips" data-chip-group="tiktok"><button class="chip active" data-kind="followers" type="button">متابعين</button><button class="chip" data-kind="likes" type="button">لايكات</button><button class="chip" data-kind="views" type="button">مشاهدات</button></div>
+  <div class="demo-offer" role="note"><div class="demo-offer-copy"><small>مثال تجريبي — ليس طلبًا حقيقيًا</small><strong>متابعون تيك توك</strong><span>السعر الفعلي يعتمد على الخدمة المختارة في الموقع.</span></div><b class="demo-offer-price">$0.001</b></div>
+ </div>
+</section>
+
+<!-- Telegram -->
+<section class="platform-block" id="telegram-section" style="--accent:#27b4eb;--ic:#32bdf5;--icbg:#102e45;--icline:#1d4f6d;--glow:#0d3b58;--dots:#1e2c3e">
+ <div class="platform-card">
+  <div class="platform-top"><div class="platform-title"><div class="platform-logo"><svg><use href="#telegram"/></svg></div><div><div class="platform-name">تيليجرام</div><div class="platform-sub" data-platform-summary="telegram">جارٍ تحميل الخدمات…</div></div></div><a href="#telegram-services" class="platform-link">صفحة المنصة</a></div>
+  <div class="accent-line"></div>
+  <div class="metric-row"><div class="metric"><span>الخدمات</span><strong data-platform-stat="telegram-services" data-live-value>—</strong></div><div class="metric"><span>المنصات</span><strong data-platform-stat="telegram-groups" data-live-value>—</strong></div><div class="metric price-metric"><span>سعر مثال</span><strong data-demo-price="telegram">$0.002</strong></div></div>
+  <a class="platform-badge invite-badge" href="#telegram-services"><svg><use href="#layers"/></svg><span>رابط دعوة خاص</span><svg style="color:var(--accent)"><use href="#telegram"/></svg></a>
+ </div>
+ <div class="section-copy" id="telegram-services">
+  <div class="section-eyebrow"><svg><use href="#telegram"/></svg>تيليجرام</div>
+  <h2>أعضاء قنوات ومجموعات</h2>
+  <p>أعضاء للقنوات والمجموعات ومشاهدات للمنشورات. في خدمات الأعضاء استخدم رابط دعوة خاصاً، لا الرابط العام، لتنفيذ الطلب بشكل صحيح.</p>
+  <div class="chips" data-chip-group="telegram"><button class="chip active" data-kind="members">أعضاء</button><button class="chip" data-kind="channels">قنوات</button><button class="chip" data-kind="views">مشاهدات</button></div>
+  <div class="demo-offer" role="note"><div class="demo-offer-copy"><small>مثال تجريبي — ليس طلبًا حقيقيًا</small><strong>أعضاء تيليجرام</strong><span>السعر المعروض للمعاينة فقط؛ لا يُضاف إلى قاعدة الخدمات ولا ينشئ طلبًا.</span></div><b class="demo-offer-price">$0.002</b></div>
+  
+ </div>
+</section>
+
+<!-- YouTube -->
+<section class="platform-block" id="youtube-section" style="--accent:#ef3045;--ic:#ff4253;--icbg:#33151e;--icline:#58202d;--glow:#441723;--dots:#20283b">
+ <div class="platform-card">
+  <div class="platform-top"><div class="platform-title"><div class="platform-logo"><svg><use href="#youtube"/></svg></div><div><div class="platform-name">يوتيوب</div><div class="platform-sub" data-platform-summary="youtube">جارٍ تحميل الخدمات…</div></div></div><a href="#youtube-services" class="platform-link">صفحة المنصة</a></div>
+  <div class="accent-line"></div>
+  <div class="metric-row"><div class="metric"><span>الخدمات</span><strong data-platform-stat="youtube-services" data-live-value>—</strong></div><div class="metric"><span>المنصات</span><strong data-platform-stat="youtube-groups" data-live-value>—</strong></div><div class="metric price-metric"><span>سعر مثال</span><strong data-demo-price="youtube">$0.007</strong></div></div>
+  <div class="platform-badge"><svg><use href="#layers"/></svg><span data-platform-badge="youtube">بانتظار بيانات الخدمات</span></div>
+ </div>
+ <div class="section-copy" id="youtube-services">
+  <div class="section-eyebrow"><svg><use href="#youtube"/></svg>يوتيوب وباقي المنصات</div>
+  <h2>مشتركين ومشاهدات وأكثر</h2>
+  <p>خدمات القنوات والفيديوهات مع توضيح نوع المشاهدات وحدود التنفيذ والسعر قبل تقديم الطلب. اختر نوع الخدمة ثم راجع تفاصيلها بعناية.</p>
+  <div class="chips" data-chip-group="youtube"><button class="chip active" data-kind="subscribers">مشتركين</button><button class="chip" data-kind="views">مشاهدات</button><button class="chip" data-kind="likes">إعجابات</button></div>
+  <div class="demo-offer" role="note"><div class="demo-offer-copy"><small>مثال تجريبي — ليس طلبًا حقيقيًا</small><strong>مشاهدات يوتيوب</strong><span>السعر المعروض للمعاينة فقط؛ لا يُضاف إلى قاعدة الخدمات ولا ينشئ طلبًا.</span></div><b class="demo-offer-price">$0.007</b></div>
+  
+ </div>
+</section>
+
+<div class="section-separator"></div>
+<section class="info-section" id="how-it-works">
+ <div class="section-head"><div><h2>كيف تعمل المنصة؟</h2><p>أربع خطوات واضحة من التسجيل إلى متابعة الطلب</p></div><span class="small-label">سهل وواضح</span></div>
+ <div class="how-grid">
+  <article class="how-card"><div class="how-number">01</div><b>أنشئ حسابك</b><p>سجّل باسم مستخدم وكلمة مرور، واحتفظ بمعلومات دخولك بأمان.</p></article>
+  <article class="how-card"><div class="how-number">02</div><b>أضف رصيدك</b><p>اختر طريقة الدفع المتاحة وراجع سعر الصرف والرسوم قبل التأكيد.</p></article>
+  <article class="how-card"><div class="how-number">03</div><b>اختر الخدمة</b><p>حدّد المنصة والخدمة والكمية، ثم راجع السعر والحدود والضمان.</p></article>
+  <article class="how-card"><div class="how-number">04</div><b>تابع حالة الطلب</b><p>راجع حالة الطلب من حسابك وتعرّف على تفاصيله ورقمه الداخلي.</p></article>
+ </div>
+</section>
+
+<section class="info-section">
+ <div class="section-head"><div><h2>ليش صدى العراق؟</h2><p>تجربة عربية واضحة من الموبايل والكمبيوتر</p></div></div>
+ <div class="why-grid">
+  <article class="why-card"><div class="why-icon"><svg><use href="#layers"/></svg></div><b>تفاصيل الخدمة</b><p>عرض السعر والكمية والحدود قبل إرسال الطلب.</p></article>
+  <article class="why-card"><div class="why-icon"><svg><use href="#bolt"/></svg></div><b>متابعة الطلبات</b><p>مكان واحد لمراجعة الطلبات وتغيّر حالتها.</p></article>
+  <article class="why-card"><div class="why-icon"><svg><use href="#shield"/></svg></div><b>أمان الحساب</b><p>خيارات حساب واضحة وتذكير بحماية كلمة المرور.</p></article>
+  <article class="why-card"><div class="why-icon"><svg><use href="#check"/></svg></div><b>واجهة عربية</b><p>تصميم RTL مناسب للمستخدم العراقي.</p></article>
+ </div>
+</section>
+
+<section class="info-section" id="all-platforms">
+ <div class="section-head"><div><h2>كل المنصات</h2><p>اختَر المنصة لعرض قسمها في الصفحة</p></div><span class="small-label">منصات متنوعة</span></div>
+ <div class="platform-grid">
+  <a class="mini-platform" href="#youtube-section" style="--ic:#ff454b;--icbg:#32131a"><span class="mini-logo"><svg><use href="#youtube"/></svg></span>يوتيوب</a>
+  <a class="mini-platform" href="#telegram-section" style="--ic:#39bdf5;--icbg:#102e45"><span class="mini-logo"><svg><use href="#telegram"/></svg></span>تيليجرام</a>
+  <a class="mini-platform" href="#instagram-section" style="--ic:#f45193;--icbg:#32142d"><span class="mini-logo"><svg><use href="#instagram"/></svg></span>إنستغرام</a>
+  <a class="mini-platform" href="#tiktok-section" style="--ic:#f1f4fa;--icbg:#202432"><span class="mini-logo"><svg><use href="#tiktok"/></svg></span>تيك توك</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#3bd078;--icbg:#0c291d"><span class="mini-logo"><svg><use href="#whatsapp"/></svg></span>واتساب</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#168df4;--icbg:#0c2138"><span class="mini-logo"><svg><use href="#linkedin"/></svg></span>لينكدإن</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#a6b1c4;--icbg:#1a202c"><span class="mini-logo"><svg><use href="#x"/></svg></span>إكس</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#c9d1df;--icbg:#1c2230"><span class="mini-logo"><svg><use href="#threads"/></svg></span>ثريدز</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#b34dff;--icbg:#211437"><span class="mini-logo"><svg><use href="#twitch"/></svg></span>تويتش</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#7185ff;--icbg:#172047"><span class="mini-logo"><svg><use href="#discord"/></svg></span>ديسكورد</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#34d77d;--icbg:#10271c"><span class="mini-logo"><svg><use href="#spotify"/></svg></span>سبوتيفاي</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#ff7d38;--icbg:#2a1b14"><span class="mini-logo"><svg><use href="#soundcloud"/></svg></span>ساوند كلاود</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#448cff;--icbg:#122244"><span class="mini-logo"><svg><use href="#facebook"/></svg></span>فيسبوك</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#ffed59;--icbg:#302c16"><span class="mini-logo"><svg><use href="#snapchat"/></svg></span>سناب شات</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#ff687a;--icbg:#35161e"><span class="mini-logo"><svg><use href="#pinterest"/></svg></span>بنترست</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#ff735b;--icbg:#331b19"><span class="mini-logo"><svg><use href="#reddit"/></svg></span>ريديت</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#a6b0c7;--icbg:#1b2330"><span class="mini-logo"><svg><use href="#behance"/></svg></span>بيهانس</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#d9e2ef;--icbg:#1b2431"><span class="mini-logo"><svg><use href="#steam"/></svg></span>ستيم</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#32aee4;--icbg:#102b3a"><span class="mini-logo"><svg><use href="#vimeo"/></svg></span>فيميو</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#f2f3f6;--icbg:#20242d"><span class="mini-logo"><svg><use href="#apple"/></svg></span>آبل</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#4b9eff;--icbg:#152648"><span class="mini-logo"><svg><use href="#messenger"/></svg></span>ماسنجر</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#5bb1f0;--icbg:#132a40"><span class="mini-logo"><svg><use href="#vk"/></svg></span>VK</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#4285f4;--icbg:#142443"><span class="mini-logo"><svg><use href="#layers"/></svg></span>خدمات أخرى</a>
+  <a class="mini-platform" href="#all-platforms" style="--ic:#9ab0c7;--icbg:#1a2532"><span class="mini-logo">+</span>منصات أخرى</a>
+ </div>
+</section>
+
+<section class="info-section" id="subscriptions">
+ <div class="section-head"><div><h2>الاشتراكات الرقمية</h2><p>خدمات ومنتجات رقمية ضمن أقسام منفصلة</p></div></div>
+ <div class="subscriptions">
+  <article class="sub-card" style="--ic:#31d4a3"><span class="sub-icon"><svg><use href="#spotify"/></svg></span><div><b>اشتراكات موسيقى</b><span>خيارات حسب المدة</span></div></article>
+  <article class="sub-card" style="--ic:#ff5365"><span class="sub-icon"><svg><use href="#youtube"/></svg></span><div><b>اشتراكات فيديو</b><span>تفاصيل قبل الشراء</span></div></article>
+  <article class="sub-card" style="--ic:#a987ff"><span class="sub-icon"><svg><use href="#twitch"/></svg></span><div><b>خدمات منشئي المحتوى</b><span>حسب المنصة</span></div></article>
+  <article class="sub-card" style="--ic:#76beff"><span class="sub-icon"><svg><use href="#apple"/></svg></span><div><b>منتجات رقمية</b><span>راجع المواصفات أولاً</span></div></article>
+ </div>
+</section>
+
+<section class="info-section" id="levels">
+ <div class="section-head"><div><h2>المستويات</h2><p>تدرّج مرئي لمستويات الاستخدام</p></div><span class="small-label">6 مستويات</span></div>
+ <div class="levels">
+  <div class="level"><div><b>برونزي</b><br><span>بداية الاستخدام</span></div><em>جديد</em></div>
+  <div class="level"><div><b>فضي</b><br><span>طلبات متكررة</span></div><em>نشط</em></div>
+  <div class="level"><div><b>ذهبي</b><br><span>حجم استخدام أكبر</span></div><em>مميز</em></div>
+  <div class="level"><div><b>بلاتيني</b><br><span>استخدام مستمر</span></div><em>متقدم</em></div>
+  <div class="level"><div><b>ماسي</b><br><span>مستوى متقدم</span></div><em>نخبة</em></div>
+  <div class="level"><div><b>VIP</b><br><span>حسب شروط المنصة</span></div><em>VIP</em></div>
+ </div>
+</section>
+
+<section class="info-section" id="reviews">
+ <div class="section-head"><div><h2>تقييمات الزبائن</h2><p>عرض تجريبي لشريط تقييمات قابل للتنقل</p></div><span class="small-label">آراء العملاء</span></div>
+ <div class="review-carousel" aria-label="تقييمات الزبائن">
+  <button class="review-nav" id="reviewPrev" type="button" aria-label="التقييم السابق">‹</button>
+  <div class="review-slides">
+   <article class="review-card" data-review-slide><div class="review-top"><div><strong>—</strong><div style="font-size:10px;color:#8592aa;margin-top:4px">التقييمات الحقيقية غير مربوطة بعد</div></div><div class="stars" aria-label="تقييم تجريبي">★★★★★</div></div><p>هذا محتوى معاينة لشكل بطاقة التقييم فقط. لا يُعرض على أنه تقييم حقيقي من زبون.</p><div class="review-bottom"><span>معاينة التصميم</span><span>صدى العراق</span></div></article>
+   <article class="review-card" data-review-slide hidden><div class="review-top"><div><strong>—</strong><div style="font-size:10px;color:#8592aa;margin-top:4px">تقييم غير متصل بقاعدة البيانات</div></div><div class="stars" aria-label="عرض نجوم تجريبي">★★★★★</div></div><p>يمكن ربط هذا القسم لاحقًا بالتقييمات المخزنة في الخادم بعد تحديد مصدر التقييمات المعتمد.</p><div class="review-bottom"><span>معاينة التصميم</span><span>صدى العراق</span></div></article>
+   <article class="review-card" data-review-slide hidden><div class="review-top"><div><strong>—</strong><div style="font-size:10px;color:#8592aa;margin-top:4px">بانتظار بيانات موثوقة</div></div><div class="stars" aria-label="عرض نجوم تجريبي">★★★★★</div></div><p>لن تُعرض أسماء مستخدمين أو درجات مزعومة قبل توفر بيانات فعلية.</p><div class="review-bottom"><span>معاينة التصميم</span><span>صدى العراق</span></div></article>
+  </div>
+  <button class="review-nav" id="reviewNext" type="button" aria-label="التقييم التالي">›</button>
+ </div>
+ <div class="review-dots" id="reviewDots" aria-label="اختيار بطاقة التقييم"><button type="button" class="active" aria-label="التقييم 1"></button><button type="button" aria-label="التقييم 2"></button><button type="button" aria-label="التقييم 3"></button></div>
+</section>
+
+<section class="info-section" id="security">
+ <div class="section-head"><div><h2>أمان وشفافية</h2><p>معلومات المهمة قبل تقديم الطلب</p></div></div>
+ <div class="security-list">
+  <article class="security"><span class="security-icon"><svg><use href="#shield"/></svg></span><div><b>حماية حسابك</b><p>لا تشارك كلمة المرور أو رموز التحقق مع أي شخص.</p></div></article>
+  <article class="security"><span class="security-icon"><svg><use href="#check"/></svg></span><div><b>تفاصيل واضحة</b><p>راجع وصف الخدمة وحدودها وسعرها قبل إرسال الطلب.</p></div></article>
+  <article class="security"><span class="security-icon"><svg><use href="#layers"/></svg></span><div><b>متابعة الطلب</b><p>احتفظ برقم الطلب للرجوع إلى حالته عند الحاجة.</p></div></article>
+ </div>
+</section>
+
+<section class="info-section" id="payments">
+ <div class="section-head"><div><h2>طرق الدفع</h2><p>نماذج شكلية لخيارات الدفع المعتمدة</p></div></div>
+ <div class="payment-grid"><div class="payment"><i>▣</i>زين كاش</div><div class="payment"><i>▤</i>آسيا حوالة</div><div class="payment"><i>◉</i>بطاقة دفع</div><div class="payment"><i>⇄</i>تحويل رصيد</div><div class="payment"><i>▧</i>محفظة إلكترونية</div><div class="payment"><i>＋</i>طرق أخرى</div></div>
+</section>
+
+<section class="support-card" id="support">
+ <h2>دعم العملاء</h2><p>إذا واجهت مشكلة في تسجيل الدخول أو الطلبات، اختر قناة الدعم المتاحة وتأكد من إرسال رقم الطلب عند التواصل.</p>
+ <div class="support-options"><a class="support-option" href="#support"><svg><use href="#telegram"/></svg>دعم تيليغرام</a><a class="support-option" href="#support"><svg><use href="#whatsapp"/></svg>واتساب</a><a class="support-option" href="#support"><svg><use href="#layers"/></svg>تذكرة دعم</a><a class="support-option" href="#support"><svg><use href="#check"/></svg>الأسئلة الشائعة</a></div>
+ <button class="support-cta" onclick="document.querySelector('#login').scrollIntoView({behavior:'smooth'})">ابدأ الآن ←</button>
+</section>
+</main>
+<footer class="footer"><div class="footer-top"><div><div class="footer-brand">صدى العراق</div><div style="margin-top:3px">خدمات التواصل الاجتماعي</div></div><span>نسخة تجريبية للمعاينة</span></div><div class="footer-links"><div><b>حسابك</b><a href="#login">تسجيل الدخول</a><a href="#login" onclick="showAuthPanel('register')">حساب جديد</a></div><div><b>الخدمات</b><a href="#all-platforms">كل المنصات</a><a href="#subscriptions">الاشتراكات الرقمية</a></div><div><b>المساعدة</b><a href="#support">الدعم</a><a href="#security">الأمان والشفافية</a></div></div><div style="text-align:center;margin-top:19px;color:#66748e">© صدى العراق — أسعار البطاقات المعروضة أمثلة فقط؛ عدّادات الطلبات والخدمات تُقرأ من قاعدة الموقع عند النشر</div></footer>
+</div>
+<button class="floating-chat" aria-label="الدعم" onclick="document.querySelector('#support').scrollIntoView({behavior:'smooth'})"><svg><use href="#telegram"/></svg></button><button class="floating-up" aria-label="للأعلى" onclick="window.scrollTo({top:0,behavior:'smooth'})">⌃</button>
 </div>
 
 <!-- ═══════ APP ═══════ -->
@@ -3130,18 +3321,17 @@ html.sada-lite-motion .ks-particle{display:none!important}
           </div>
           <!-- Service info box (shown after selection, outside dropdown card) -->
           <div id="svc-info-box" style="display:none"></div>
-          <!-- Description / Link / Qty -->
-          <div class="card" style="padding:14px;overflow:hidden;word-break:break-word" id="order-form-card">
-            <div class="order-field-label"><i class="fas fa-link"></i> الرابط</div>
-            <div style="position:relative">
-              <input class="inp" id="order-link" type="text" placeholder="https://instagram.com/..." style="padding-left:80px" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-              <button onclick="pasteLink()" style="position:absolute;left:4px;top:50%;transform:translateY(-50%);height:28px;padding:0 10px;background:var(--bg3);border:1px solid var(--bd);border-radius:6px;color:var(--t1);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)"><i class="fas fa-clipboard" style="font-size:10px"></i> لصق</button>
+          <!-- نموذج الطلب المبسّط: معرّفات الحقول والدوال الأصلية محفوظة لعدم كسر التنفيذ -->
+          <div class="card sada-order-form-card" style="padding:14px;overflow:hidden;word-break:break-word" id="order-form-card">
+            <div class="sada-order-field-block">
+              <label class="order-field-label" for="order-link"><i class="fas fa-link" aria-hidden="true"></i> الرابط</label>
+              <input class="inp sada-order-input" id="order-link" type="text" placeholder="ضع رابط الحساب أو المنشور الصحيح" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="رابط الحساب أو المنشور">
             </div>
-            <div style="margin-top:12px">
-              <div class="order-field-label"><i class="fas fa-hashtag"></i> الكمية</div>
+            <div class="sada-order-field-block sada-order-quantity-block">
+              <label class="order-field-label" for="order-qty"><i class="fas fa-hashtag" aria-hidden="true"></i> الكمية</label>
               <div class="order-qty-box">
-                <input class="inp" id="order-qty" type="number" placeholder="0" oninput="calcOrderTotal()">
-                <div class="qty-range">
+                <input class="inp sada-order-input sada-order-qty-input" id="order-qty" type="number" inputmode="numeric" placeholder="أدخل الكمية" oninput="calcOrderTotal()" aria-describedby="qty-range">
+                <div class="qty-range" id="qty-range">
                   <span id="qty-min-label">الأدنى: 100</span>
                   <span id="qty-max-label">الأقصى: 10,000</span>
                 </div>
@@ -3155,10 +3345,16 @@ html.sada-lite-motion .ks-particle{display:none!important}
               <div class="order-total-val" id="order-total-val">0.00</div>
             </div>
             <button class="btn bp btn-w btn-lg" style="margin-top:12px" onclick="submitOrder()">
-              <i class="fas fa-circle-check"></i> تأكيد الطلب والتنفيذ الفوري
+              <i class="fas fa-circle-check" aria-hidden="true"></i> تأكيد الطلب والتنفيذ الفوري
             </button>
           </div>
         </div>
+        <section class="sada-order-guides" aria-label="إرشادات الطلب">
+          <details class="sada-order-guide"><summary><span class="sada-guide-icon">▤</span><span>قبل الطلب</span><span class="sada-guide-chevron">⌄</span></summary><div class="sada-guide-body">تأكد من صحة الرابط وأن الحساب أو المنشور متاح للعامة عندما تتطلب الخدمة ذلك. راجع الحد الأدنى والأقصى والتكلفة قبل إنشاء الطلب.</div></details>
+          <details class="sada-order-guide"><summary><span class="sada-guide-icon">⟳</span><span>نظام التعويض</span><span class="sada-guide-chevron">⌄</span></summary><div class="sada-guide-body">يُطبَّق التعويض فقط على الخدمات التي يظهر فيها ضمان واضح. النقص الذي يحدث بعد انتهاء مدة الضمان لا يُعوَّض، وتبقى شروط الخدمة المختارة هي المعتمدة.</div></details>
+          <div class="sada-order-tips"><h3>نصائح مهمة</h3><div class="sada-order-tip-grid"><div class="sada-order-tip"><b>🔗</b><span>تأكد من الرابط الصحيح</span></div><div class="sada-order-tip"><b>🔓</b><span>اجعل الحساب عامًا إذا تطلبت الخدمة ذلك</span></div><div class="sada-order-tip"><b>◷</b><span>وقت التنفيذ تقديري وقد يختلف</span></div><div class="sada-order-tip"><b>⊘</b><span>لا تكرر الطلب لنفس الرابط قبل مراجعة حالته</span></div></div><div class="sada-order-no-guarantee">⚠️ النقص بعد انتهاء فترة الضمان لا يُعوَّض.</div></div>
+          <details class="sada-order-guide"><summary><span class="sada-guide-icon">?</span><span>أسئلة شائعة</span><span class="sada-guide-chevron">⌄</span></summary><div class="sada-guide-body"><p><b>كم يستغرق تنفيذ الطلب؟</b><br>الوقت يختلف حسب الخدمة والضغط على المزود.</p><p><b>ماذا أفعل إذا أدخلت رابطًا خطأ؟</b><br>تحقق من الرابط قبل التأكيد؛ لا يمكن ضمان تعديل الطلب بعد إرساله للتنفيذ.</p></div></details>
+        </section>
       </div>
 
       <!-- ORDERS PAGE -->
@@ -4276,7 +4472,7 @@ function buildSvcDD(cat) {
   const svcs = ALL_CATS[cat] || [];
   if (!svcs.length) { menu.appendChild(mk("div","cdd-empty","لا توجد خدمات في هذه الفئة")); return; }
   svcs.forEach((s,idx)=>{
-    const dispId = s.smmpartyId ? String(s.smmpartyId) : String(100+idx);
+    const dispId=[s.siteServiceId,s.internalServiceId,s.sadaServiceId,s.serviceCode,s.serviceId,s.service_id,s.sid,s.id,s.smmpartyId,s.providerServiceId].map(v=>String(v??'').trim()).find(v=>/^\d{3,}$/.test(v))||'غير متوفر';
     const priceEgp = s.price || 0;
     const curObj = CFG.curs.find(x=>x.c===CUR)||{r:1,c:"IQD"};
     const priceFmt = (priceEgp/curObj.r).toFixed(priceEgp/curObj.r>=10?2:4) + " " + CUR;
@@ -6765,7 +6961,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
       const im=document.createElement('img');im.className='sada-svc-thumb';im.alt='';im.loading='lazy';im.src=serviceImage(selected,s);im.onerror=()=>{im.onerror=null;im.src=iconMap[String(s?.app||'Other')]||iconMap.Other};
       const info=document.createElement('div');info.style.cssText='flex:1;min-width:0;overflow:hidden';
       const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;color:var(--t0);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-      const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';
+      const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.serviceCode||s.serviceId||s.service_id||s.sid||s.id||s.smmpartyId||s.providerServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';
       info.append(nm,id);
       const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';pr.textContent='USD '+(Number(s.sellingUsd!==undefined?s.sellingUsd:Number(s.price||0)/RATE)||0).toFixed(2)+'/1000';
       o.append(im,info,pr);
@@ -11106,7 +11302,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
         head.append(iconImg(app));
         const title=document.createElement('div'); title.style.cssText='flex:1;min-width:0';
         const nm=document.createElement('div'); nm.style.cssText='font-size:12px;font-weight:900;color:var(--t0);line-height:1.4'; nm.textContent=name;
-        const id=document.createElement('div'); id.style.cssText='font-size:9px;color:var(--t3);margin-top:2px'; const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';
+        const id=document.createElement('div'); id.style.cssText='font-size:9px;color:var(--t3);margin-top:2px'; const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.serviceCode||s.serviceId||s.service_id||s.sid||s.id||s.smmpartyId||s.providerServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';
         title.append(nm,id);
         const rate=document.createElement('div'); rate.style.cssText='font-size:12px;font-weight:900;color:'+(s.adminFreeService===true?'#22c55e':'var(--blue)')+';white-space:nowrap'; rate.textContent=s.adminFreeService===true?'مجاني':'USD '+(window.formatRate52?window.formatRate52(n(s.sellingUsd!==undefined?s.sellingUsd:(n(s.price)/1250))):n(s.sellingUsd!==undefined?s.sellingUsd:(n(s.price)/1250)).toFixed(2));
         head.append(title,rate); card.appendChild(head);
@@ -11233,7 +11429,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   window.buildSvcDD=function(cat){
     const menu=$('svc-options');if(!menu)return;menu.replaceChildren();const list=(cat==='__all__'?(ALL_SVCS_ARR||[]):(ALL_CATS?.[cat]||[])).slice();const seen=new Set();const arr=list.filter(s=>{const k=String(s.fbKey||s.providerId||s.smmpartyId||s.name);if(seen.has(k))return false;seen.add(k);return true});
     if(!arr.length){const e=document.createElement('div');e.className='cdd-empty';e.textContent='لا توجد خدمات ضمن هذا القسم';menu.appendChild(e);return}menu._sada1525=arr;
-    const frag=document.createDocumentFragment();arr.slice(0,100).forEach((s,i)=>{const o=document.createElement('div');o.className='cdd-option';o.dataset.sada1525=String(i);o.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:64px';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=imgFor(s);im.onerror=()=>{const ap=String(s.app||'Other').toLowerCase();const mp={instagram:'instagram',tiktok:'tiktok',facebook:'facebook',youtube:'youtube',telegram:'telegram',twitter:'twitter',snapchat:'snapchat',whatsapp:'whatsapp',linkedin:'linkedin'};im.src='platform-icons/'+(mp[ap]||'other')+'.svg';};const inf=document.createElement('div');inf.style.cssText='flex:1;min-width:0';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';inf.append(nm,id);const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';pr.textContent='USD '+n(s.sellingUsd!==undefined?s.sellingUsd:n(s.price)/RATE).toFixed(2)+'/1000';o.append(im,inf,pr);frag.appendChild(o)});menu.appendChild(frag);menu.onclick=e=>{const o=e.target.closest?.('[data-sada1525]');if(!o)return;const s=menu._sada1525?.[Number(o.dataset.sada1525)];if(!s)return;try{window.selectService?.(s)}catch(_){}try{closeAllCDD()}catch(_){} };
+    const frag=document.createDocumentFragment();arr.slice(0,100).forEach((s,i)=>{const o=document.createElement('div');o.className='cdd-option';o.dataset.sada1525=String(i);o.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:64px';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=imgFor(s);im.onerror=()=>{const ap=String(s.app||'Other').toLowerCase();const mp={instagram:'instagram',tiktok:'tiktok',facebook:'facebook',youtube:'youtube',telegram:'telegram',twitter:'twitter',snapchat:'snapchat',whatsapp:'whatsapp',linkedin:'linkedin'};im.src='platform-icons/'+(mp[ap]||'other')+'.svg';};const inf=document.createElement('div');inf.style.cssText='flex:1;min-width:0';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.serviceCode||s.serviceId||s.service_id||s.sid||s.id||s.smmpartyId||s.providerServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';inf.append(nm,id);const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';pr.textContent='USD '+n(s.sellingUsd!==undefined?s.sellingUsd:n(s.price)/RATE).toFixed(2)+'/1000';o.append(im,inf,pr);frag.appendChild(o)});menu.appendChild(frag);menu.onclick=e=>{const o=e.target.closest?.('[data-sada1525]');if(!o)return;const s=menu._sada1525?.[Number(o.dataset.sada1525)];if(!s)return;try{window.selectService?.(s)}catch(_){}try{closeAllCDD()}catch(_){} };
     if(arr.length>100){const m=document.createElement('button');m.className='btn bs2 btn-w';m.type='button';m.textContent='عرض باقي الخدمات';m.onclick=ev=>{ev.preventDefault();ev.stopPropagation();arr.slice(100).forEach((s,i)=>{const o=document.createElement('div');o.className='cdd-option';o.dataset.sada1525=String(i+100);o.style.cssText='gap:9px;padding:10px 12px;min-height:62px';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=imgFor(s);im.onerror=()=>{const ap=String(s.app||'Other').toLowerCase();const mp={instagram:'instagram',tiktok:'tiktok',facebook:'facebook',youtube:'youtube',telegram:'telegram',twitter:'twitter',snapchat:'snapchat',whatsapp:'whatsapp',linkedin:'linkedin'};im.src='platform-icons/'+(mp[ap]||'other')+'.svg';};const nm=document.createElement('div');nm.style.cssText='flex:1;min-width:0';nm.textContent=s.name||'خدمة';const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:var(--blue)';pr.textContent='USD '+n(s.sellingUsd!==undefined?s.sellingUsd:n(s.price)/RATE).toFixed(2)+'/1000';o.append(im,nm,pr);m.before(o)});m.remove()};menu.appendChild(m)}
   };
 
@@ -11428,7 +11624,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
     const seen=new Set(),arr=[];for(const s of source){const k=String(s?.fbKey||s?.providerId||s?.smmpartyId||s?.providerServiceId||s?.name);if(seen.has(k))continue;seen.add(k);arr.push(s)}
     if(!arr.length){const e=document.createElement('div');e.className='cdd-empty';e.textContent='لا توجد خدمات ضمن هذا القسم';menu.appendChild(e);return;}
     menu._sada1528=arr;
-    const renderOne=(s,i)=>{const o=document.createElement('div');o.className='cdd-option';o.dataset.sada1528=String(i);o.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:66px';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=serviceImage28(cat,s);im.alt='';im.loading='lazy';im.onerror=()=>{im.onerror=null;im.src=asset28('platform-icons/'+(iconMap28[platform28(s)]||iconMap28.other))};const info=document.createElement('div');info.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';info.append(nm,id);const price=document.createElement('div');price.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';price.textContent='USD '+(window.formatRate52?window.formatRate52(N28(s.sellingUsd!==undefined?s.sellingUsd:N28(s.price)/1250)):N28(s.sellingUsd!==undefined?s.sellingUsd:N28(s.price)/1250).toFixed(2))+'/1000';o.append(im,info,price);o.onclick=e=>{e.preventDefault();e.stopPropagation();try{SEL_SVC=s;window.selectService?.(s)}catch(_){}try{closeAllCDD()}catch(_){}};return o};
+    const renderOne=(s,i)=>{const o=document.createElement('div');o.className='cdd-option';o.dataset.sada1528=String(i);o.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:66px';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=serviceImage28(cat,s);im.alt='';im.loading='lazy';im.onerror=()=>{im.onerror=null;im.src=asset28('platform-icons/'+(iconMap28[platform28(s)]||iconMap28.other))};const info=document.createElement('div');info.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.serviceCode||s.serviceId||s.service_id||s.sid||s.id||s.smmpartyId||s.providerServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';info.append(nm,id);const price=document.createElement('div');price.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';price.textContent='USD '+(window.formatRate52?window.formatRate52(N28(s.sellingUsd!==undefined?s.sellingUsd:N28(s.price)/1250)):N28(s.sellingUsd!==undefined?s.sellingUsd:N28(s.price)/1250).toFixed(2))+'/1000';o.append(im,info,price);o.onclick=e=>{e.preventDefault();e.stopPropagation();try{SEL_SVC=s;window.selectService?.(s)}catch(_){}try{closeAllCDD()}catch(_){}};return o};
     const frag=document.createDocumentFragment();arr.slice(0,100).forEach((s,i)=>frag.appendChild(renderOne(s,i)));menu.appendChild(frag);
     if(arr.length>100){const more=document.createElement('button');more.type='button';more.className='btn bs2 btn-w';more.style.marginTop='7px';more.textContent='عرض باقي الخدمات';more.onclick=e=>{e.preventDefault();e.stopPropagation();for(let i=100;i<arr.length;i++)menu.insertBefore(renderOne(arr[i],i),more);more.remove()};menu.appendChild(more)}
   };
@@ -11521,7 +11717,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
     menu._sada32=list;const frag=document.createDocumentFragment();list.slice(0,120).forEach((s,i)=>{
       const opt=document.createElement('div');opt.className='cdd-option';opt.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:66px';
       const im=document.createElement('img');im.className='sada-svc-thumb';im.src=serviceImage(c,s);im.loading='lazy';im.alt='';im.onerror=()=>{im.onerror=null;im.src=icon(servicePlatform(s))};
-      const info=document.createElement('div');info.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';info.append(nm,id);
+      const info=document.createElement('div');info.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.serviceCode||s.serviceId||s.service_id||s.sid||s.id||s.smmpartyId||s.providerServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';info.append(nm,id);
       const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';const u=Number(s.sellingUsd!==undefined?s.sellingUsd:(Number(s.price||0)/RATE));pr.textContent='USD '+(Number.isFinite(u)?u:0).toFixed(2)+'/'+(isFixedOrderPriceService(s)?(Number(s.max)<1000?'100':'1000'):'1000');opt.append(im,info,pr);opt.onclick=e=>{e.preventDefault();e.stopPropagation();SEL_SVC=s;try{window.selectService?.(s)}catch(_){}try{closeAllCDD()}catch(_){}};frag.appendChild(opt);
     });menu.appendChild(frag);if(list.length>120){const more=document.createElement('button');more.type='button';more.className='btn bs2 btn-w';more.textContent='عرض باقي الخدمات';more.style.marginTop='7px';more.onclick=e=>{e.preventDefault();e.stopPropagation();for(let i=120;i<list.length;i++){const s=list[i],o=document.createElement('div');o.className='cdd-option';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=serviceImage(c,s);im.onerror=()=>{im.onerror=null;im.src=icon(servicePlatform(s))};o.append(im,document.createTextNode(s.name||'خدمة'));o.onclick=ev=>{ev.preventDefault();ev.stopPropagation();SEL_SVC=s;window.selectService?.(s);try{closeAllCDD()}catch(_){}};menu.insertBefore(o,more)}more.remove()};menu.appendChild(more)}};
 
@@ -11959,7 +12155,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
     if(!list.length){const e=document.createElement('div');e.className='cdd-empty';e.textContent='لا توجد خدمات ضمن هذا الاختيار';menu.appendChild(e);return;}
     const order=(window.SADA31_ORDER?.services?.[typeof catKey==='function'?catKey(real):real]||[]).map(String);const rank=new Map(order.map((x,i)=>[x,i]));list.sort((a,b)=>(rank.has(String(a.fbKey))?rank.get(String(a.fbKey)):999999)-(rank.has(String(b.fbKey))?rank.get(String(b.fbKey)):999999)||String(a.name||'').localeCompare(String(b.name||''),'ar'));
     menu._sada1535=list;const pageSize=120;let rendered=0;
-    const appendBatch=()=>{menu.querySelector('.sada1559-more-services')?.remove();const frag=document.createDocumentFragment();const end=Math.min(list.length,rendered+pageSize);for(let i=rendered;i<end;i++){const s=list[i];const o=document.createElement('div');o.className='cdd-option';o.dataset.sada1535=String(i);o.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:66px';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=serviceImage35(s);im.loading='lazy';im.alt='';im.onerror=()=>{im.onerror=null;im.src=platformImage35(s.app)};const inf=document.createElement('div');inf.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;color:var(--t0);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';inf.append(nm,id);const price=Number(s.sellingUsd!==undefined?s.sellingUsd:(Number(s.price||0)/RATE35));const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';pr.textContent='USD '+(Number.isFinite(price)?price:0).toFixed(price<0.01?6:price<1?4:2)+'/1000';o.append(im,inf,pr);o.onclick=e=>{e.preventDefault();e.stopPropagation();SEL_SVC=s;try{window.selectService?.(s)}catch(_){}try{closeAllCDD()}catch(_){}};frag.appendChild(o);}menu.appendChild(frag);rendered=end;if(rendered<list.length){const more=document.createElement('button');more.type='button';more.className='btn bs2 btn-w sada1559-more-services';more.style.cssText='margin:8px 0;width:100%;position:sticky;bottom:0';more.textContent='عرض المزيد من الخدمات ('+(list.length-rendered).toLocaleString('ar-IQ')+' متبقية)';more.onclick=e=>{e.preventDefault();e.stopPropagation();appendBatch()};menu.appendChild(more);}};
+    const appendBatch=()=>{menu.querySelector('.sada1559-more-services')?.remove();const frag=document.createDocumentFragment();const end=Math.min(list.length,rendered+pageSize);for(let i=rendered;i<end;i++){const s=list[i];const o=document.createElement('div');o.className='cdd-option';o.dataset.sada1535=String(i);o.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:66px';const im=document.createElement('img');im.className='sada-svc-thumb';im.src=serviceImage35(s);im.loading='lazy';im.alt='';im.onerror=()=>{im.onerror=null;im.src=platformImage35(s.app)};const inf=document.createElement('div');inf.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;color:var(--t0);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.serviceCode||s.serviceId||s.service_id||s.sid||s.id||s.smmpartyId||s.providerServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';inf.append(nm,id);const price=Number(s.sellingUsd!==undefined?s.sellingUsd:(Number(s.price||0)/RATE35));const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:var(--blue);white-space:nowrap';pr.textContent='USD '+(Number.isFinite(price)?price:0).toFixed(price<0.01?6:price<1?4:2)+'/1000';o.append(im,inf,pr);o.onclick=e=>{e.preventDefault();e.stopPropagation();SEL_SVC=s;try{window.selectService?.(s)}catch(_){}try{closeAllCDD()}catch(_){}};frag.appendChild(o);}menu.appendChild(frag);rendered=end;if(rendered<list.length){const more=document.createElement('button');more.type='button';more.className='btn bs2 btn-w sada1559-more-services';more.style.cssText='margin:8px 0;width:100%;position:sticky;bottom:0';more.textContent='عرض المزيد من الخدمات ('+(list.length-rendered).toLocaleString('ar-IQ')+' متبقية)';more.onclick=e=>{e.preventDefault();e.stopPropagation();appendBatch()};menu.appendChild(more);}};
     appendBatch();
   };
   window.selectPlat=function(platId,btn){SEL_PLAT=platId==='all'?'all':String(platId||'all');SEL_CAT='__all__';SEL_SVC=null;document.querySelectorAll('#order-plat-grid .plat-ic-btn').forEach(b=>b.classList.remove('on'));btn?.classList.add('on');const cl=$36('cat-label');if(cl)cl.textContent='الكل';$36('cat-icon')?.replaceChildren();const sl=$36('svc-label');if(sl)sl.textContent='اختر الخدمة...';$36('svc-icon')?.replaceChildren();window.buildCatDD();window.buildSvcDD('__all__');};
@@ -12245,7 +12441,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
     const frag=document.createDocumentFragment();list.slice(0,160).forEach(s=>{
       const o=document.createElement('div');o.className='cdd-option';o.style.cssText='gap:9px;padding:10px 12px;align-items:center;min-height:66px';
       const im=bindImageFallback36(document.createElement('img'),(normalizePlatform36(SEL_PLAT)||platformFrom36(s)));im.className='sada36-svc-img';im.src=asset36(icon36[normalizePlatform36(SEL_PLAT)||platformFrom36(s)]||icon36[platformFrom36(s)]||icon36.Other)||fallbackImage36(platformFrom36(s));im.loading='lazy';
-      const inf=document.createElement('div');inf.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;color:var(--t0);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';inf.append(nm,id);const usd=Number(s.sellingUsd!==undefined?s.sellingUsd:Number(s.price||0)/RATE36);const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:'+(s.adminFreeService===true?'#22c55e':'var(--blue)')+';white-space:nowrap';pr.textContent=s.adminFreeService===true?'مجاني':'USD '+(window.formatRate52?window.formatRate52(Number.isFinite(usd)?usd:0):(Number.isFinite(usd)?usd:0).toFixed(2))+'/1000';o.append(im,inf,pr);o.onclick=e=>{e.preventDefault();e.stopPropagation();SEL_SVC=s;window.selectService?.(s);closeAllCDD?.()};frag.appendChild(o);
+      const inf=document.createElement('div');inf.style.cssText='flex:1;min-width:0;overflow:hidden';const nm=document.createElement('div');nm.className='svc-main-name';nm.textContent=s.name||'خدمة';nm.style.cssText='font-size:12px;font-weight:850;color:var(--t0);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';const id=document.createElement('div');id.style.cssText='font-size:8px;color:var(--t3);margin-top:3px';const siteServiceId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.serviceCode||s.serviceId||s.service_id||s.sid||s.id||s.smmpartyId||s.providerServiceId||'').trim();id.textContent='رقم الخدمة: '+(/^\d{4,}$/.test(siteServiceId)?siteServiceId:'قيد التجهيز');id.style.cssText='font-size:10px;color:var(--t3);margin-top:4px;font-variant-numeric:tabular-nums';inf.append(nm,id);const usd=Number(s.sellingUsd!==undefined?s.sellingUsd:Number(s.price||0)/RATE36);const pr=document.createElement('div');pr.style.cssText='font-size:11px;font-weight:900;color:'+(s.adminFreeService===true?'#22c55e':'var(--blue)')+';white-space:nowrap';pr.textContent=s.adminFreeService===true?'مجاني':'USD '+(window.formatRate52?window.formatRate52(Number.isFinite(usd)?usd:0):(Number.isFinite(usd)?usd:0).toFixed(2))+'/1000';o.append(im,inf,pr);o.onclick=e=>{e.preventDefault();e.stopPropagation();SEL_SVC=s;window.selectService?.(s);closeAllCDD?.()};frag.appendChild(o);
     });menu.appendChild(frag);if(list.length>160){const b=document.createElement('button');b.type='button';b.className='btn bs2 btn-w';b.textContent='عرض باقي الخدمات';b.onclick=()=>{for(const s of list.slice(160)){const o=document.createElement('div');o.className='cdd-option';o.textContent=s.name||'خدمة';o.onclick=()=>{SEL_SVC=s;window.selectService?.(s);closeAllCDD?.()};menu.insertBefore(o,b)}b.remove()};menu.appendChild(b)}
   };
   let catalogRefreshInFlight36=null;
@@ -12833,7 +13029,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
       const img=wireImage(document.createElement('img'),resolveServiceImage55(s),servicePlatform(s));img.className='sada1550-service-thumb';img.loading='lazy';img.decoding='async';img.alt='';img.style.cssText='display:block;width:36px;height:36px;min-width:36px;max-width:36px;box-sizing:border-box;object-fit:contain;flex:none;margin:0;animation:none;transform:none;filter:none;will-change:auto';
       const info=document.createElement('div');info.className='sada1550-service-info';info.style.cssText='display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;overflow:visible;direction:rtl;text-align:right';
       const nm=document.createElement('div');nm.className='sada1550-service-name';nm.textContent=fullName;nm.title=fullName;nm.style.cssText='display:block;width:100%;max-width:100%;min-width:0;margin:0;color:var(--t0);font-size:13px;font-weight:850;line-height:1.45;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:normal';
-      const bd=quantityBounds(s);const sid=String(s.siteServiceId||'').match(/^\d{4,}$/)?String(s.siteServiceId):String(s.smmpartyId||s.providerServiceId||'قيد التجهيز');
+      const bd=quantityBounds(s);const rawSiteId=String(s.siteServiceId||s.internalServiceId||s.sadaServiceId||s.catalogId||s.id||'').trim();const sid=/^\d{4,}$/.test(rawSiteId)?rawSiteId:'قيد التجهيز';
       const meta=document.createElement('div');meta.className='sada1550-service-meta';meta.textContent='رقم الخدمة: '+sid;meta.style.cssText='display:block;max-width:100%;min-width:0;margin-top:3px;color:var(--t2);font-size:10px;line-height:1.45;white-space:normal;overflow-wrap:anywhere';
       info.append(nm,meta);head.append(img,info);
       const pr=document.createElement('div');pr.className='sada1550-service-price sada226-price-strip';pr.style.cssText='display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin:0;padding:7px 9px;border:1px solid rgba(75,205,170,.20);border-radius:9px;background:rgba(8,91,83,.16);direction:rtl;text-align:right;overflow:hidden';
@@ -12862,7 +13058,17 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   // Normalize selected service quantity bounds and price display without changing its provider/order identifiers.
   const priorSelect=window.selectService;
   window.selectService=function(s){if(!s)return;const bd=quantityBounds(s);const price=priceUSD(s);const normalized={...s,min:bd.min,max:bd.max,sellingUsd:price};if(!Number.isFinite(Number(normalized.price))||Number(normalized.price)<0)normalized.price=price*RATE;try{if(typeof SEL_SVC!=='undefined')SEL_SVC=normalized;window.SEL_SVC=normalized;}catch(_){}if(typeof priorSelect==='function')priorSelect.call(this,normalized);else{const l=$('svc-label');if(l)l.textContent=normalized.name||'خدمة';}
-    const box=$('svc-info-box');const currentCat=text(window.SEL_CAT??(typeof SEL_CAT!=='undefined'?SEL_CAT:''));const cat=currentCat&&!['__all__','all'].includes(key(currentCat))?currentCat:text(normalized.category||normalized.groups?.[0]||normalized.categories?.[0]);const src=resolveServiceImage55(normalized);const selectedIcon=$('svc-icon');if(selectedIcon){selectedIcon.replaceChildren(wireImage(document.createElement('img'),src,servicePlatform(normalized)));}if(box){const imgs=box.querySelectorAll('img');imgs.forEach(img=>{img.onerror=()=>{img.onerror=null;img.src=fallbackImage(servicePlatform(normalized));};img.src=src;});const priceNode=[...box.querySelectorAll('*')].find(el=>el.children.length===0&&/^USD\s/i.test(text(el.textContent)));if(priceNode){priceNode.textContent=normalized.adminFreeService===true?'مجاني':'USD '+formatUSD(price)+' · '+(isFixedOrderPriceService(normalized)?('السعر لكل '+(Number(normalized.max)<1000?'100':'1000')):'السعر لكل 1,000');priceNode.style.color=normalized.adminFreeService===true?'#22c55e':'var(--blue)';}const texts=[...box.querySelectorAll('*')].filter(el=>el.children.length===0);for(let i=0;i<texts.length;i++){const t=text(texts[i].textContent);if(t==='الحد الأدنى'&&texts[i].nextElementSibling)texts[i].nextElementSibling.textContent=bd.min.toLocaleString('ar-IQ');if(t==='الحد الأقصى'&&texts[i].nextElementSibling)texts[i].nextElementSibling.textContent=bd.max.toLocaleString('ar-IQ');}}
+    const box=$('svc-info-box');const currentCat=text(window.SEL_CAT??(typeof SEL_CAT!=='undefined'?SEL_CAT:''));const cat=currentCat&&!['__all__','all'].includes(key(currentCat))?currentCat:text(normalized.category||normalized.groups?.[0]||normalized.categories?.[0]);const src=resolveServiceImage55(normalized);const selectedIcon=$('svc-icon');if(selectedIcon){selectedIcon.replaceChildren(wireImage(document.createElement('img'),src,servicePlatform(normalized)));}
+    if(box){
+      const descKeys=['descriptionOverride','manualDescription','serviceDescription','service_description','service_desc','providerDescription','description','desc','details','instructions','note','requirements','info'];let serviceDesc='';
+      for(const k of descKeys){const value=normalized?.[k];if(value!==undefined&&value!==null&&String(value).trim()){serviceDesc=String(value).trim();break;}}
+      const platformText=[servicePlatform(normalized),normalized?.app,normalized?.platform,normalized?.platformName,normalized?.category,normalized?.section,normalized?.name,normalized?.serviceName,normalized?.service].map(v=>String(v??'')).join(' ').toLowerCase();
+      const isInstagram=/instagram|انستغرام|انستجرام|إنستغرام/.test(platformText);
+      box.replaceChildren();
+      if(serviceDesc){const panel=document.createElement('section');panel.className='card sada-order-description-card';const title=document.createElement('div');title.className='sada-order-info-title';title.textContent='وصف الخدمة';const body=document.createElement('div');body.className='sada-order-description-text';body.textContent=serviceDesc;panel.append(title,body);box.appendChild(panel);}
+      if(isInstagram){const notice=document.createElement('section');notice.className='card sada-instagram-preorder-warning';notice.setAttribute('role','note');const title=document.createElement('div');title.className='sada-order-warning-title';title.textContent='⚠️ مهم قبل الطلب';const intro=document.createElement('p');intro.className='sada-order-warning-intro';intro.textContent='مهم جداً إذا كنت تريد إنشاء طلب جديد (متابعين انستقرام)، عطّل خيار «تمييز للمراجعة».';const steps=document.createElement('ol');steps.className='sada-order-warning-steps';['انتقل إلى إعدادات الحساب.','اختر خيار «متابعة ودعوة الأصدقاء».','ابحث عن خيار «تمييز للمراجعة» وقم بتعطيله. هذا أمر ضروري لضمان إضافة المتابعين الجدد تلقائيًا إلى قائمة متابعيك.'].forEach(t=>{const li=document.createElement('li');li.textContent=t;steps.appendChild(li)});notice.append(title,intro,steps);box.appendChild(notice);}
+      box.style.display=(serviceDesc||isInstagram)?'block':'none';
+    }
     const qmin=$('qty-min-label');if(qmin)qmin.textContent='الحد الأدنى: '+bd.min.toLocaleString('ar-IQ');const qmax=$('qty-max-label');if(qmax)qmax.textContent='الحد الأقصى: '+bd.max.toLocaleString('ar-IQ');const qi=$('order-qty');if(qi){qi.min=String(bd.min);qi.max=String(bd.max);qi.step='1';qi.value='';qi.placeholder='أدخل كمية بين '+bd.min.toLocaleString('ar-IQ')+' و'+bd.max.toLocaleString('ar-IQ');qi.setCustomValidity('');}
   };
   // Ensure cache refreshes keep the authoritative platform/category filter after data changes.
@@ -13301,7 +13507,7 @@ body:has(#modal-mask.on) #wa-float{z-index:99990!important}
  function loadGoogleScript(){if(window.google?.accounts?.id)return Promise.resolve();if(googleScriptPromise)return googleScriptPromise;googleScriptPromise=new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=resolve;sc.onerror=()=>reject(new Error('Google script network error'));document.head.appendChild(sc)});return googleScriptPromise;}
  async function googleCredentialCallback(response){const form=$('box-register')&&$('box-register').style.display!=='none'?'register':'login';activeGoogleForm=form;const cap=captchaClientCheck(form);if(!cap){await refreshMathCaptcha(form);return}if(!response?.credential){showCaptchaErr(form,'لم يرجع Google رمز تحقق صالحاً. أعد المحاولة.');await refreshMathCaptcha(form);return}try{const r=await fetch('/api/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',cache:'no-store',body:JSON.stringify({credential:response.credential,...cap})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw new Error(d.error||'تعذر التحقق من حساب Google');handleSession(d,d.username||'Google');}catch(e){showCaptchaErr(form,String(e.message||'تعذر تسجيل الدخول عبر Google'));await refreshMathCaptcha(form)}}
  const originalShowForm=window.showForm;if(typeof originalShowForm==='function')window.showForm=function(form){const r=originalShowForm.apply(this,arguments);setTimeout(()=>refreshMathCaptcha(form==='register'?'register':'login'),20);return r};
- document.addEventListener('DOMContentLoaded',()=>{refreshMathCaptcha('login');refreshMathCaptcha('register');loadGoogleConfig();},{once:true});
+ document.addEventListener('DOMContentLoaded',()=>{refreshMathCaptcha('login');refreshMathCaptcha('register');},{once:true});
 })();
 </script>
 
@@ -16172,40 +16378,7 @@ window.SADA_V1599_FIXES={version:'1.6.86',features:['telegram-stable-server-deri
   }
   return sectionDescription||providerDescription;
  }
- function ensureDescriptionPanel(s){
-  const box=$('svc-info-box');if(!box)return;
-  const rawId=String(s?.siteServiceId||s?.internalServiceId||s?.sadaServiceId||'').trim();
-  const siteId=/^\d{4,}$/.test(rawId)?rawId:'';
-  let idPanel=$('sada1605-site-service-id');
-  if(!idPanel){
-    idPanel=document.createElement('div');idPanel.id='sada1605-site-service-id';
-    idPanel.style.cssText='margin-top:10px;padding:11px 13px;border:1px solid rgba(55,220,173,.36);border-radius:13px;background:linear-gradient(145deg,rgba(8,47,49,.82),rgba(8,23,35,.94));color:#d9fff5;font-size:12px;line-height:1.8;overflow-wrap:anywhere';
-    const label=document.createElement('div');label.textContent='رقم الخدمة في صدى العراق';label.style.cssText='color:#53e6bc;font-weight:950;font-size:11px;margin-bottom:6px';
-    const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;direction:rtl;flex-wrap:wrap';
-    const value=document.createElement('b');value.id='sada1605-site-service-id-value';value.style.cssText='font-family:ui-monospace,monospace;font-size:18px;letter-spacing:.8px;direction:ltr;display:inline-block;max-width:100%;overflow-wrap:anywhere';
-    const copy=document.createElement('button');copy.type='button';copy.id='sada1605-site-service-id-copy';copy.className='btn bs2 btn-sm';copy.innerHTML='<i class="fas fa-copy"></i> نسخ رقم الخدمة';
-    copy.addEventListener('click',async()=>{
-      const current=String($('sada1605-site-service-id-value')?.textContent||'').trim();
-      if(!/^\d{4,}$/.test(current))return (window.toast||alert)('رقم الخدمة غير جاهز بعد','wrn');
-      try{
-        if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(current);
-        else {const area=document.createElement('textarea');area.value=current;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();if(!ok)throw new Error('copy-failed');}
-        (window.toast||alert)('تم نسخ رقم الخدمة: '+current,'ok');
-      }catch(_){(window.toast||alert)('رقم الخدمة: '+current,'ok');}
-    });
-    row.append(value,copy);idPanel.append(label,row);
-  }
-  if(idPanel.parentElement!==box)box.appendChild(idPanel);
-  const idValue=$('sada1605-site-service-id-value');if(idValue)idValue.textContent=siteId||'قيد تجهيز الرقم';
-  const copyBtn=$('sada1605-site-service-id-copy');if(copyBtn)copyBtn.disabled=!siteId;
-  idPanel.style.display='block';
-  // Replace the legacy provider number in the service heading with our Arabic numeric site ID.
-  const oldSub=[...box.querySelectorAll('*')].find(el=>el.children.length===0&&el!==idValue&&/^#\s*[A-Za-z0-9_-]+$/.test(String(el.textContent||'').trim()));
-  if(oldSub)oldSub.textContent=siteId?'رقم الخدمة في صدى العراق: '+siteId:'رقم الخدمة في صدى العراق';
-  let panel=$('sada1605-service-description');
-  if(!panel){panel=document.createElement('div');panel.id='sada1605-service-description';panel.style.cssText='margin-top:10px;padding:12px 13px;border:1px solid rgba(97,128,223,.3);border-radius:14px;background:linear-gradient(145deg,rgba(18,28,66,.9),rgba(7,13,34,.92));color:#c0d2ef;font-size:11px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere';const label=document.createElement('div');label.textContent='وصف الخدمة';label.style.cssText='color:#a5a0ff;font-weight:950;font-size:11px;margin-bottom:5px';const value=document.createElement('div');value.id='sada1605-service-description-value';panel.append(label,value);box.appendChild(panel);}
-  const descValue=$('sada1605-service-description-value');if(descValue)descValue.textContent=descriptionFor(s)||'لا يوجد وصف مكتوب لهذه الخدمة حالياً.';panel.style.display='block';
- }
+ function ensureDescriptionPanel(s){ /* selection panel is rendered in the request form; do not append legacy detail cards */ }
  function installServiceWrapper(){const prior=window.selectService;if(typeof prior!=='function'||prior.__sada1605DescImage)return;const wrapped=function(s){const r=prior.apply(this,arguments);try{setTimeout(()=>ensureDescriptionPanel(s||window.SEL_SVC),0)}catch(_){}return r};wrapped.__sada1605DescImage=true;window.selectService=wrapped;}
  function statusButton(label,key,color){const b=document.createElement('button');b.type='button';b.className='sada1605-statusfilter';b.dataset.statusfilter=key;b.style.color=color;b.textContent=label;return b;}
  function mountOrders(){const root=$('pg-orders');if(!root||root.dataset.sada1605Mounted)return;root.dataset.sada1605Mounted='1';root.classList.add('sada1605-orders');root.replaceChildren();const hero=document.createElement('section');hero.className='sada1605-hero';hero.innerHTML='<div class="sada1605-head"><div><h1 class="sada1605-title">طلباتي</h1><p class="sada1605-subtitle">تتبع حالة جميع طلباتك بسهولة</p></div><div class="sada1605-mark" aria-hidden="true">▣</div></div><div class="sada1605-mainfilters"><button class="sada1605-filter active" data-mainfilter="all">▦ الكل</button><button class="sada1605-filter" data-mainfilter="pending">◷ قيد الانتظار</button><button class="sada1605-filter" data-mainfilter="processing">⚙ قيد التنفيذ</button></div><div class="sada1605-statuses" id="sada1605-statuses"></div><div class="sada1605-tools"><label class="sada1605-searchwrap"><span>⌕</span><input id="sada1605-search" type="search" placeholder="ابحث برقم الطلب أو اسم الخدمة..." autocomplete="off"></label><button class="sada1605-iconbutton" id="sada1605-refresh" type="button" aria-label="تحديث الطلبات" title="تحديث الطلبات">↻</button></div></section><div class="sada1605-summary"><span id="sada1605-count">جارٍ تحميل طلباتك…</span><span id="sada1605-spend"></span></div><section id="sada1605-order-list"></section>';
@@ -16494,13 +16667,13 @@ function openWizard(){
 }
 function bindAsiaCell(){const entry=$('sadairaq-ac-entry');if(!entry||entry.dataset.sada1637WizardBound)return;entry.dataset.sada1637WizardBound='1';entry.onclick=null;entry.removeAttribute('onclick');entry.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();openWizard()},true);}
 function polishOrderForm(){
- const qty=$('order-qty'),card=$('order-form-card');if(!qty||!card||qty.dataset.sada1637Polished)return;qty.dataset.sada1637Polished='1';
- const box=qty.closest('.order-qty-box');if(box){let presets=box.querySelector('.sada1637-qty-presets');if(!presets){presets=document.createElement('div');presets.className='sada1637-qty-presets';presets.setAttribute('aria-label','اختيارات كمية سريعة');qty.insertAdjacentElement('afterend',presets)}
- const parseNum=v=>{const m=String(v||'').replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[^0-9]/g,'');return Number(m||0)};
- const update=()=>{const min=parseNum($('qty-min-label')?.textContent)||100,max=parseNum($('qty-max-label')?.textContent)||10000;const choices=[min,min*2,min*5,max].filter((v,i,a)=>Number.isFinite(v)&&v>=min&&v<=max&&a.indexOf(v)===i);presets.replaceChildren();for(const val of choices){const b=document.createElement('button');b.type='button';b.className='sada1637-qty-preset';b.textContent=String(val);b.dataset.quantity=String(val);b.classList.toggle('on',Number(qty.value)===val);b.onclick=()=>{qty.value=String(val);qty.dispatchEvent(new Event('input',{bubbles:true}));qty.dispatchEvent(new Event('change',{bubbles:true}));presets.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));};presets.appendChild(b)}};
- const refreshActive=()=>presets.querySelectorAll('button').forEach(b=>b.classList.toggle('on',Number(qty.value)===Number(b.dataset.quantity)));qty.addEventListener('input',refreshActive);const rangeObs=new MutationObserver(update);['qty-min-label','qty-max-label'].forEach(id=>{const n=$(id);if(n)rangeObs.observe(n,{childList:true,characterData:true,subtree:true})});update();
- }
- const link= $('order-link');if(link){const wrap=link.closest('div[style*="position:relative"]');if(wrap&&!wrap.nextElementSibling?.classList.contains('sada1637-order-hint')){const hint=document.createElement('div');hint.className='sada1637-order-hint';hint.innerHTML='<i class="fas fa-circle-info"></i><span>ضع رابط الحساب أو المنشور الصحيح للمنصة المختارة. تأكد من أن الرابط عام ويمكن الوصول إليه قبل تأكيد الطلب.</span>';wrap.insertAdjacentElement('afterend',hint)}}
+ const qty=$('order-qty'),card=$('order-form-card');
+ if(!qty||!card)return;
+ qty.dataset.sada1637Polished='1';
+ qty.setAttribute('inputmode','numeric');qty.step='1';qty.autocomplete='off';
+ const box=qty.closest('.order-qty-box');box?.querySelectorAll('.sada1637-qty-presets').forEach(el=>el.remove());
+ card.querySelectorAll('.sada1637-order-hint').forEach(el=>el.remove());
+ const link=$('order-link');if(link){link.autocomplete='off';link.autocorrect='off';link.autocapitalize='off';link.spellcheck=false;}
 }
 function init(){bindAsiaCell();polishOrderForm();const entry=$('sadairaq-ac-entry');if(entry)new MutationObserver(bindAsiaCell).observe(entry,{attributes:true,attributeFilter:['onclick']});const order=$('pg-order');if(order)new MutationObserver(()=>polishOrderForm()).observe(order,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
@@ -18595,5 +18768,175 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
 @media(prefers-reduced-motion:reduce){.sada-side-flags-track,.sada62-about-country-track,#pg-referral .sada63-referral-flags-track{animation:none!important;transform:none!important;will-change:auto!important}.sada-side-flags{overflow-x:auto!important;touch-action:pan-x!important}}
 </style>
 
+<script id="SADA_AUTH_PAGE_MERGE_BRIDGE">
+(function(){
+ const root=document.getElementById('auth-page'); if(!root||!root.classList.contains('sada-integrated-auth'))return;
+ const $=(sel,base=root)=>base.querySelector(sel), $$=(sel,base=root)=>Array.from(base.querySelectorAll(sel));
+ function mode(name){
+   const val=name==='register'?'register':'login';
+   const bLogin=$('#box-login'),bReg=$('#box-register'),bForgot=$('#box-forgot'),tabs=$$('[data-sada-auth]');
+   if(bLogin)bLogin.style.display=val==='login'?'block':'none';
+   if(bReg)bReg.style.display=val==='register'?'block':'none';
+   if(bForgot)bForgot.style.display='none';
+   tabs.forEach(t=>{const on=t.dataset.sadaAuth===val;t.classList.toggle('active',on);t.setAttribute('aria-selected',String(on));});
+   const card=$('#sadaAuthCard');if(card)card.classList.toggle('register-mode',val==='register');
+   root.dataset.authMode=val;
+ }
+ function forgot(){
+   for(const id of ['box-login','box-register','box-forgot']){const el=document.getElementById(id);if(el)el.style.display=id==='box-forgot'?'block':'none';}
+   $$('[data-sada-auth]').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
+   const status=document.getElementById('forgot-status');if(status)status.textContent='أدخل البريد المرتبط بحسابك، وسنرسل رمزًا عبر خدمة البريد الفعلية.';
+   for(const id of ['forgot-code-wrap','forgot-newpass-wrap','forgot-reset']){const el=document.getElementById(id);if(el)el.style.display='none';}
+   const send=document.getElementById('forgot-send');if(send){send.style.display='';send.disabled=false;}
+   $('#sadaAuthCard')?.classList.remove('register-mode');
+ }
+ window.showAuthPanel=mode;window.showHero=function(){mode('login')};window.showForgotPassword=forgot;window.backToLoginFromForgot=function(){mode('login')};
+ $$('[data-sada-auth]').forEach(t=>t.addEventListener('click',()=>mode(t.dataset.sadaAuth)));
+ // Header / footer CTA buttons share the same in-page form and never navigate away.
+ root.addEventListener('click',e=>{
+   const button=e.target.closest('button[onclick*="showAuthPanel"]');
+   if(button){const m=(button.getAttribute('onclick')||'').includes('register')?'register':'login';e.preventDefault();mode(m);}
+   const anchor=e.target.closest('a[href^="#"]');if(anchor){const id=anchor.getAttribute('href').slice(1),target=Array.from(root.querySelectorAll('[id]')).find(n=>n.id===id);if(target){e.preventDefault();target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});$('#quickMenu')?.setAttribute('hidden','');$('#menuToggle')?.setAttribute('aria-expanded','false');}}
+ });
+ // Login identifier preference is presentation only; the established auth endpoint still validates credentials.
+ const methodButtons=$$('[data-method]'),identity=document.getElementById('l-user');
+ methodButtons.forEach(b=>b.addEventListener('click',()=>{
+   methodButtons.forEach(x=>x.classList.toggle('active',x===b));
+   if(!identity)return;
+   if(b.dataset.method==='email'){identity.type='email';identity.setAttribute('inputmode','email');identity.placeholder='البريد الإلكتروني';}
+   else if(b.dataset.method==='username'){identity.type='text';identity.removeAttribute('inputmode');identity.placeholder='اسم المستخدم أو البريد الإلكتروني';}
+   else if(b.dataset.method==='telegram'){identity.type='text';identity.removeAttribute('inputmode');identity.placeholder='اسم المستخدم أو البريد الإلكتروني';}
+ }));
+ // Real live stats from the project's public API. Never replace failed requests with guessed values.
+ const numberFmt=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+ function animated(el,n){if(!el)return;if(!Number.isFinite(Number(n))){el.textContent='—';return;}const end=Math.max(0,Math.floor(Number(n)));const start=Number(String(el.textContent||'').replace(/[^0-9]/g,''))||0;const t0=performance.now(),dur=500;function step(t){const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=numberFmt(Math.round(start+(end-start)*e));if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+ async function apiJson(path){const r=await fetch(path,{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}});const d=await r.json().catch(()=>({}));if(!r.ok||d.ok===false)throw new Error(d.error||('HTTP '+r.status));return d;}
+ const platforms=[
+  {id:'instagram',re:/instagram|insta|إنستغرام|انستغرام|انستجرام|انستا/i},
+  {id:'tiktok',re:/tiktok|تيك\s*توك|تيكتوك/i},
+  {id:'telegram',re:/telegram|تيليغرام|تليغرام|تيليجرام|تليجرام|تلغرام/i},
+  {id:'youtube',re:/youtube|يوتيوب/i},
+  {id:'facebook',re:/facebook|فيسبوك|فيس\s*بوك/i},
+  {id:'snapchat',re:/snapchat|سناب\s*شات|سناب/i},
+  {id:'whatsapp',re:/whatsapp|واتساب|واتس\s*اب/i},
+  {id:'linkedin',re:/linkedin|لينكد\s*إن|لينكدإن|لينكد\s*ان/i},
+  {id:'x',re:/twitter|تويتر|إكس|اكس/i},
+  {id:'twitch',re:/twitch|تويتش/i},{id:'discord',re:/discord|ديسكورد/i},{id:'spotify',re:/spotify|سبوتيفاي/i},{id:'soundcloud',re:/soundcloud|ساوند\s*كلاود/i}
+ ];
+ const activeRow=r=>r&&typeof r==='object'&&!Array.isArray(r)&&r.active!==false&&r.enabled!==false&&r.isActive!==false&&r.hidden!==true&&r.isHidden!==true&&r.deleted!==true&&r.unapprovedAutoImport!==true&&String(r.status||'').toLowerCase()!=='disabled';
+ const textRow=r=>[r.platform,r.app,r.serviceApp,r.service_app,r.platformName,r.platform_name,r.category,...(Array.isArray(r.groups)?r.groups:[]),...(Array.isArray(r.categories)?r.categories:[]),r.name,r.serviceName,r.service_name].filter(Boolean).join(' ');
+ async function refreshStats(){
+   const status=$('#statsSource');if(!status)return;
+   if(!['http:','https:'].includes(location.protocol)){status.textContent='المعاينة المحلية: ستظهر الإحصاءات الحقيقية بعد النشر على خادم صدى العراق.';status.className='stats-source partial';return;}
+   const outcomes=await Promise.allSettled([apiJson('/api/public/site-order-count'),apiJson('/api/catalog?path=services')]);const warnings=[];
+   if(outcomes[0].status==='fulfilled'){
+     const d=outcomes[0].value,n=Number(d.count??d.totalOrders??d.total);
+     if(Number.isFinite(n))animated($('[data-live-stat="orders"]'),n);else{$('[data-live-stat="orders"]').textContent='—';warnings.push('تعذر قراءة إجمالي الطلبات');}
+     if(d.complete===false)warnings.push('عدد الطلبات جزئي بحسب مصدر الخادم');
+   }else{$('[data-live-stat="orders"]').textContent='—';warnings.push('تعذر جلب الطلبات');}
+   if(outcomes[1].status==='fulfilled'){
+     const d=outcomes[1].value,rootVal=d.value&&typeof d.value==='object'&&!Array.isArray(d.value)?d.value:{};
+     const rows=Object.entries(rootVal).filter(([,r])=>activeRow(r)).map(([key,r])=>({...r,_catalogKey:key}));
+     animated($('[data-live-stat="services"]'),rows.length);
+     let recognized=0;const seen=new Set();
+     for(const p of platforms){const rowsFor=rows.filter(r=>p.re.test(textRow(r)));const groups=new Set(rowsFor.map(r=>String(r.providerId||r.provider_id||r.providerName||r.provider_name||r.provider||'').trim()).filter(Boolean));
+       const svc=$(`[data-platform-stat="${p.id}-services"]`);if(svc)animated(svc,rowsFor.length);
+       const grp=$(`[data-platform-stat="${p.id}-groups"]`);if(grp)animated(grp,groups.size||new Set(rowsFor.flatMap(r=>[...(Array.isArray(r.groups)?r.groups:[]),...(Array.isArray(r.categories)?r.categories:[]),r.category].filter(Boolean))).size);
+       const summary=$(`[data-platform-summary="${p.id}"]`);if(summary)summary.textContent=numberFmt(rowsFor.length)+' خدمة فعلية من الكتالوج';
+       const badge=$(`[data-platform-badge="${p.id}"]`);if(badge)badge.textContent=numberFmt(rowsFor.length)+' خدمة فعلية';if(rowsFor.length)recognized++;
+     }
+     rows.forEach(r=>[r.platform,r.app,r.serviceApp,r.platformName].filter(Boolean).forEach(v=>seen.add(String(v).toLocaleLowerCase('ar'))));
+     animated($('[data-live-stat="platforms"]'),Math.max(recognized,seen.size));
+   }else{for(const key of ['services','platforms'])$(`[data-live-stat="${key}"]`).textContent='—';warnings.push('تعذر جلب كتالوج الخدمات');}
+   if(warnings.length){status.textContent='تنبيه: '+warnings.join('؛ ')+'. لا تُعرض أرقام تقديرية.';status.className='stats-source partial';}
+   else{status.textContent='الإحصاءات محدثة من خادم صدى العراق.';status.className='stats-source live';}
+ }
+ // Start live metrics only after DOM exists and refresh while the tab is visible.
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshStats,{once:true});else refreshStats();
+ if(['http:','https:'].includes(location.protocol)){setInterval(()=>{if(document.visibilityState==='visible')refreshStats()},15000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshStats()});}
+ // Sliding icon belt, duplicated to ensure a seamless transition. Respect reduced-motion preferences.
+ const track=$('#railItems');if(track&&track.children.length&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const first=document.createElement('div');first.className='rail-set';first.setAttribute('role','list');Array.from(track.children).forEach(n=>first.appendChild(n));const second=first.cloneNode(true);second.className='rail-set rail-set-copy';second.setAttribute('aria-hidden','true');second.querySelectorAll('a').forEach(a=>a.setAttribute('tabindex','-1'));track.replaceChildren(first,second);track.addEventListener('pointerdown',()=>track.style.animationPlayState='paused',{passive:true});['pointerup','pointercancel','pointerleave'].forEach(ev=>track.addEventListener(ev,()=>track.style.animationPlayState='running',{passive:true}));}
+ // Services chips are demo-only; never submit orders or create fake service IDs from the public page.
+ $$('[data-chip-group]').forEach(group=>group.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;$$('.chip',group).forEach(c=>{c.classList.toggle('active',c===b);c.setAttribute('aria-pressed',String(c===b));});const copy=group.closest('.section-copy');let n=copy?.querySelector('.chip-feedback');if(!n){n=document.createElement('div');n.className='chip-feedback';n.setAttribute('role','status');group.after(n);}n.textContent='تم اختيار نوع الخدمة: '+b.textContent.trim()+'. افتح حسابك لمشاهدة تفاصيل الخدمة الفعلية.';}));
+ // Review carousel controls.
+ const slides=$$('[data-review-slide]'),dots=$$('#reviewDots button');let review=0;function showReview(i){if(!slides.length)return;review=(i+slides.length)%slides.length;slides.forEach((s,n)=>s.hidden=n!==review);dots.forEach((d,n)=>d.classList.toggle('active',n===review));}
+ $('#reviewPrev')?.addEventListener('click',()=>showReview(review-1));$('#reviewNext')?.addEventListener('click',()=>showReview(review+1));dots.forEach((d,i)=>d.addEventListener('click',()=>showReview(i)));
+ // Working menu with close-on-outside / Escape.
+ const toggle=$('#menuToggle'),menu=$('#quickMenu');function closeMenu(){if(menu)menu.hidden=true;if(toggle)toggle.setAttribute('aria-expanded','false');}
+ toggle?.addEventListener('click',e=>{e.stopPropagation();if(!menu)return;menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden));});
+ document.addEventListener('pointerdown',e=>{if(!root.contains(e.target)||(!menu?.contains(e.target)&&!toggle?.contains(e.target)))closeMenu();},{passive:true});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+ // Local touch feedback is visual only.
+ root.addEventListener('pointerdown',e=>{if(e.button>0)return;const host=e.target.closest('button,a,.rail-icon,.mini-platform,.method,.chip,.sub-card,.level');if(!host||!root.contains(host))return;host.classList.add('touch-ripple-host');const r=host.getBoundingClientRect(),size=Math.max(28,Math.min(92,Math.max(r.width,r.height)*.85)),span=document.createElement('span');span.className='touch-ripple';span.style.width=size+'px';span.style.height=size+'px';span.style.left=Math.max(0,Math.min(r.width-size,e.clientX-r.left-size/2))+'px';span.style.top=Math.max(0,Math.min(r.height-size,e.clientY-r.top-size/2))+'px';host.appendChild(span);span.addEventListener('animationend',()=>span.remove(),{once:true});},{passive:true});
+ // Keep app handlers intact but route the shared entry UI to the inline forms.
+ mode('login');
+})();
+</script>
+
+
+<style id="sada-orderform-final-merged-styles">
+/* طلب الخدمة: ألوان كحلية/زرقاء منسجمة مع كروت المنصات والخدمات الأصلية. */
+#pg-order #svc-info-box{display:none;width:100%;min-width:0;margin:0;box-sizing:border-box}
+#pg-order #svc-info-box:empty{display:none!important}
+#pg-order #svc-info-box .sada-order-description-card{width:100%;box-sizing:border-box;padding:14px 15px!important;margin:0 0 10px!important;background:linear-gradient(145deg,rgba(28,35,83,.92),rgba(13,17,47,.98))!important;border:1px solid rgba(139,132,255,.25)!important;border-radius:15px!important;color:#e3e9ff!important;box-shadow:0 5px 15px rgba(0,0,0,.14)!important}
+#pg-order #svc-info-box .sada-order-info-title{font-size:13px;font-weight:900;color:#9fb6ff;margin-bottom:7px}
+#pg-order #svc-info-box .sada-order-description-text{font-size:12px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere;color:#c8d3e7}
+#pg-order #svc-info-box .sada-instagram-preorder-warning{width:100%;box-sizing:border-box;padding:14px 15px!important;margin:0 0 12px!important;background:linear-gradient(145deg,#20212a,#171923)!important;border:1px solid rgba(255,177,77,.48)!important;border-radius:15px!important;color:#e8eaf2!important;box-shadow:0 6px 18px rgba(0,0,0,.16)!important}
+#pg-order .sada-order-warning-title{display:flex;align-items:center;gap:8px;color:#ffc15c;font-weight:950;font-size:13px;margin-bottom:9px}
+#pg-order .sada-order-warning-intro{margin:0 0 7px;font-size:12px;font-weight:750;line-height:1.9}
+#pg-order .sada-order-warning-steps{margin:0;padding-right:22px;font-size:12px;line-height:2.05}
+#pg-order .sada-order-warning-steps li{padding-right:2px;margin:2px 0}
+#pg-order #order-form-card.sada-order-form-card{width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:15px!important;border:1px solid rgba(139,132,255,.23)!important;border-radius:17px!important;background:linear-gradient(145deg,rgba(20,27,52,.98),rgba(10,15,34,.99))!important;box-shadow:0 8px 22px rgba(0,0,0,.16)!important;overflow:hidden!important}
+#pg-order .sada-order-field-block{width:100%;min-width:0;margin:0 0 16px;box-sizing:border-box}
+#pg-order .sada-order-field-block:last-of-type{margin-bottom:12px}
+#pg-order .sada-order-field-block .order-field-label{display:flex;align-items:center;gap:8px;margin:0 0 8px!important;color:#d5ddff!important;font-size:12px!important;font-weight:900!important;line-height:1.55!important}
+#pg-order .sada-order-field-block .order-field-label i{width:27px;height:27px;flex:0 0 27px;display:grid;place-items:center;border-radius:8px;background:rgba(92,140,255,.11)!important;border:1px solid rgba(111,151,255,.23)!important;color:#8eb2ff!important}
+#pg-order #order-form-card .sada-order-input{display:block;width:100%!important;max-width:100%;min-width:0;box-sizing:border-box;min-height:55px;padding:13px 14px!important;border:1px solid #303b55!important;border-radius:14px!important;background:#1a2237!important;color:#f1f5ff!important;font:15px var(--font,Tahoma,Arial,sans-serif)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;outline:none!important;transition:border-color .18s,box-shadow .18s}
+#pg-order #order-form-card .sada-order-input::placeholder{color:#8e9bbb!important;opacity:1}
+#pg-order #order-form-card #order-link{direction:ltr;text-align:left;unicode-bidi:plaintext}
+#pg-order #order-form-card #order-qty.sada-order-qty-input{direction:ltr;text-align:right;font-size:20px!important;font-weight:800!important;font-variant-numeric:tabular-nums}
+#pg-order #order-form-card .sada-order-input:focus{border-color:#668dff!important;box-shadow:0 0 0 3px rgba(92,140,255,.13)!important}
+#pg-order #order-form-card .order-qty-box{display:block;width:100%!important;max-width:100%;min-width:0;box-sizing:border-box;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
+#pg-order #order-form-card .qty-range{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:7px 3px 0!important;color:#9aa8c4!important;font-size:11px!important;line-height:1.7}
+#pg-order #order-form-card .qty-range span{padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:#aab6cf!important}
+#pg-order #order-form-card .sada1637-qty-presets,#pg-order #order-form-card .sada1637-order-hint{display:none!important}
+#pg-order #order-form-card .order-total-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px!important;padding:13px 14px!important;border:1px solid #2b3956!important;border-radius:14px!important;background:#111a2b!important;color:#e8edff!important;box-sizing:border-box}
+#pg-order #order-form-card .order-total-label{color:#bbc7e1!important;font-size:12px!important;font-weight:850!important}
+#pg-order #order-form-card .order-total-val{color:#8db5ff!important;font-size:22px!important;font-weight:950!important;direction:ltr;font-variant-numeric:tabular-nums}
+#pg-order #order-form-card button.btn.bp.btn-w{display:flex;align-items:center;justify-content:center;gap:8px;width:100%!important;min-height:52px!important;margin-top:13px!important;border:1px solid rgba(123,158,255,.36)!important;border-radius:14px!important;background:linear-gradient(135deg,#3974ff,#3459dc)!important;color:#fff!important;font-weight:900!important;box-shadow:0 8px 22px rgba(57,105,244,.2)!important;transition:transform .15s ease,filter .15s ease}
+#pg-order #order-form-card button.btn.bp.btn-w:active{transform:scale(.988);filter:brightness(1.08)}
+#pg-order .sada-order-guides{display:flex;flex-direction:column;gap:12px;margin:16px 0 24px}
+#pg-order .sada-order-guide{overflow:hidden;border:1px solid #252f47;border-radius:16px;background:linear-gradient(145deg,#111a2c,#0b1120);color:#eef2fb}
+#pg-order .sada-order-guide>summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;padding:14px;font-weight:850;font-size:13px}
+#pg-order .sada-order-guide>summary::-webkit-details-marker{display:none}
+#pg-order .sada-guide-icon{display:grid;place-items:center;width:34px;height:34px;border:1px solid #2d3d5a;border-radius:11px;background:#16213a;color:#b6caff;font-size:17px}
+#pg-order .sada-guide-chevron{margin-right:auto;color:#aab4c6;font-size:18px;transition:transform .2s ease}
+#pg-order .sada-order-guide[open] .sada-guide-chevron{transform:rotate(180deg)}
+#pg-order .sada-guide-body{padding:0 15px 15px;color:#bdc7d8;font-size:12px;line-height:2}
+#pg-order .sada-guide-body p{margin:8px 0}
+#pg-order .sada-order-tips{padding:13px 0 2px}
+#pg-order .sada-order-tips h3{margin:0 0 10px;color:#70a8ff;font-size:14px;font-weight:950}
+#pg-order .sada-order-tip-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#pg-order .sada-order-tip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:90px;padding:11px;border:1px solid #252f47;border-radius:14px;background:#0e1627;text-align:center;color:#c7d0e0;font-size:11px;line-height:1.7}
+#pg-order .sada-order-tip b{font-size:21px;color:#7faaff}
+#pg-order .sada-order-no-guarantee{margin-top:10px;padding:13px;border:1px solid rgba(235,70,70,.3);border-radius:14px;background:#180b10;color:#ff8585;text-align:center;font-size:11px;font-weight:850;line-height:1.8}
+@media(min-width:700px){#pg-order .sada-order-tip-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:420px){#pg-order #order-form-card.sada-order-form-card{padding:12px!important}#pg-order #order-form-card .sada-order-input{min-height:52px;font-size:14px!important}#pg-order #order-form-card #order-qty.sada-order-qty-input{font-size:19px!important}}
+@media(prefers-reduced-motion:reduce){#pg-order .sada-guide-chevron{transition:none}#pg-order #order-form-card button.btn.bp.btn-w{transition:none}}
+</style>
+
+<script id="sada-order-form-final-cleanup">
+(function(){
+ 'use strict';
+ function cleanOrderFields(){
+  const card=document.getElementById('order-form-card');if(!card)return;
+  card.querySelectorAll('.sada1637-qty-presets,.sada1637-order-hint').forEach(n=>n.remove());
+  const qty=document.getElementById('order-qty');if(qty){qty.setAttribute('inputmode','numeric');qty.step='1';}
+  const link=document.getElementById('order-link');if(link){link.setAttribute('aria-label','رابط الحساب أو المنشور');}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanOrderFields,{once:true});else cleanOrderFields();
+ const page=document.getElementById('pg-order');if(page&&'MutationObserver'in window){let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;cleanOrderFields()})}).observe(page,{childList:true,subtree:true});}
+ window.SADA_ORDER_FORM_FINAL={clean:cleanOrderFields,version:'6.6-order-form-merged'};
+})();
+</script>
 </body>
 </html>
