@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '6.5';
-const BUILD_ID = 'SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+const APP_VERSION = '6.6';
+const BUILD_ID = 'SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -7995,31 +7995,29 @@ async function routeAPI(req,res,urlObj){
   if(p==='/api/asiacell' && req.method==='POST') return apiAsiacell(req,res);
   if(p==='/api/release' && (req.method==='GET'||req.method==='HEAD')) {
     const readText=(name)=>{try{return fs.readFileSync(path.join(ROOT,name),'utf8')}catch(_){return ''}};
-    const html=readText('index.html'),publicHtml=readText(path.join('public','index.html'));
+    const html=readText('index.html');
     const versionFile=readText('version.txt').trim(),buildFile=readText('BUILD_ID.txt').trim();
     let packageVersion='',packageBuild='',configVersion='',configBuild='';
     try{const v=JSON.parse(readText('package.json'));packageVersion=String(v.version||'').split('.').slice(0,2).join('.');packageBuild=String(v.buildId||'')}catch(_){}
     try{const v=JSON.parse(readText('config.json'));configVersion=String(v.version||'');configBuild=String(v.buildId||'')}catch(_){}
     const readMeta=(source,name)=>{const safeName=String(name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const re=new RegExp(`<meta\\s+name=["']${safeName}["']\\s+content=["']([^"']+)`, 'i');return String(source.match(re)?.[1]||'')};
     const uiVersion=readMeta(html,'sada-version'),uiBuildId=readMeta(html,'sada-build-id');
-    const publicUiVersion=readMeta(publicHtml,'sada-version'),publicUiBuildId=readMeta(publicHtml,'sada-build-id');
-    const rootPublicIdentical=!!html&&html===publicHtml;
-    const deploymentConsistent=uiVersion===APP_VERSION&&uiBuildId===BUILD_ID&&versionFile===APP_VERSION&&buildFile===BUILD_ID&&packageVersion===APP_VERSION&&packageBuild===BUILD_ID&&configVersion===APP_VERSION&&configBuild===BUILD_ID&&rootPublicIdentical&&publicUiVersion===APP_VERSION&&publicUiBuildId===BUILD_ID;
+    const deploymentConsistent=uiVersion===APP_VERSION&&uiBuildId===BUILD_ID&&versionFile===APP_VERSION&&buildFile===BUILD_ID&&packageVersion===APP_VERSION&&packageBuild===BUILD_ID&&configVersion===APP_VERSION&&configBuild===BUILD_ID;
     const digest=html?crypto.createHash('sha256').update(html).digest('hex'):'';
     res.setHeader('Cache-Control','no-store, no-cache, must-revalidate, max-age=0');
     res.setHeader('CDN-Cache-Control','no-store');
     res.setHeader('Surrogate-Control','no-store');
     res.setHeader('X-Sada-Release-Version',APP_VERSION);res.setHeader('X-Sada-Release-Build',BUILD_ID);
-    return json(res,deploymentConsistent?200:503,{ok:deploymentConsistent,app:APP_NAME,version:APP_VERSION,buildId:BUILD_ID,uiVersion,uiBuildId,versionFile,buildFile,packageVersion,packageBuild,configVersion,configBuild,publicUiVersion,publicUiBuildId,rootPublicIdentical,deploymentConsistent,htmlSha256:digest,branch:process.env.RAILWAY_GIT_BRANCH||null,commit:process.env.RAILWAY_GIT_COMMIT_SHA||null,checkedAt:new Date().toISOString()});
+    return json(res,deploymentConsistent?200:503,{ok:deploymentConsistent,app:APP_NAME,version:APP_VERSION,buildId:BUILD_ID,uiVersion,uiBuildId,versionFile,buildFile,packageVersion,packageBuild,configVersion,configBuild,deploymentConsistent,htmlSha256:digest,branch:process.env.RAILWAY_GIT_BRANCH||null,commit:process.env.RAILWAY_GIT_COMMIT_SHA||null,checkedAt:new Date().toISOString()});
   }
   if(p==='/api/health') {
     let uiVersion='', uiBuildId='', versionFile='', buildFile='';
     try { const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8'); uiVersion=String(html.match(/<meta\s+name=["']sada-version["']\s+content=["']([^"']+)["']/i)?.[1]||''); uiBuildId=String(html.match(/<meta\s+name=["']sada-build-id["']\s+content=["']([^"']+)["']/i)?.[1]||''); } catch(_) {}
     try { versionFile=fs.readFileSync(path.join(ROOT,'version.txt'),'utf8').trim(); } catch(_) {}
     try { buildFile=fs.readFileSync(path.join(ROOT,'BUILD_ID.txt'),'utf8').trim(); } catch(_) {}
-    let releasePackage={},releaseConfig={};try{releasePackage=JSON.parse(fs.readFileSync(path.join(ROOT,'package.json'),'utf8'))}catch(_){}try{releaseConfig=JSON.parse(fs.readFileSync(path.join(ROOT,'config.json'),'utf8'))}catch(_){}let publicUiVersion='',publicUiBuildId='',rootPublicIdentical=false;try{const publicHtml=fs.readFileSync(path.join(ROOT,'public','index.html'),'utf8'),rootHtml=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');rootPublicIdentical=publicHtml===rootHtml;publicUiVersion=String(publicHtml.match(/<meta\s+name=["']sada-version["']\s+content=["']([^"']+)["']/i)?.[1]||'');publicUiBuildId=String(publicHtml.match(/<meta\s+name=["']sada-build-id["']\s+content=["']([^"']+)["']/i)?.[1]||'');}catch(_){} const deploymentConsistent=uiVersion===APP_VERSION&&uiBuildId===BUILD_ID&&versionFile===APP_VERSION&&buildFile===BUILD_ID&&String(releasePackage.version||'').split('.').slice(0,2).join('.')===APP_VERSION&&releasePackage.buildId===BUILD_ID&&releaseConfig.version===APP_VERSION&&releaseConfig.buildId===BUILD_ID&&rootPublicIdentical&&publicUiVersion===APP_VERSION&&publicUiBuildId===BUILD_ID;
+    let releasePackage={},releaseConfig={};try{releasePackage=JSON.parse(fs.readFileSync(path.join(ROOT,'package.json'),'utf8'))}catch(_){}try{releaseConfig=JSON.parse(fs.readFileSync(path.join(ROOT,'config.json'),'utf8'))}catch(_){}const deploymentConsistent=uiVersion===APP_VERSION&&uiBuildId===BUILD_ID&&versionFile===APP_VERSION&&buildFile===BUILD_ID&&String(releasePackage.version||'').split('.').slice(0,2).join('.')===APP_VERSION&&releasePackage.buildId===BUILD_ID&&releaseConfig.version===APP_VERSION&&releaseConfig.buildId===BUILD_ID;
     const dbInfo=firebaseDatabaseDiagnosticInfo();
-    const health={ok:deploymentConsistent,app:APP_NAME,version:APP_VERSION,buildId:BUILD_ID,uiVersion,uiBuildId,versionFile,buildFile,publicUiVersion,publicUiBuildId,rootPublicIdentical,deploymentConsistent,dataStorageMode:DATA_IS_EXTERNAL?'external-directory':'release-local',firebaseUrlConfigured:!!FIREBASE_DATABASE_URL,firebaseDatabaseSource:FIREBASE_DATABASE_URL_SOURCE,firebaseServerAuthConfigured:firebaseAuthAvailable(),firebaseDatabaseDriver:firebaseAdminEnabled()?'admin-sdk':'rest-oauth',priceGuard:PRICE_GUARD_ENABLED,securityPatch:'1.6.91',providerCount:Object.keys(providerStore().providers||{}).length,time:new Date().toISOString(),node:process.version};
+    const health={ok:deploymentConsistent,app:APP_NAME,version:APP_VERSION,buildId:BUILD_ID,uiVersion,uiBuildId,versionFile,buildFile,deploymentConsistent,dataStorageMode:DATA_IS_EXTERNAL?'external-directory':'release-local',firebaseUrlConfigured:!!FIREBASE_DATABASE_URL,firebaseDatabaseSource:FIREBASE_DATABASE_URL_SOURCE,firebaseServerAuthConfigured:firebaseAuthAvailable(),firebaseDatabaseDriver:firebaseAdminEnabled()?'admin-sdk':'rest-oauth',priceGuard:PRICE_GUARD_ENABLED,securityPatch:'1.6.91',providerCount:Object.keys(providerStore().providers||{}).length,time:new Date().toISOString(),node:process.version};
     // Keep operational configuration details private; only an authenticated admin can inspect them.
     if(isAdmin(req)){const credentialStatus=firebaseServiceAccountStatus();health.firebaseDatabase={host:dbInfo.host,source:dbInfo.source,databaseProjectHint:dbInfo.databaseProjectHint,serviceAccountProjectId:dbInfo.serviceAccountProjectId||null,configuredWebProjectId:dbInfo.configuredWebProjectId||null,serviceAccountProjectMatch:dbInfo.serviceAccountProjectMatch};health.securityConfig={sessionSecretConfigured:!!String(process.env.SESSION_SECRET||'').trim(),dedicatedEncryptionKeyConfigured:!!String(process.env.SADA_ENCRYPTION_KEY||'').trim(),stableEncryptionAvailable:telegramEncryptionReady(),firebaseConfigured:!!FIREBASE_DATABASE_URL,firebaseServiceAccountConfigured:credentialStatus.ok,firebaseCredentialStatus:{ok:credentialStatus.ok,code:credentialStatus.code,source:credentialStatus.source,message:credentialStatus.message},firebaseDatabaseSecretConfigured:!!String(process.env.FIREBASE_DATABASE_SECRET||'').trim(),firebaseAuthAvailable:firebaseAuthAvailable(),emailServiceConfigured:!!(String(process.env.RESEND_API_KEY||'').trim()&&String(process.env.RESEND_FROM_EMAIL||process.env.EMAIL_FROM||'').trim()),telegramTokenFromEnvironment:!!String(process.env.TELEGRAM_BOT_TOKEN||'').trim(),adminPasswordFromEnvironment:!!(String(process.env.ADMIN_PASSWORD||'').trim()||String(process.env.ADMIN_PASSWORD_HASH||'').trim()),adminPasswordConfigured:adminPasswordConfigured()};}
     return json(res,200,health);

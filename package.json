@@ -1,11 +1,11 @@
 {
   "name": "sada-iraq",
-  "version": "6.5.0",
+  "version": "6.6.0",
   "private": true,
-  "description": "صدى العراق — Railway Node.js service with Netlify compatibility",
+  "description": "صدى العراق — Railway Node.js service",
   "scripts": {
     "start": "node server.js",
-    "test": "npm run preflight && node tests/mock-provider-audit.js && node tests/site-order-count-audit.js && node tests/release65-ui-audit.js",
+    "test": "npm run preflight && node tests/mock-provider-audit.js && node tests/site-order-count-audit.js && node tests/release66-ui-audit.js",
     "build": "npm run preflight",
     "release:bump": "node scripts/bump-release.js",
     "prestart": "node --check server.js",
@@ -14,10 +14,9 @@
   "engines": {
     "node": ">=22"
   },
-  "buildId": "SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029",
+  "buildId": "SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029",
   "dependencies": {
     "google-auth-library": "^11.2.0",
-    "firebase-admin": "^14.5.0",
-    "serverless-http": "^4.0.0"
+    "firebase-admin": "^14.5.0"
   }
 }

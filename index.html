@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="sada-version" content="6.5">
-<meta name="sada-build-id" content="SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029">
+<meta name="sada-version" content="6.6">
+<meta name="sada-build-id" content="SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029">
 <script id="sada168-session-presence">try{window.__SADA_BOOT_HAD_SESSION=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'));}catch(_){window.__SADA_BOOT_HAD_SESSION=false}</script>
 
 <style id="sada167-preboot-splash-style">
@@ -2910,7 +2910,7 @@ html.sada-lite-motion .ks-particle{display:none!important}
         </div>
         <i class="fas fa-ellipsis" style="color:var(--t2);font-size:12px;flex-shrink:0"></i>
       </div>
-      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 6.5"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>6.5</b></div>
+      <div id="sada-sidebar-version" class="sada-sidebar-version" aria-label="إصدار التطبيق 6.6"><i class="fas fa-sparkles" aria-hidden="true"></i><span>إصدار التطبيق</span><b>6.6</b></div>
     </div>
   </div>
 
@@ -6848,7 +6848,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
   };
   // Refresh the catalog index only; never rewrite every service's image on page load.
   setTimeout(()=>{hydrateAllCategoryMeta().then(()=>{repairServiceIndex();try{window.buildCatDD?.();window.buildSvcDD?.(SEL_CAT||'__all__')}catch(_){}})},900);
-  window.SadaIraqBuildId='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+  window.SadaIraqBuildId='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
 })();
 
 </script>
@@ -8563,7 +8563,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
 ═══════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  const SADA_VERSION='6.5';
+  const SADA_VERSION='6.6';
   const RATE=1250;
   const ATHIR_NUMBER='07903221783';
     window.SadaIraqVersion=SADA_VERSION;
@@ -8584,7 +8584,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
       b=document.createElement('div'); b.id='sadairaq-version-badge';
       document.body.appendChild(b);
     }
-    const EXPECTED_BUILD='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+    const EXPECTED_BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
     const applyClientVersion=()=>{
       b.dataset.deployState='checking';
       b.textContent='صدى العراق · الإصدار '+SADA_VERSION+' · جارٍ فحص الخادم…';
@@ -8934,7 +8934,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
   const ensure=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   window.SECTION_META=window.SECTION_META||{};
   window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+window.SadaIraqBuildId='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
 
   function safe(v){return txt(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
   function appLabel(id){const p=(CFG.platforms||[]).find(x=>x.id===id);return p?.lbl||id||'عام';}
@@ -9355,13 +9355,13 @@ window.SadaIraqBuildId='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
 <script>
 (function(){
 'use strict';
-const V='6.5';
+const V='6.6';
 const $=id=>document.getElementById(id);
 const safe=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 const api=window.apiJSON||((p,o)=>fetch(p,Object.assign({credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'}},o||{})).then(async r=>{const t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch(_){d={error:t}}if(!r.ok||d.error)throw new Error(d.error||('HTTP '+r.status));return d;}));
 const mk=window.mk||((tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;});
 window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+window.SadaIraqBuildId='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
 
 function setVersion(){
   const b=$('sadairaq-version-badge');
@@ -12618,7 +12618,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   document.addEventListener('DOMContentLoaded',startFinal);window.addEventListener('load',()=>setTimeout(startFinal,100));setTimeout(startFinal,250);setTimeout(startFinal,1200);
   // Observe the whole document so both independent controls survive page/route re-renders.
   if(document.body){const mo=new MutationObserver(()=>{ensureOrderWhatsApp();});mo.observe(document.body,{childList:true,subtree:true});}
-  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029',hasFetchGuard:true,orderAudit:true};
+  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029',hasFetchGuard:true,orderAudit:true};
 })();
 </script>
 
@@ -13451,7 +13451,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada1666-welcome-refunds-admin-splash">
 (function(){
  'use strict';
- const BUILD='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+ const BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -13657,7 +13657,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada167-earn-notifications-dashboard">
 (function(){
 'use strict';
-const BUILD='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+const BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=v=>'$'+Math.max(0,Number(v)||0).toFixed(2);
@@ -14308,8 +14308,8 @@ window.SADA_V1626_RELEASE={version:'1.6.86',features:['earn-page-premium-order',
 <script id="sada1629-runtime-version-badge-fix">
 (function(){
   'use strict';
-  const EXPECTED_VERSION='6.5';
-  const EXPECTED_BUILD='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+  const EXPECTED_VERSION='6.6';
+  const EXPECTED_BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
   const $=id=>document.getElementById(id);
   function ensureBadge(){
     let b=$('sadairaq-version-badge');
@@ -15828,7 +15828,7 @@ window.SADA_V1599_FIXES={version:'1.6.86',features:['telegram-stable-server-deri
 </style>
 <script id="sada174-version-fix">
 (function(){
-  const version='6.5';
+  const version='6.6';
   document.querySelectorAll('[data-sada-version]').forEach(el=>{el.textContent=version});
   const versionNodes=[...document.querySelectorAll('body *')].filter(el=>el.children.length===0 && /^1\.5\.73$/.test((el.textContent||'').trim()));
   versionNodes.forEach(el=>{if(!el.closest('script,style,code,pre'))el.textContent=version});
@@ -16548,7 +16548,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 .sada-sidebar-version{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px 9px;border:1px solid rgba(48,221,199,.2);border-radius:12px;background:linear-gradient(110deg,rgba(48,221,199,.07),rgba(124,111,247,.08));color:var(--t2);font-size:10px;font-weight:800;letter-spacing:.15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}.sada-sidebar-version i{color:var(--teal);filter:drop-shadow(0 0 5px rgba(48,221,199,.25))}.sada-sidebar-version b{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:4px 8px;border:1px solid rgba(48,221,199,.32);border-radius:999px;background:rgba(48,221,199,.1);color:var(--teal);font-size:11px;font-weight:1000;box-shadow:0 0 14px rgba(48,221,199,.06)}.sb-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 </style>
 <script id="sada-v2-sidebar-only-version">
-(function(){'use strict';const shown='6.5';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
+(function(){'use strict';const shown='6.6';function apply(){const badge=document.getElementById('sadairaq-version-badge');if(badge){badge.style.setProperty('display','none','important');badge.setAttribute('aria-hidden','true')}const v=document.querySelector('#sada-sidebar-version b');if(v&&v.textContent.trim()!==shown)v.textContent=shown;document.title='صدى العراق';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();window.addEventListener('pageshow',apply);})();
 </script>
 
 <script id="sada-free-services-21">
@@ -16985,7 +16985,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 </style>
 <script id="sada-1.6.86-final-ui-enforcement">
 (()=>{'use strict';
- const BUILD='SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029';
+ const BUILD='SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
  const $=id=>document.getElementById(id);
  const oldPromo=/(?:اشتراكات\s*و\s*خدمات\s*خاصة|تصفح\s*الخدمات\s*الخاصة|خدمات\s+مستقلة\s+عن\s+المزود)/i;
  const browse=/تصفح\s*الخدمات\s*الخاصة/i;
@@ -18069,9 +18069,9 @@ body.sada56-order-page-theme #pg-order{background:linear-gradient(145deg,#202022
    return key==='__all__'?'all':'other';
  }
  function makeImage(id,cls='sada56-platform-image'){const img=document.createElement('img');img.className=cls;img.src=iconSrc(id);img.alt='';img.decoding='async';img.loading='lazy';img.setAttribute('aria-hidden','true');img.dataset.sada56Platform=id;img.onerror=function(){this.onerror=null;this.src='/platform-icons/other.svg';};return img;}
- const DUPLICATE_ICON_SELECTOR='img.sada1550-service-thumb,img.sada1550-category-thumb,img.sada-svc-thumb,img.sada-v1527-cat-img,img.sada-v1520-cat-img,img.sada56-platform-image,.sada55-service-platform-icon,.sada56-platform-icon,.sada-v1527-platform-icon,.sada-v1520-platform-icon,.cdd-opt-icon,.sada226-platform-icon,.sada1550-platform-icon,.sada-service-icon,.service-platform-icon,.platform-icon,i.fa-instagram,i.fa-tiktok,i.fa-telegram-plane,i.fa-facebook-f,i.fa-youtube,i.fa-whatsapp,i.fa-twitter,i.fa-x-twitter,i.fa-snapchat-ghost,i.fa-linkedin-in';
+ const DUPLICATE_ICON_SELECTOR='img.sada1550-service-thumb,img.sada1550-category-thumb,img.sada-svc-thumb,img.sada-v1527-cat-img,img.sada-v1520-cat-img,img.sada56-platform-image,.sada55-service-platform-icon,.sada56-platform-icon,.sada-v1527-platform-icon,.sada-v1520-platform-icon,.sada54-cat-trigger-icon,.sada1533-cat-logo,.cdd-opt-icon,.sada226-platform-icon,.sada1550-platform-icon,.sada-service-icon,.service-platform-icon,.platform-icon,i.fa-instagram,i.fa-tiktok,i.fa-telegram-plane,i.fa-facebook-f,i.fa-youtube,i.fa-whatsapp,i.fa-twitter,i.fa-x-twitter,i.fa-snapchat-ghost,i.fa-linkedin-in';
  function setImage(img,id,extraClass=''){if(!img)return;const src=iconSrc(id);if(img.getAttribute('src')!==src)img.setAttribute('src',src);img.alt='';img.setAttribute('aria-hidden','true');img.decoding='async';img.loading='eager';img.className=(extraClass+' sada56-platform-image').trim();img.dataset.sada56Platform=id;}
- function removeExtras(row,keep){for(const node of [...row.querySelectorAll(DUPLICATE_ICON_SELECTOR)])if(node!==keep&&!keep?.contains?.(node))node.remove();}
+ function removeExtras(row,keep){for(const node of [...row.querySelectorAll(DUPLICATE_ICON_SELECTOR)])if(node!==keep&&!keep?.contains?.(node)&&!node.contains?.(keep))node.remove();}
  function normalizeGenericOption(row,menu,type){
    const id=rowPlatform(row,menu)||'other';
    // Modern category options intentionally own one icon wrapper; use one bundled image inside it.
@@ -18113,7 +18113,7 @@ body.sada56-order-page-theme #pg-order{background:linear-gradient(145deg,#202022
  function updateOrderPageTheme(){const page=$('pg-order');let active=false;try{active=!!(page&&!page.hidden&&getComputedStyle(page).display!=='none'&&page.getClientRects().length>0);}catch(_){}document.body.classList.toggle('sada56-order-page-theme',active);}
  let orderThemeQueued=false;function scheduleOrderTheme(){if(orderThemeQueued)return;orderThemeQueued=true;requestAnimationFrame(()=>{orderThemeQueued=false;updateOrderPageTheme();});}
  updateOrderPageTheme();const appRoot=$('app');if(appRoot&&window.MutationObserver)new MutationObserver(scheduleOrderTheme).observe(appRoot,{attributes:true,attributeFilter:['class','style','hidden'],subtree:true});document.addEventListener('click',scheduleOrderTheme,true);window.addEventListener('hashchange',scheduleOrderTheme);
- window.SADAIRAQ_V62={version:'6.5',platformIcons:'bundled-svg-single-icon',duplicateIconCleanup:true,ordersRendererFallback:true,ordersFetchTimeoutMs:18000,ordersRetry:true};
+ window.SADAIRAQ_V62={version:'6.6',platformIcons:'bundled-svg-single-icon',duplicateIconCleanup:true,ordersRendererFallback:true,ordersFetchTimeoutMs:18000,ordersRetry:true};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(normalizeAll,0),{once:true});else setTimeout(normalizeAll,0);
 })();
 </script>
@@ -18463,9 +18463,9 @@ body.sada56-order-page-theme #pg-order .sada176-site-orders-refresh{color:#ffc16
 #pg-about .sada61-about-visual{max-width:100%;min-width:0}
 @media(min-width:760px){#pg-referral .sada62-referral-stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}#pg-referral .sada65-referral-payout-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){#pg-referral .sada62-referral-hero-grid{grid-template-columns:minmax(0,1fr) 84px;gap:7px}#pg-referral .sada62-referral-orbit{width:84px;height:84px}#pg-referral .sada62-referral-copy h1{font-size:clamp(18px,5vw,23px)}#pg-referral .sada62-referral-url-actions{grid-template-columns:minmax(0,1fr)}#pg-about .sada61-about-hero-main{grid-template-columns:minmax(0,1fr) 86px;gap:6px}#pg-about .sada61-about-copy h1{font-size:20px}#pg-about .sada61-about-copy p{font-size:10px}}
-@keyframes sada65-flags-loop{from{transform:translateX(0)}to{transform:translateX(-33.333333%)}}
-.sada-side-flags-track,.sada62-about-country-track,#pg-referral .sada63-referral-flags-track{width:max-content!important;gap:0!important;animation:sada65-flags-loop 46s linear infinite!important;animation-iteration-count:infinite!important;will-change:transform}
-html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about-country-track,html.sada-lite-motion #pg-referral .sada63-referral-flags-track{animation:sada65-flags-loop 52s linear infinite!important;animation-iteration-count:infinite!important;will-change:transform!important}
+@keyframes sada66-flags-loop{from{transform:translateX(0)}to{transform:translateX(-33.333333%)}}
+.sada-side-flags-track,.sada62-about-country-track,#pg-referral .sada63-referral-flags-track{width:max-content!important;gap:0!important;animation:sada66-flags-loop 46s linear infinite!important;animation-iteration-count:infinite!important;will-change:transform}
+html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about-country-track,html.sada-lite-motion #pg-referral .sada63-referral-flags-track{animation:sada66-flags-loop 52s linear infinite!important;animation-iteration-count:infinite!important;will-change:transform!important}
 @media(prefers-reduced-motion:reduce){.sada-side-flags-track,.sada62-about-country-track,#pg-referral .sada63-referral-flags-track{animation:none!important;transform:none!important;will-change:auto!important}.sada-side-flags-set:not(:first-child),.sada62-country-set:not(:first-child),#pg-referral .sada63-referral-flags-set:not(:first-child){display:none!important}.sada-side-flags,.sada62-about-country-marquee,#pg-referral .sada63-referral-flags{overflow-x:auto!important;mask-image:none!important}}
 
 /* Video-inspired touch feedback for the reference metrics cards; effects are CSS-only and short. */
@@ -18484,7 +18484,7 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
   const known=['instagram','telegram','tiktok','whatsapp','facebook','youtube','twitter','snapchat','linkedin','other'];
   const aliases={instagram:['instagram','insta','انستا','انستغرام','انستجرام'],telegram:['telegram','تلجرام','تيليجرام','تليجرام'],tiktok:['tiktok','تيك توك','تيكتوك'],whatsapp:['whatsapp','واتساب','واتس'],facebook:['facebook','فيسبوك','فيس بوك'],youtube:['youtube','يوتيوب'],twitter:['twitter','تويتر',' x '],snapchat:['snapchat','سناب'],linkedin:['linkedin','لينكدإن','لينكد ان']};
   const imageSelector='img.sada1550-service-thumb,img.sada1550-category-thumb,img.sada-svc-thumb,img.sada-v1527-cat-img,img.sada-v1520-cat-img,img.sada56-platform-image,img.sada1533-svc-img';
-  const wrapperSelector='.sada55-service-platform-icon,.sada56-platform-icon,.sada-v1527-platform-icon,.sada-v1520-platform-icon,.cdd-opt-icon,.sada226-platform-icon,.sada1550-platform-icon,.sada-service-icon,.service-platform-icon,.platform-icon,.sada1533-cat-logo,.sada-platform-icon';
+  const wrapperSelector='.sada55-service-platform-icon,.sada56-platform-icon,.sada-v1527-platform-icon,.sada-v1520-platform-icon,.sada54-cat-trigger-icon,.cdd-opt-icon,.sada226-platform-icon,.sada1550-platform-icon,.sada-service-icon,.service-platform-icon,.platform-icon,.sada1533-cat-logo,.sada-platform-icon';
   const iconSelector= imageSelector+','+wrapperSelector+',i.fa-instagram,i.fa-tiktok,i.fa-telegram-plane,i.fa-telegram,i.fa-facebook-f,i.fa-facebook,i.fa-youtube,i.fa-whatsapp,i.fa-twitter,i.fa-x-twitter,i.fa-snapchat-ghost,i.fa-linkedin-in,i.fa-layer-group';
   function platformId(row){
     const img=row?.querySelector?.(imageSelector);
@@ -18522,6 +18522,20 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
       for(const node of [...row.querySelectorAll(iconSelector)])if(node!==holder&&!holder.contains(node))node.remove();
       return;
     }
+    if(type==='category'&&row.classList.contains('sada54-cat-option')){
+      const id=platformId(row);
+      let holder=row.querySelector(':scope > .sada54-cat-option-icon')||row.querySelector('.sada54-cat-option-icon');
+      if(!holder){holder=document.createElement('span');holder.className='sada54-cat-option-icon';row.insertBefore(holder,row.firstChild);}
+      const imgs=[...row.querySelectorAll(imageSelector)];
+      let keep=imgs.find(img=>/platform-icons\/(instagram|telegram|tiktok|whatsapp|facebook|youtube|twitter|snapchat|linkedin|other)\.svg/i.test(img.getAttribute('src')||''))||holder.querySelector('img')||imgs[0]||null;
+      if(!keep)keep=document.createElement('img');
+      keep.setAttribute('src',canonicalSrc(id));keep.className='sada56-platform-image sada1550-category-thumb';keep.alt='';keep.decoding='async';keep.loading='lazy';keep.setAttribute('aria-hidden','true');
+      keep.style.cssText='display:block;width:34px;height:34px;min-width:34px;max-width:34px;flex:0 0 34px;object-fit:contain;border-radius:9px;background:#171819;';
+      if(keep.parentElement!==holder)holder.replaceChildren(keep);else if(holder.childElementCount!==1||holder.firstElementChild!==keep)holder.replaceChildren(keep);
+      for(const img of [...row.querySelectorAll('img')])if(img!==keep)img.remove();
+      for(const node of [...row.querySelectorAll('i.fa-instagram,i.fa-tiktok,i.fa-telegram-plane,i.fa-telegram,i.fa-facebook-f,i.fa-facebook,i.fa-youtube,i.fa-whatsapp,i.fa-twitter,i.fa-x-twitter,i.fa-snapchat-ghost,i.fa-linkedin-in,.sada55-service-platform-icon,.sada56-platform-icon,.sada-v1527-platform-icon,.sada-v1520-platform-icon,.cdd-opt-icon,.sada226-platform-icon,.sada1550-platform-icon,.sada-service-icon,.service-platform-icon,.platform-icon,.sada1533-cat-logo,.sada-platform-icon')])if(!holder.contains(node))node.remove();
+      return;
+    }
     const id=platformId(row);
     const imgs=[...row.querySelectorAll(imageSelector)];
     let keep=imgs.find(img=>/platform-icons\/(instagram|telegram|tiktok|whatsapp|facebook|youtube|twitter|snapchat|linkedin|other)\.svg/i.test(img.getAttribute('src')||''))||imgs[0]||null;
@@ -18542,8 +18556,8 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
   function normalizeTrigger(el){
     if(!el)return;
     const imgs=[...el.querySelectorAll('img')];
-    if(imgs.length){const keep=imgs.find(img=>/platform-icons\//i.test(img.getAttribute('src')||''))||imgs[0];liftToRow(el,keep);for(const img of [...el.querySelectorAll('img')])if(img!==keep)img.remove();for(const node of [...el.querySelectorAll('i,.cdd-opt-icon,.sada55-service-platform-icon,.sada56-platform-icon,.platform-icon,.sada-platform-icon')])if(node!==keep&&!keep.contains(node))node.remove();}
-    else{const holders=[...el.querySelectorAll(wrapperSelector)];const keep=holders[0]||el.querySelector('i');if(keep){for(const node of [...el.querySelectorAll('i,.cdd-opt-icon,.sada55-service-platform-icon,.sada56-platform-icon,.platform-icon,.sada-platform-icon')])if(node!==keep&&!keep.contains(node))node.remove();}}
+    if(imgs.length){const keep=imgs.find(img=>/platform-icons\//i.test(img.getAttribute('src')||''))||imgs[0];liftToRow(el,keep);for(const img of [...el.querySelectorAll('img')])if(img!==keep)img.remove();for(const node of [...el.querySelectorAll('i,.cdd-opt-icon,.sada55-service-platform-icon,.sada56-platform-icon,.sada54-cat-trigger-icon,.platform-icon,.sada-platform-icon')])if(node!==keep&&!keep.contains(node))node.remove();}
+    else{const holders=[...el.querySelectorAll(wrapperSelector)];const keep=holders[0]||el.querySelector('i');if(keep){for(const node of [...el.querySelectorAll('i,.cdd-opt-icon,.sada55-service-platform-icon,.sada56-platform-icon,.sada54-cat-trigger-icon,.platform-icon,.sada-platform-icon')])if(node!==keep&&!keep.contains(node))node.remove();}}
   }
   let queued=false;
   function normalizeMenus(){queued=false;document.querySelectorAll('#cat-options .cdd-option').forEach(row=>oneIcon(row,'category'));document.querySelectorAll('#svc-options .cdd-option').forEach(row=>oneIcon(row,'service'));normalizeTrigger($('cat-icon'));normalizeTrigger($('svc-icon'));}
@@ -18554,11 +18568,32 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startMenuObserver,{once:true});else startMenuObserver();
   const oldNav=window.nav;
   if(typeof oldNav==='function'&&!oldNav.__sada65ReferralGuard){const wrapped=function(name){const result=oldNav.apply(this,arguments);if(name==='referral')setTimeout(()=>{document.querySelectorAll('.pg').forEach(page=>page.classList.toggle('on',page.id==='pg-referral'));document.querySelectorAll('.sb-link,.mn,.mn-c').forEach(item=>item.classList.remove('on'));$('snav-referral')?.classList.add('on');if($('pg-ttl'))$('pg-ttl').textContent='رابط الدعوة الخاص بك';const page=$('pg-referral');if(page){page.querySelectorAll('#sada176-site-order-card,.sada176-site-orders,.sada168-account-stats').forEach(node=>node.remove());}queueNormalize();window.scrollTo({top:0,behavior:'smooth'});},0);return result};wrapped.__sada65ReferralGuard=true;window.nav=wrapped;}
-  function cloneTrack(track,selector,marker){if(!track||track.dataset[marker])return;const first=track.querySelector(selector);if(!first)return;while(track.querySelectorAll(selector).length<3){const clone=first.cloneNode(true);clone.setAttribute('aria-hidden','true');clone.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));track.appendChild(clone);}track.dataset[marker]='1';}
-  function init(){cloneTrack($('pg-referral')?.querySelector('.sada63-referral-flags-track'),'.sada63-referral-flags-set','sada65Loop');cloneTrack($('pg-about')?.querySelector('.sada62-about-country-track'),'.sada62-country-set','sada65Loop');cloneTrack(document.querySelector('.sada-side-flags-track'),'.sada-side-flags-set','sada65Loop');const input=$('sada62-referral-url'),open=$('sada62-referral-open-link');if(input&&input.value!==suppliedUrl)input.value=suppliedUrl;if(open)open.href=suppliedUrl;if(input&&!input.dataset.sada65SelectBound){input.dataset.sada65SelectBound='1';input.addEventListener('click',()=>{try{input.focus();input.select();input.setSelectionRange(0,input.value.length)}catch(_){}});}}
+  function cloneTrack(track,selector,marker){if(!track)return;const first=track.querySelector(selector);if(!first)return;while(track.querySelectorAll(selector).length<3){const source=track.querySelector(selector);if(!source)break;const clone=source.cloneNode(true);clone.setAttribute('aria-hidden','true');clone.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));track.appendChild(clone);}track.dataset[marker]='1';}
+  function init(){cloneTrack($('pg-referral')?.querySelector('.sada63-referral-flags-track'),'.sada63-referral-flags-set','sada66Loop');cloneTrack($('pg-about')?.querySelector('.sada62-about-country-track'),'.sada62-country-set','sada66Loop');cloneTrack(document.querySelector('.sada-side-flags-track'),'.sada-side-flags-set','sada66Loop');const input=$('sada62-referral-url'),open=$('sada62-referral-open-link');if(input&&input.value!==suppliedUrl)input.value=suppliedUrl;if(open)open.href=suppliedUrl;if(input&&!input.dataset.sada65SelectBound){input.dataset.sada65SelectBound='1';input.addEventListener('click',()=>{try{input.focus();input.select();input.setSelectionRange(0,input.value.length)}catch(_){}});}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();window.addEventListener('load',init,{once:true});setTimeout(init,900);
 })();
 </script>
+
+
+<style id="sada66-sidebar-flags-icon-and-red-accent-fix">
+/* Single-icon fix: keep the canonical image inside the category wrapper; remove only competing icons in menu rows. */
+#cat-options .sada54-cat-option>.sada54-cat-option-icon{display:grid!important;place-items:center!important;flex:0 0 38px!important;width:38px!important;height:38px!important;min-width:38px!important;overflow:hidden!important}
+#cat-options .sada54-cat-option>.sada54-cat-option-icon>img{display:block!important;width:34px!important;height:34px!important;max-width:34px!important;max-height:34px!important;object-fit:contain!important}
+#cat-options .sada54-cat-option .sada54-cat-option-icon~.sada54-cat-option-icon{display:none!important}
+/* Brand-card-only red highlight requested by the user; other pages and controls retain their own colors. */
+.sada-side-motion{border-color:rgba(245,59,72,.76)!important;background:radial-gradient(ellipse at 78% 25%,rgba(220,39,58,.16),transparent 44%),radial-gradient(ellipse at 8% 94%,rgba(146,24,34,.10),transparent 42%),linear-gradient(145deg,#241d1e 0%,#171717 68%,#211719 100%)!important;box-shadow:0 8px 22px rgba(0,0,0,.20),0 0 0 1px rgba(239,61,74,.08),inset 0 1px 0 rgba(255,255,255,.04)!important}
+.sada-side-motion:after{background:linear-gradient(90deg,transparent,rgba(255,87,97,.13),transparent)!important}
+.sada-side-mark{display:block!important;object-fit:cover!important;border-radius:10px!important;background:#101617!important;padding:0!important;border:1px solid rgba(255,91,101,.45)!important;box-shadow:0 0 10px rgba(239,60,75,.13)!important}
+.sada-side-flags{display:block!important;align-self:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;height:27px!important;min-height:27px!important;overflow:hidden!important;flex:0 0 27px!important;box-sizing:border-box!important;position:relative!important}
+.sada-side-flags-track{display:flex!important;align-items:center!important;width:max-content!important;max-width:none!important;gap:0!important;animation:sada66-flags-loop 46s linear infinite!important;animation-iteration-count:infinite!important;animation-play-state:running!important;will-change:transform!important}
+.sada-side-flags-set{display:flex!important;flex:0 0 auto!important;align-items:center!important;gap:4px!important;padding-inline-end:7px!important;white-space:nowrap!important}
+.sada-side-flags-set span{display:grid!important;place-items:center!important;flex:0 0 25px!important;width:25px!important;height:21px!important;border-radius:5px!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.10)!important;font-size:14px!important;line-height:1!important}
+.sada-side-bottom{align-items:stretch!important;min-width:0!important}
+.sada-side-reach{align-self:flex-start!important;max-width:100%!important;white-space:normal!important;line-height:1.6!important}
+@media(hover:hover){.sada-side-motion:hover .sada-side-flags-track{animation-play-state:running!important}}
+@media(max-width:768px){.sada-side-brand{display:grid!important;grid-template-columns:38px minmax(0,1fr)!important;align-items:center!important;gap:4px 8px!important}.sada-side-mark{grid-column:1!important;grid-row:1/3!important;width:38px!important;height:38px!important;min-width:38px!important;max-width:38px!important}.sada-side-brandcopy{grid-column:2!important;grid-row:1!important;min-width:0!important;overflow:visible!important}.sada-side-brandcopy b{font-size:12px!important;white-space:normal!important;line-height:1.5!important;overflow-wrap:anywhere!important}.sada-side-brandcopy small{font-size:9px!important;white-space:normal!important;line-height:1.6!important;overflow-wrap:anywhere!important}.sada-side-live{grid-column:2!important;grid-row:2!important;justify-self:start!important;margin-top:1px!important;font-size:8px!important}.sada-side-main{grid-template-columns:minmax(0,1fr) 72px!important;min-height:92px!important;gap:8px!important}.sada-side-copy h3{font-size:clamp(13px,3.7vw,16px)!important;line-height:1.55!important}.sada-side-copy p{font-size:10px!important;line-height:1.85!important}.sada-side-eyebrow{font-size:8px!important;line-height:1.6!important;letter-spacing:0!important}.sada-side-orbit{width:72px!important;height:72px!important;flex-basis:72px!important}}
+@media(prefers-reduced-motion:reduce){.sada-side-flags-track,.sada62-about-country-track,#pg-referral .sada63-referral-flags-track{animation:none!important;transform:none!important;will-change:auto!important}.sada-side-flags{overflow-x:auto!important;touch-action:pan-x!important}}
+</style>
 
 </body>
 </html>

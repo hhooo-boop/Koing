@@ -1,7 +1,7 @@
 {
   "appName": "صدى العراق",
-  "version": "6.5",
-  "buildId": "SADA-6.5-REFERRAL-VIDEO-TOUCH-REPAIR-20261029",
+  "version": "6.6",
+  "buildId": "SADA-6.6-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029",
   "currency": "USD",
   "exchangeRate": 1250,
   "fixedRecharge": "5000 IQD = 4 USD",
