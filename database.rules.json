@@ -16,8 +16,23 @@
       ".write": "auth != null && auth.token.admin === true"
     },
     "settings": {
-      ".read": true,
-      ".write": "auth != null && auth.token.admin === true"
+      ".read": "auth != null && auth.token.admin === true",
+      ".write": "auth != null && auth.token.admin === true",
+      "catalogOrder": {
+        ".read": true
+      },
+      "svcsVersion": {
+        ".read": true
+      },
+      "markup": {
+        ".read": true
+      },
+      "orderCounter": {
+        ".read": true
+      },
+      "walletNum": {
+        ".read": true
+      }
     },
     "categoryMeta": {
       ".read": true,
@@ -112,7 +127,11 @@
     },
     "balanceLedger": {
       ".read": "auth != null && (auth.token.admin === true || (query.orderByChild === 'user' && query.equalTo === auth.uid))",
-      ".indexOn": ["user", "username", "createdAt"],
+      ".indexOn": [
+        "user",
+        "username",
+        "createdAt"
+      ],
       "$entryId": {
         ".read": "auth != null && (auth.token.admin === true || data.child('user').val() === auth.uid)",
         ".write": "auth != null && auth.token.admin === true"

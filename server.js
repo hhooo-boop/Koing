@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '5.5';
-const BUILD_ID = 'SADA-5.5-ORDERS-PLATFORM-ICONS-ADMIN-20261029';
+const APP_VERSION = '5.7';
+const BUILD_ID = 'SADA-5.7-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261029';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -2827,7 +2827,7 @@ async function applyVerifiedOrderRefund(inputOrder={},providerData={},normalized
       const previous=Math.min(charged,Math.max(0,Number(old.totalIQD||old.refundedIQD||0)||0,legacyAlreadyCredited));
       const cumulative=Math.min(charged,Math.max(previous,target));const delta=Math.round((cumulative-previous)*10000)/10000;
       if(delta<=0)return {write:false,result:{credited:false,state:'already-credited',totalRefundIQD:previous,balanceIQD:Number(current.balance||0)}};
-      const before=Number(current.balance||0);const after=Math.round((before+delta)*10000)/10000;const at=nowISO();
+      const before=Number(current.balance||0);if(!Number.isFinite(before)||before<0)return {write:false,result:{error:'invalid-user-balance'}};const after=Math.round((before+delta)*10000)/10000;const at=nowISO();
       const event={id:sha256(key+'|'+cumulative).slice(0,32),orderId:String(order.id||order.siteOrderId||order.orderId||''),providerOrderId:String(order.providerOrderId||order.smmpartyOrderId||''),providerId:String(order.providerId||''),serviceName:String(order.serviceName||order.name||order.service||'خدمة'),serviceId:String(order.serviceId||''),status,refundState:status==='partial'?'partial_credited':'credited',quantity:Number(order.quantity||order.qty||0),remains:providerData.remains??order.remains??null,amountIQD:delta,totalRefundIQD:cumulative,amountUSD:Number((delta/FIXED_RATE).toFixed(6)),reason:status==='cancelled'?'استرداد بعد تأكيد إلغاء الطلب من المزود':'استرداد الجزء غير المنفذ بعد تأكيد الحالة الجزئية من المزود',createdAt:at};
       const events=Array.isArray(old.events)?old.events.slice(-50):[];events.push(event);
       refunds[key]={key,orderId:event.orderId,providerOrderId:event.providerOrderId,providerId:event.providerId,serviceName:event.serviceName,status,totalIQD:cumulative,amountUSD:Number((cumulative/FIXED_RATE).toFixed(6)),events,updatedAt:at};
@@ -3196,7 +3196,7 @@ async function runProviderPriceSync(options={}){
   if(GLOBAL_PRICE_SYNC_RUNNING)return {ok:false,busy:true,updated:0,errors:['مزامنة أخرى قيد التنفيذ']};
   GLOBAL_PRICE_SYNC_RUNNING=true;
   let cfg=await getGlobalPricing();cfg.lastAttemptAt=nowISO();const settings=readJSON('settings.json',{});settings.pricing=cfg;writeJSON('settings.json',settings);
-  const result={ok:true,updated:0,skipped:0,providers:0,providerErrors:[],localUpdated:0,imported:0,newServicesRequireApproval:0,unavailable:0,removedConfirmed:0,unverified:0,recovered:0,priceVerified:0,pricesChanged:0,descriptionsUpdated:0,categoriesUpdated:0,namesUpdated:0,metadataUpdated:0,availabilityChanged:0,firebasePersisted:false,firebaseServicesUpdated:0};
+  const result={ok:true,updated:0,skipped:0,providers:0,providerErrors:[],localUpdated:0,imported:0,newServicesRequireApproval:0,newServices:[],missingServices:[],priceChanges:[],unavailable:0,removedConfirmed:0,unverified:0,recovered:0,priceVerified:0,pricesChanged:0,descriptionsUpdated:0,categoriesUpdated:0,namesUpdated:0,metadataUpdated:0,availabilityChanged:0,firebasePersisted:false,firebaseServicesUpdated:0};
   try{
     // Migrate the legacy catalog once, then keep automatic pricing on host JSON.
     await ensureLocalServiceCatalogSeeded();
@@ -3238,7 +3238,7 @@ async function runProviderPriceSync(options={}){
             // Never interpret a timeout/empty/partial list as deletion. Two complete catalogs must miss this ID.
             result.skipped++;
             if(isProviderConfirmedRemoved(svc)){pRemoved++;continue;}
-            if(catalogComplete){const absent=recordProviderMissingCheck(svc,true);if(absent.changed){result.availabilityChanged++;availabilitySnapshots[key]={...svc};}if(absent.removed){result.unavailable++;result.removedConfirmed++;pRemoved++;}}
+            if(catalogComplete){const absent=recordProviderMissingCheck(svc,true);if(absent.changed){result.availabilityChanged++;availabilitySnapshots[key]={...svc};if(result.missingServices.length<80)result.missingServices.push({providerId:pid,providerServiceId:sid,siteServiceId:String(svc.siteServiceId||svc.internalServiceId||''),name:String(svc.name||svc.providerServiceName||('خدمة '+sid)).slice(0,160),confirmed:!!absent.removed,missingChecks:Number(svc.providerMissingChecks||0),state:absent.removed?'confirmed-disabled':'awaiting-second-check'});}if(absent.removed){result.unavailable++;result.removedConfirmed++;pRemoved++;}}
             else result.unverified++;
             continue;
           }
@@ -3324,14 +3324,14 @@ async function runProviderPriceSync(options={}){
           const priceFields=priceNeeds?{...priced}:{};
           if(canRestore&&(svc.providerAvailable!==true||String(svc.availabilityStatus||'')!=='available'||String(svc.providerAvailabilityReason||'')))Object.assign(priceFields,{providerAvailable:true,availabilityStatus:'available',providerCheckedAt:nowISO(),providerAvailabilityReason:''});
           const priceFieldsChanged=appendChangedServicePatch(allPatches,key,svc,priceFields);
-          if(priceNeeds&&priceFieldsChanged){result.pricesChanged++;result.updated++;}
+          if(priceNeeds&&priceFieldsChanged){result.pricesChanged++;result.updated++;if(result.priceChanges.length<100)result.priceChanges.push({providerId:pid,providerServiceId:sid,siteServiceId:String(svc.siteServiceId||svc.internalServiceId||''),name:String(svc.name||svc.providerServiceName||('خدمة '+sid)).slice(0,160),oldCostUsd:oldBase===null?null:Number(oldBase),newCostUsd:Number(base),oldSellingUsd:Number.isFinite(storedSell)?storedSell:null,newSellingUsd:Number(priced.sellingUsd??expectedSell),oldSitePrice:Number.isFinite(Number(svc.price))?Number(svc.price):null,newSitePrice:Number.isFinite(Number(priced.price))?Number(priced.price):(Number.isFinite(Number(svc.price))?Number(svc.price):null)});}
           pUpdated++;result.priceVerified++;
         }
         // Automatic synchronization refreshes approved service metadata and prices, but does not publish new unreviewed provider rows.
         // New services are imported only through the admin's explicit selected-service import UI.
         for(const latest of raw){
           const sid=String(latest?.service??latest?.service_id??latest?.serviceId??latest?.id??latest?.serviceID??'').trim();
-          if(sid&&!existingIds.has(sid))result.newServicesRequireApproval++;
+          if(sid&&!existingIds.has(sid)){result.newServicesRequireApproval++;if(result.newServices.length<100){const nr=providerServiceRate(latest);result.newServices.push({providerId:pid,providerServiceId:sid,name:String(latest.name||latest.serviceName||latest.service_name||('خدمة '+sid)).slice(0,160),category:String(latest.category||latest.category_name||latest.group||'').slice(0,100),rateUsd:nr===null?null:Number(nr),requiresApproval:true});}}
         }
         result.providers++;if(!pUpdated&&!pMetadata&&!pRemoved&&result.newServicesRequireApproval===pendingBeforeProvider)result.providerErrors.push(pid+': لم تتم مطابقة معرّفات الخدمات أو لم يوجد سعر صالح');
       }catch(e){result.ok=false;result.providerErrors.push(pid+': '+String(e.message||e).slice(0,160))}
@@ -3383,7 +3383,7 @@ async function runProviderPriceSync(options={}){
     // api_services.json is a compatibility mirror only. Avoid rewriting the whole legacy mirror on every price poll.
     // The authoritative approved catalog above powers API service discovery and order validation.
     result.localUpdated=0;
-    cfg=localGlobalPricing();cfg.lastAttemptAt=nowISO();cfg.lastResult={updated:result.updated,pricesChanged:result.pricesChanged,descriptionsUpdated:result.descriptionsUpdated,categoriesUpdated:result.categoriesUpdated,namesUpdated:result.namesUpdated,metadataUpdated:result.metadataUpdated,availabilityChanged:result.availabilityChanged,removedConfirmed:result.removedConfirmed,firebasePersisted:result.firebasePersisted,firebaseServicesUpdated:result.firebaseServicesUpdated,skipped:result.skipped,providers:result.providers,localUpdated:result.localUpdated,namesFixed:Number(result.namesFixed||0),imported:0,newServicesRequireApproval:result.newServicesRequireApproval,unavailable:result.unavailable,unverified:result.unverified,recovered:result.recovered,priceVerified:result.priceVerified};cfg.lastError=result.providerErrors.join(' | ').slice(0,700);if(result.providers>0&&!result.providerErrors.length){cfg.lastSuccessAt=nowISO();cfg.lastSuccessfulResult=cfg.lastResult;}else if(!result.providerErrors.length){cfg.lastError='لم يتم العثور على مزودين مرتبطين بالخدمات أو خدمات صالحة للمزامنة'};
+    cfg=localGlobalPricing();cfg.lastAttemptAt=nowISO();cfg.lastResult={updated:result.updated,pricesChanged:result.pricesChanged,descriptionsUpdated:result.descriptionsUpdated,categoriesUpdated:result.categoriesUpdated,namesUpdated:result.namesUpdated,metadataUpdated:result.metadataUpdated,availabilityChanged:result.availabilityChanged,removedConfirmed:result.removedConfirmed,firebasePersisted:result.firebasePersisted,firebaseServicesUpdated:result.firebaseServicesUpdated,skipped:result.skipped,providers:result.providers,localUpdated:result.localUpdated,namesFixed:Number(result.namesFixed||0),imported:0,newServicesRequireApproval:result.newServicesRequireApproval,newServicesReported:result.newServices.length,missingServicesReported:result.missingServices.length,priceChangesReported:result.priceChanges.length,unavailable:result.unavailable,unverified:result.unverified,recovered:result.recovered,priceVerified:result.priceVerified};cfg.lastError=result.providerErrors.join(' | ').slice(0,700);if(result.providers>0&&!result.providerErrors.length){cfg.lastSuccessAt=nowISO();cfg.lastSuccessfulResult=cfg.lastResult;}else if(!result.providerErrors.length){cfg.lastError='لم يتم العثور على مزودين مرتبطين بالخدمات أو خدمات صالحة للمزامنة'};
     const st=readJSON('settings.json',{});st.pricing=cfg;writeJSON('settings.json',st);try{await firebaseWriteJson('config/pricing',cfg,7000)}catch(_){}
     result.importPolicy='manual-approval-required';result.safetyPolicy='Automatic sync refreshes approved service prices, provider descriptions/names/types/category metadata, limits and refill/cancel flags; preserves admin-customized labels/sections; after two complete supplier-catalog misses separated by at least four minutes, hides and disables the service while preserving its catalog row and old order history. New provider services still require an explicit admin import.';result.pricing=cfg;return result;
   }catch(e){result.ok=false;result.providerErrors.push(String(e.message||e).slice(0,180));const st=readJSON('settings.json',{});const p=cleanGlobalPricing(st.pricing||{});p.lastAttemptAt=nowISO();p.lastError=result.providerErrors.join(' | ').slice(0,700);st.pricing=p;writeJSON('settings.json',st);try{await firebaseWriteJson('config/pricing',p,5000)}catch(_){}return result;
