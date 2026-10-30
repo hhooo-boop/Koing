@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '6.6';
-const BUILD_ID = 'SADA-6.6-BOOT-ROUTE-GATE-LEGACY-CACHE-CLEAN-20261030';
+const BUILD_ID = 'SADA-6.6-ADMIN-CATALOG-SYNC-ALL-PRICE-ORDER-DELETE-20261030';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -3197,7 +3197,7 @@ async function runProviderPriceSync(options={}){
   if(GLOBAL_PRICE_SYNC_RUNNING)return {ok:false,busy:true,updated:0,errors:['مزامنة أخرى قيد التنفيذ']};
   GLOBAL_PRICE_SYNC_RUNNING=true;
   let cfg=await getGlobalPricing();cfg.lastAttemptAt=nowISO();const settings=readJSON('settings.json',{});settings.pricing=cfg;writeJSON('settings.json',settings);
-  const result={ok:true,updated:0,skipped:0,providers:0,providerErrors:[],localUpdated:0,imported:0,newServicesRequireApproval:0,newServices:[],missingServices:[],priceChanges:[],unavailable:0,removedConfirmed:0,unverified:0,recovered:0,priceVerified:0,pricesChanged:0,descriptionsUpdated:0,categoriesUpdated:0,namesUpdated:0,metadataUpdated:0,availabilityChanged:0,firebasePersisted:false,firebaseServicesUpdated:0};
+  const result={ok:true,updated:0,skipped:0,providers:0,visibilityUpdated:0,providerErrors:[],localUpdated:0,imported:0,newServicesRequireApproval:0,newServices:[],missingServices:[],priceChanges:[],unavailable:0,removedConfirmed:0,unverified:0,recovered:0,priceVerified:0,pricesChanged:0,descriptionsUpdated:0,categoriesUpdated:0,namesUpdated:0,metadataUpdated:0,availabilityChanged:0,firebasePersisted:false,firebaseServicesUpdated:0};
   try{
     // Migrate the legacy catalog once, then keep automatic pricing on host JSON.
     await ensureLocalServiceCatalogSeeded();
@@ -3220,7 +3220,18 @@ async function runProviderPriceSync(options={}){
     if(!providerIds.length){result.ok=false;result.providerErrors.push('لا توجد خدمات مرتبطة بمزود وسعر تكلفة محفوظ');}
     const pct=cleanGlobalPricing(cfg).markupPct;
     const allPatches={},availabilitySnapshots={};
-    for(const pid of providerIds.slice(0,20)){
+    // Manual admin refresh also repairs legacy provider/free rows imported into a section
+    // before the All-visibility rule existed. Keep the section membership, add All visibility,
+    // and never unhide rows intentionally hidden by an administrator.
+    if(options.manual===true){
+      for(const [key,row] of rows){
+        const groups=catalogRowGroups(row);
+        if(!groups.length||row.deleted===true||row.active===false||row.enabled===false||row.hidden===true||row.isHidden===true||row.hideFromAll===true||row.excludeFromAll===true||row.adminHiddenFromAll===true||String(row.visibility||'').toLowerCase()==='private')continue;
+        if(row.showInAll===true&&String(row.scope||'').toLowerCase()==='all'&&String(row.visibility||'').toLowerCase()==='all')continue;
+        allPatches[key+'/scope']='all';allPatches[key+'/showInAll']=true;allPatches[key+'/visibility']='all';result.visibilityUpdated++;
+      }
+    }
+    for(const pid of providerIds){
       const pendingBeforeProvider=result.newServicesRequireApproval;
       try{
         await ensureProviderRuntime(pid);const found=getProviderById(pid,{allowSingleFallback:false});if(!found.prov?.url||!found.prov?.key)throw new Error('بيانات المزود غير متوفرة');
@@ -3384,7 +3395,7 @@ async function runProviderPriceSync(options={}){
     // api_services.json is a compatibility mirror only. Avoid rewriting the whole legacy mirror on every price poll.
     // The authoritative approved catalog above powers API service discovery and order validation.
     result.localUpdated=0;
-    cfg=localGlobalPricing();cfg.lastAttemptAt=nowISO();cfg.lastResult={updated:result.updated,pricesChanged:result.pricesChanged,descriptionsUpdated:result.descriptionsUpdated,categoriesUpdated:result.categoriesUpdated,namesUpdated:result.namesUpdated,metadataUpdated:result.metadataUpdated,availabilityChanged:result.availabilityChanged,removedConfirmed:result.removedConfirmed,firebasePersisted:result.firebasePersisted,firebaseServicesUpdated:result.firebaseServicesUpdated,skipped:result.skipped,providers:result.providers,localUpdated:result.localUpdated,namesFixed:Number(result.namesFixed||0),imported:0,newServicesRequireApproval:result.newServicesRequireApproval,newServicesReported:result.newServices.length,missingServicesReported:result.missingServices.length,priceChangesReported:result.priceChanges.length,unavailable:result.unavailable,unverified:result.unverified,recovered:result.recovered,priceVerified:result.priceVerified};cfg.lastError=result.providerErrors.join(' | ').slice(0,700);if(result.providers>0&&!result.providerErrors.length){cfg.lastSuccessAt=nowISO();cfg.lastSuccessfulResult=cfg.lastResult;}else if(!result.providerErrors.length){cfg.lastError='لم يتم العثور على مزودين مرتبطين بالخدمات أو خدمات صالحة للمزامنة'};
+    cfg=localGlobalPricing();cfg.lastAttemptAt=nowISO();cfg.lastResult={updated:result.updated,pricesChanged:result.pricesChanged,descriptionsUpdated:result.descriptionsUpdated,categoriesUpdated:result.categoriesUpdated,namesUpdated:result.namesUpdated,metadataUpdated:result.metadataUpdated,availabilityChanged:result.availabilityChanged,removedConfirmed:result.removedConfirmed,firebasePersisted:result.firebasePersisted,firebaseServicesUpdated:result.firebaseServicesUpdated,visibilityUpdated:result.visibilityUpdated,skipped:result.skipped,providers:result.providers,localUpdated:result.localUpdated,namesFixed:Number(result.namesFixed||0),imported:0,newServicesRequireApproval:result.newServicesRequireApproval,newServicesReported:result.newServices.length,missingServicesReported:result.missingServices.length,priceChangesReported:result.priceChanges.length,unavailable:result.unavailable,unverified:result.unverified,recovered:result.recovered,priceVerified:result.priceVerified};cfg.lastError=result.providerErrors.join(' | ').slice(0,700);if(result.providers>0&&!result.providerErrors.length){cfg.lastSuccessAt=nowISO();cfg.lastSuccessfulResult=cfg.lastResult;}else if(!result.providerErrors.length){cfg.lastError='لم يتم العثور على مزودين مرتبطين بالخدمات أو خدمات صالحة للمزامنة'};
     const st=readJSON('settings.json',{});st.pricing=cfg;writeJSON('settings.json',st);try{await firebaseWriteJson('config/pricing',cfg,7000)}catch(_){}
     result.importPolicy='manual-approval-required';result.safetyPolicy='Automatic sync refreshes approved service prices, provider descriptions/names/types/category metadata, limits and refill/cancel flags; preserves admin-customized labels/sections; after two complete supplier-catalog misses separated by at least four minutes, hides and disables the service while preserving its catalog row and old order history. New provider services still require an explicit admin import.';result.pricing=cfg;return result;
   }catch(e){result.ok=false;result.providerErrors.push(String(e.message||e).slice(0,180));const st=readJSON('settings.json',{});const p=cleanGlobalPricing(st.pricing||{});p.lastAttemptAt=nowISO();p.lastError=result.providerErrors.join(' | ').slice(0,700);st.pricing=p;writeJSON('settings.json',st);try{await firebaseWriteJson('config/pricing',p,5000)}catch(_){}return result;
@@ -5788,21 +5799,32 @@ async function routeAPI(req,res,urlObj){
     if(!keys.length)return json(res,404,{ok:false,error:'لا توجد خدمات تطابق المنصة والمزود المحددين.'});
     if(keys.length>8000)return json(res,413,{ok:false,error:'عدد الخدمات كبير جدًا لعملية حذف واحدة؛ اختر مزودًا محددًا أو احذفها على دفعات.'});
     const selected=new Set(keys);
+    const removedGroupNames=new Set(keys.flatMap(key=>catalogRowGroups(servicesBefore[key])).map(normalizeCatalogLabel));
     const servicesNext={...servicesBefore};for(const key of keys)delete servicesNext[key];
-    const metaNext={...metaBefore};
+    const metaNext={...metaBefore},prunedMetaKeys=[],prunedCategoryNames=[];
     for(const [metaKey,meta] of Object.entries(metaNext)){
-      if(meta&&typeof meta==='object'&&Array.isArray(meta.serviceKeys)){
-        const serviceKeys=meta.serviceKeys.map(String).filter(key=>!selected.has(key));
-        if(serviceKeys.length!==meta.serviceKeys.length)metaNext[metaKey]={...meta,serviceKeys};
-      }
+      if(!meta||typeof meta!=='object')continue;
+      const label=String(meta.name||metaKey),labelKey=normalizeCatalogLabel(label);
+      const previousKeys=Array.isArray(meta.serviceKeys)?meta.serviceKeys.map(String):[];
+      const serviceKeys=previousKeys.filter(key=>!selected.has(key));
+      const linkedToDeletedGroup=removedGroupNames.has(labelKey);
+      const hasLiveService=Object.values(servicesNext).some(row=>catalogRowGroups(row).some(group=>normalizeCatalogLabel(group)===labelKey));
+      if((linkedToDeletedGroup||previousKeys.some(key=>selected.has(key)))&&!hasLiveService){delete metaNext[metaKey];prunedMetaKeys.push(metaKey);prunedCategoryNames.push(label);}
+      else if(serviceKeys.length!==previousKeys.length)metaNext[metaKey]={...meta,serviceKeys};
     }
     const settingsNext={...settingsBefore};
     const order=settingsNext.catalogOrder&&typeof settingsNext.catalogOrder==='object'?settingsNext.catalogOrder:{categories:[],services:{}};
     const orderServices=order.services&&typeof order.services==='object'&&!Array.isArray(order.services)?{...order.services}:{};
-    for(const [bucket,ids] of Object.entries(orderServices))if(Array.isArray(ids))orderServices[bucket]=ids.map(String).filter(key=>!selected.has(key));
-    settingsNext.catalogOrder=canonicalCatalogOrder({...order,services:orderServices},metaNext);settingsNext.catalogUpdatedAt=nowISO();settingsNext.lastServiceDeleteAt=nowISO();
+    for(const [bucket,ids] of Object.entries(orderServices)){
+      if(prunedMetaKeys.some(k=>normalizeCatalogLabel(k)===normalizeCatalogLabel(bucket))||prunedCategoryNames.some(n=>normalizeCatalogLabel(n)===normalizeCatalogLabel(bucket))){delete orderServices[bucket];continue;}
+      if(Array.isArray(ids))orderServices[bucket]=ids.map(String).filter(key=>!selected.has(key));
+    }
+    const prunedNames=new Set(prunedCategoryNames.map(normalizeCatalogLabel));
+    const categories=(Array.isArray(order.categories)?order.categories:[]).filter(name=>!prunedNames.has(normalizeCatalogLabel(name)));
+    settingsNext.catalogOrder=canonicalCatalogOrder({...order,categories,services:orderServices},metaNext);settingsNext.catalogUpdatedAt=nowISO();settingsNext.lastServiceDeleteAt=nowISO();
     const remotePatch={};
     for(const key of keys)remotePatch['services/'+key]=null;
+    for(const key of prunedMetaKeys)remotePatch['categoryMeta/'+key]=null;
     for(const [metaKey,meta] of Object.entries(metaNext))if(!catalogValuesEqual(metaBefore[metaKey]??null,meta))remotePatch['categoryMeta/'+metaKey]=meta;
     remotePatch['settings/catalogOrder']=settingsNext.catalogOrder;remotePatch['settings/svcsVersion']=String(Date.now());
     try{
@@ -5814,7 +5836,7 @@ async function routeAPI(req,res,urlObj){
       return json(res,503,{ok:false,persisted:false,error:'لم يتم تأكيد حذف الخدمات في Firebase؛ راجع القائمة قبل إعادة المحاولة. '+String(e.message||e).slice(0,160)});
     }
     purgeCatalogServiceSnapshots();
-    return json(res,200,{ok:true,action,platform,providerId,deleted:keys.length,deletedKeys:keys,backupCreated:false,storage:'firebase',verified:true});
+    return json(res,200,{ok:true,action,platform,providerId,deleted:keys.length,deletedKeys:keys,deletedOrphanSections:prunedMetaKeys.length,deletedOrphanSectionNames:prunedCategoryNames,backupCreated:false,storage:'firebase',verified:true});
   }
 
   if(p==='/api/admin/catalog/sections'&&req.method==='POST'){
@@ -5940,8 +5962,38 @@ async function routeAPI(req,res,urlObj){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
     const b=await bodyJSON(req,10*1024*1024);const rawPath=String(b.path||'');const mode=String(b.mode||'set');
     try{await ensureLocalServiceCatalogSeeded();}catch(e){return json(res,503,{ok:false,error:'تعذر الاتصال بقاعدة Firebase؛ لم يتم حفظ التغيير: '+String(e.message||e).slice(0,160)});}
+    const spec=catalogPathSpec(rawPath);const singleServiceDelete=!!(spec&&spec.bucket==='services'&&spec.parts.length===1&&mode==='remove');
+    const beforeMeta=singleServiceDelete?readJSON('category_meta.json',{}):null;
+    const singleServiceRowBefore=singleServiceDelete?(readJSON('services.json',{})[spec.parts[0]]||null):null;
     const out=catalogMutatePath(rawPath,mode,b.value);if(!out.ok)return json(res,422,out);
-    try{const verified=await persistCatalogPathMutation(rawPath,mode,b.value);const spec=catalogPathSpec(rawPath);if(spec&&(spec.bucket==='services'||spec.bucket==='categoryMeta')){const cfg=readJSON('catalog_settings.json',{});if(cfg.catalogOrder)await firebaseWriteJson('settings/catalogOrder',cfg.catalogOrder,12000);await firebaseWriteJson('settings/svcsVersion',String(Date.now()),8000);}return json(res,200,{ok:true,persisted:true,storage:'firebase',storageMode:'firebase',path:verified.path,verified:true});}
+    try{
+      if(singleServiceDelete){
+        const serviceKey=spec.parts[0],metaNext=readJSON('category_meta.json',{}),servicesNext=readJSON('services.json',{}),cfg=readJSON('catalog_settings.json',{}),orphanKeys=[],orphanNames=[];
+        const deletedGroups=new Set(catalogRowGroups(singleServiceRowBefore).map(normalizeCatalogLabel));
+        for(const [metaKey,meta] of Object.entries(metaNext)){
+          if(!meta||typeof meta!=='object')continue;
+          const label=String(meta.name||metaKey),labelNorm=normalizeCatalogLabel(label);
+          const previousKeys=Array.isArray(meta.serviceKeys)?meta.serviceKeys.map(String):[];
+          const serviceKeys=previousKeys.filter(key=>key!==serviceKey);
+          const linkedToDeletedGroup=deletedGroups.has(labelNorm),hadServiceKey=previousKeys.includes(serviceKey);
+          if((linkedToDeletedGroup||hadServiceKey)&&!Object.values(servicesNext).some(row=>catalogRowGroups(row).some(group=>normalizeCatalogLabel(group)===labelNorm))){delete metaNext[metaKey];orphanKeys.push(metaKey);orphanNames.push(label);}
+          else if(hadServiceKey)metaNext[metaKey]={...meta,serviceKeys};
+        }
+        const order=cfg.catalogOrder&&typeof cfg.catalogOrder==='object'?cfg.catalogOrder:{categories:[],services:{}};
+        const orderServices=order.services&&typeof order.services==='object'&&!Array.isArray(order.services)?{...order.services}:{};
+        for(const bucket of Object.keys(orderServices))if(orphanKeys.some(k=>normalizeCatalogLabel(k)===normalizeCatalogLabel(bucket))||orphanNames.some(n=>normalizeCatalogLabel(n)===normalizeCatalogLabel(bucket)))delete orderServices[bucket];
+        const orphanSet=new Set(orphanNames.map(normalizeCatalogLabel));
+        cfg.catalogOrder=canonicalCatalogOrder({...order,categories:(Array.isArray(order.categories)?order.categories:[]).filter(n=>!orphanSet.has(normalizeCatalogLabel(n))),services:orderServices},metaNext);
+        cfg.catalogUpdatedAt=nowISO();cfg.lastServiceDeleteAt=nowISO();
+        const patch={};patch['services/'+serviceKey]=null;for(const key of orphanKeys)patch['categoryMeta/'+key]=null;
+        for(const [key,value] of Object.entries(metaNext))if(!catalogValuesEqual(beforeMeta[key]??null,value))patch['categoryMeta/'+key]=value;
+        patch['settings/catalogOrder']=cfg.catalogOrder;patch['settings/svcsVersion']=String(Date.now());
+        try{await persistFirebaseCatalogPatch(patch,{verify:true,atomic:true,timeoutMs:45000});}
+        catch(e){try{await reloadLocalCatalogFromFirebase()}catch(reloadError){console.error('Single service delete rollback reload failed:',String(reloadError.message||reloadError))}throw e}
+        writeJSON('category_meta.json',metaNext);cfg.firebaseSvcsVersion=String(Date.now());writeJSON('catalog_settings.json',cfg);markCatalogSeeded();purgeCatalogServiceSnapshots();
+        return json(res,200,{ok:true,persisted:true,storage:'firebase',storageMode:'firebase',path:rawPath,verified:true,deletedServiceKey:serviceKey,deletedOrphanSections:orphanKeys.length,deletedOrphanSectionNames:orphanNames});
+      }
+      const verified=await persistCatalogPathMutation(rawPath,mode,b.value);if(spec&&(spec.bucket==='services'||spec.bucket==='categoryMeta')){const cfg=readJSON('catalog_settings.json',{});if(cfg.catalogOrder)await firebaseWriteJson('settings/catalogOrder',cfg.catalogOrder,12000);await firebaseWriteJson('settings/svcsVersion',String(Date.now()),8000);}return json(res,200,{ok:true,persisted:true,storage:'firebase',storageMode:'firebase',path:verified.path,verified:true});}
     catch(e){try{await reloadLocalCatalogFromFirebase();}catch(reloadError){console.error('Firebase catalog rollback reload failed:',String(reloadError.message||reloadError));}return json(res,503,{ok:false,persisted:false,path:rawPath,error:'لم يتم تأكيد حفظ التغيير في Firebase؛ أُلغيت نتيجة العملية ولم تُعرض كنجاح. '+String(e.message||e).slice(0,160)});}
   }
   if(p==='/api/admin/catalog/batch'&&req.method==='POST'){
@@ -6433,7 +6485,7 @@ async function routeAPI(req,res,urlObj){
       const existing=key?(fromArchive?quarantineArchive[key]:root[key]):null;
       const category=dest==='__all__'?(String(data.category||data.groups?.[0]||'عام')):dest;
       const groups=dest==='__all__'?(Array.isArray(data.groups)?data.groups:[category]):[dest];
-      const wasQuarantined=existing?.unapprovedAutoImport===true||fromArchive||!!(existing&&isLegacyAutoImportedProviderRow(key,existing));const row={...(existing||{}),...data,providerId,providerServiceId:sourceId,smmpartyId:sourceId,serviceId:sourceId,name,category,groups:[...new Set(groups.map(x=>String(x||'').trim()).filter(Boolean))],categories:[...new Set(groups.map(x=>String(x||'').trim()).filter(Boolean))],sellingUsd:Number(price.toFixed(6)),price:Number((price*FIXED_RATE).toFixed(4)),basePrice:(Number.isFinite(Number(data.basePrice))&&Number(data.basePrice)>=0?Number(Number(data.basePrice).toFixed(4)):Number((price*FIXED_RATE).toFixed(4))),source:'smmparty',createdAt:existing?.createdAt||at,updatedAt:at,...(wasQuarantined?{unapprovedAutoImport:false,active:true,providerAvailable:true,availabilityStatus:'available',providerAvailabilityReason:'',explicitlyApprovedAt:at,explicitlyApprovedBy:String(session(req)?.username||ADMIN_USER)}:{})};if(wasQuarantined)delete row.unapprovedAutoImport;
+      const wasQuarantined=existing?.unapprovedAutoImport===true||fromArchive||!!(existing&&isLegacyAutoImportedProviderRow(key,existing));const savedGroups=[...new Set(groups.map(x=>String(x||'').trim()).filter(Boolean))];const row={...(existing||{}),...data,providerId,providerServiceId:sourceId,smmpartyId:sourceId,serviceId:sourceId,name,category,groups:savedGroups,categories:savedGroups,scope:'all',showInAll:true,visibility:'all',sellingUsd:Number(price.toFixed(6)),price:Number((price*FIXED_RATE).toFixed(4)),basePrice:(Number.isFinite(Number(data.basePrice))&&Number(data.basePrice)>=0?Number(Number(data.basePrice).toFixed(4)):Number((price*FIXED_RATE).toFixed(4))),source:'smmparty',createdAt:existing?.createdAt||at,updatedAt:at,...(wasQuarantined?{unapprovedAutoImport:false,active:true,providerAvailable:true,availabilityStatus:'available',providerAvailabilityReason:'',explicitlyApprovedAt:at,explicitlyApprovedBy:String(session(req)?.username||ADMIN_USER)}:{})};if(wasQuarantined)delete row.unapprovedAutoImport;
       if(!key)key='svc_'+crypto.randomBytes(12).toString('hex');root[key]=row;if(fromArchive){delete quarantineArchive[key];restoredArchived++;}serviceKeys.push(key);if(existing&&!fromArchive)updated++;else if(fromArchive)updated++;else added++;
     }
     if(!serviceKeys.length)return json(res,422,{ok:false,error:'لم توجد خدمات صالحة؛ تأكد من اسم الخدمة وProvider ID وService ID والسعر.',skipped});
