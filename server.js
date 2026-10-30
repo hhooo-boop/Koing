@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '6.7';
-const BUILD_ID = 'SADA-6.7-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261030';
+const APP_VERSION = '3.0';
+const BUILD_ID = 'SADA-3.0-MOBILE-ADMIN-SERVICE-ORDER-PERF-20261031-R4';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -1450,6 +1450,20 @@ function getProviderById(id, options={}){
   return {store,pid,prov};
 }
 function normalizeProviderStatus(v){ const x=String(v||'').trim().toLowerCase().normalize('NFKC').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[ًٌٍَُِّْـ]/g,'').replace(/[\s_-]+/g,' '); const map={pending:'pending',waiting:'pending',awaiting:'pending',queued:'pending','on hold':'pending',processing:'processing','in progress':'processing',inprogress:'processing',running:'processing',completed:'completed',complete:'completed',finished:'completed',done:'completed',partial:'partial','partially completed':'partial','partial completion':'partial',canceled:'cancelled',cancelled:'cancelled',failed:'failed',error:'failed',rejected:'failed',refunded:'refunded',معلق:'pending','قيد الانتظار':'pending','بانتظار':'pending','انتظار':'pending','قيد المعالجة':'pending','قيد التنفيذ':'processing','جاري التنفيذ':'processing','جار التنفيذ':'processing','تحت التنفيذ':'processing','قيد العمل':'processing','مكتمل':'completed','مكتملة':'completed','مكتمله':'completed','منجز':'completed','منجزة':'completed','منجزه':'completed','تم التنفيذ':'completed','جزئي':'partial','مكتمل جزئيا':'partial','جزئي مكتمل':'partial','ملغي':'cancelled','ملغى':'cancelled','ملغيه':'cancelled','ملغاة':'cancelled','ملغاه':'cancelled','ملغيه':'cancelled','ملغيه جزئيا':'partial','ملغى جزئيا':'partial','تم الالغاء':'cancelled','تم الغاء الطلب':'cancelled','فشل':'failed','فاشل':'failed','فاشلة':'failed','فاشله':'failed','فشل نهائي':'failed','مرفوض':'failed','مسترد':'refunded','مسترجع':'refunded','تم الاسترداد':'refunded'}; return map[x]||'unknown'; }
+
+// Extract a provider status only from recognised fields/containers. Missing status or
+// transport errors are never treated as a provider rejection.
+function extractProviderStatus(data){
+  const seen=new Set(),statusKeys=['status','state','order_status','orderStatus','order_state','orderState','status_name','statusName','refill_status','refillStatus'];
+  const containers=['data','result','response','order','details','payload'];
+  const queue=[data];let visited=0,firstUnrecognised='';
+  while(queue.length&&visited++<40){const node=queue.shift();if(!node||typeof node!=='object'||seen.has(node))continue;seen.add(node);
+    if(Array.isArray(node)){for(const item of node.slice(0,8))if(item&&typeof item==='object')queue.push(item);continue;}
+    for(const key of statusKeys){const value=node[key];if(value===undefined||value===null||String(value).trim()==='')continue;const candidate=String(value).trim();if(!firstUnrecognised)firstUnrecognised=candidate;if(normalizeProviderStatus(candidate)!=='unknown')return candidate;}
+    for(const key of containers){const value=node[key];if(value&&typeof value==='object')queue.push(value);}
+  }
+  return firstUnrecognised;
+}
 function normalizeProviderBalance(d){
   const vals=[];
   const add=(v)=>{ if(v!==undefined&&v!==null&&String(v).trim()!=='') vals.push(v); };
@@ -1666,6 +1680,14 @@ async function providerRequest(prov,params,timeoutMs=30000){
     // Mutating provider actions are one-shot. Never retry them across slash variants
     // or transport attempts: timeouts can hide a successful upstream operation.
     return callForm(endpoints[0],1);
+  }
+  if(action==='status'){
+    // Status checks should be fast and must not burn several full timeout windows.
+    // Try the slash-compatible endpoint only for an explicit route mismatch, not a timeout.
+    try{return await callForm(endpoints[0],1);}catch(e){
+      if(endpoints.length>1&&[404,405].includes(Number(e?.httpStatus||0)))return callForm(endpoints[1],1);
+      throw e;
+    }
   }
 
   let lastError=null;
@@ -2867,17 +2889,18 @@ async function applyVerifiedOrderRefund(inputOrder={},providerData={},normalized
   return {ok:true,credited:!!result.credited,state:responseState,amountIQD:Number(result.deltaIQD||0),totalRefundIQD:finalTotal,balanceIQD:Number(result.balanceIQD??transaction.value?.balance??0),currency:'IQD',reason:result.reason||''};
 }
 async function syncVerifiedOrderStatus(order,providerData,normalizedStatus){
-  const normalized=normalizeProviderStatus(normalizedStatus||providerData?.status||providerData?.data?.status||providerData?.result?.status||'');
+  const rawStatus=extractProviderStatus(providerData);
+  const normalized=normalizeProviderStatus(normalizedStatus||rawStatus);
   if(normalized==='unknown')return {ok:false,saved:false,order,refund:null,error:'unknown-provider-status'};
-  const providerRaw=String(providerData?.status??providerData?.data?.status??providerData?.result?.status??normalized).trim();
+  const providerRaw=String(rawStatus||normalized).trim();
   const checkedAt=nowISO();
-  const update={providerStatus:providerRaw,providerStatusConfirmed:true,lastCheckedAt:checkedAt,updatedAt:checkedAt,status:normalized};
+  const full=await resolveFinancialOrder(order);
+  const update={providerStatus:providerRaw,providerStatusConfirmed:true,statusSyncState:'confirmed',statusSyncLastAttemptAt:checkedAt,statusSyncAttempts:Math.max(1,Number(full.statusSyncAttempts||0)+1),initialStatusChecked:true,initialStatusError:'',lastCheckedAt:checkedAt,updatedAt:checkedAt,status:normalized};
   const providerRemains=providerData?.remains??providerData?.remaining??providerData?.data?.remains??providerData?.data?.remaining??providerData?.result?.remains??providerData?.result?.remaining;
   if(providerRemains!==undefined)update.remains=providerRemains;
   const providerStartCount=providerData?.start_count??providerData?.startCount??providerData?.data?.start_count??providerData?.data?.startCount??providerData?.result?.start_count??providerData?.result?.startCount;
   if(providerStartCount!==undefined)update.startCount=providerStartCount;
 
-  const full=await resolveFinancialOrder(order);
   const fbKey=String(full._firebaseKey||full.firebaseKey||'').trim();
   // Do not credit a wallet until the provider-confirmed status is durably attached to the canonical Firebase order.
   // A local-only order or a failed write is left pending for a later retry/reconciliation.
@@ -2915,6 +2938,79 @@ async function syncVerifiedOrderStatus(order,providerData,normalizedStatus){
   if(old!==normalized)notifyOrderStatusChange(notificationOrder,old,normalized).catch(()=>{});
   return {ok:true,saved:true,order:notificationOrder,refund,providerStatus:providerRaw,normalizedStatus:normalized,checkedAt};
 }
+
+// Persist an unresolved status check without pretending that the provider rejected or
+// completed the order. This makes the retry visible across server restarts and devices.
+async function persistProviderStatusRetryState(order,error='provider-status-unavailable'){
+  const attemptedAt=nowISO();
+  const patch={providerStatusConfirmed:false,statusSyncState:'retry_pending',statusSyncLastAttemptAt:attemptedAt,
+    statusSyncAttempts:Math.max(0,Number(order?.statusSyncAttempts||0))+1,initialStatusChecked:false,
+    initialStatusError:String(error||'provider-status-unavailable').slice(0,180),updatedAt:attemptedAt};
+  const id=String(order?.id||order?.siteOrderId||order?.localId||'');
+  const user=String(order?.user||order?.username||'');
+  const providerOrderId=String(order?.providerOrderId||order?.smmpartyOrderId||'');
+  const fbKey=String(order?._firebaseKey||order?.firebaseKey||'').trim();
+  if(fbKey){
+    try{
+      const existing=await firebaseGetJson('orders/'+firebaseSafeKey(fbKey),4000);
+      if(existing?.providerStatusConfirmed===true)return {...order,...existing};
+      await firebasePatchJson('orders/'+firebaseSafeKey(fbKey),patch,5000);
+    }catch(e){console.warn('provider status retry marker Firebase:',String(e.message||e).slice(0,120));}
+  }
+  const rows=readJSON('orders.json',[]);let changed=false;
+  if(Array.isArray(rows))for(let i=0;i<rows.length;i++){
+    const row=rows[i];if(!row||row.event)continue;
+    const sameId=id&&String(row.id||row.localId||row.siteOrderId||'')===id&&(!user||String(row.user||row.username||'')===user);
+    const sameProvider=providerOrderId&&String(row.providerOrderId||row.smmpartyOrderId||'')===providerOrderId&&(!user||String(row.user||row.username||'')===user);
+    if(sameId||sameProvider){rows[i]={...row,...patch};changed=true;}
+  }
+  if(changed)writeJSON('orders.json',rows);
+  return {...order,...patch};
+}
+
+// The same verified status pipeline is used at creation, on the order-history page,
+// and for background retries. Unknown responses/timeouts remain unresolved, never failed.
+async function checkAndSyncProviderOrderStatus(order,provider,options={}){
+  const providerOrderId=String(order?.providerOrderId||order?.smmpartyOrderId||'').trim();
+  if(!providerOrderId||!provider?.url||!provider?.key){
+    const saved=await persistProviderStatusRetryState(order,'provider-link-or-credentials-missing');
+    return {ok:false,order:saved,error:'provider-link-or-credentials-missing'};
+  }
+  const attempts=Math.max(1,Math.min(2,Number(options.attempts||1)));
+  const timeoutMs=Math.max(1500,Math.min(6000,Number(options.timeoutMs||4000)));
+  let lastError='provider-status-not-recognised';
+  // The provider's add response may already contain a verifiable order status.
+  // Use that exact response first; only call action=status when it has no recognised state.
+  const seedData=options.providerResponse;
+  if(seedData){
+    const seedRaw=extractProviderStatus(seedData);const seedNormalized=normalizeProviderStatus(seedRaw);
+    if(seedNormalized!=='unknown'){
+      try{
+        const seeded=await syncVerifiedOrderStatus({...order,_firebaseKey:order?._firebaseKey||order?.firebaseKey||''},seedData,seedNormalized);
+        if(seeded.ok)return {ok:true,order:{...seeded.order,statusSyncState:'confirmed',initialStatusChecked:true,initialStatusError:''},providerData:seedData,providerStatus:seedRaw,normalizedStatus:seedNormalized,checkedAt:seeded.checkedAt,source:'provider-add-response'};
+        lastError=String(seeded.error||'provider-add-status-save-failed').slice(0,180);
+      }catch(e){lastError=String(e?.message||e||'provider-add-status-save-failed').slice(0,180);}
+    }
+  }
+  for(let attempt=1;attempt<=attempts;attempt++){
+    try{
+      const data=await providerRequest(provider,{action:'status',order:providerOrderId},timeoutMs);
+      const rawStatus=extractProviderStatus(data);
+      const normalized=normalizeProviderStatus(rawStatus);
+      if(normalized!=='unknown'){
+        const synced=await syncVerifiedOrderStatus({...order,_firebaseKey:order?._firebaseKey||order?.firebaseKey||''},data,normalized);
+        if(synced.ok)return {ok:true,order:{...synced.order,statusSyncState:'confirmed',initialStatusChecked:true,initialStatusError:''},providerData:data,providerStatus:rawStatus,normalizedStatus:normalized,checkedAt:synced.checkedAt};
+        lastError=String(synced.error||synced.refund?.error||'provider-status-save-failed');
+      }else{
+        lastError='provider-status-not-recognised';
+      }
+    }catch(e){lastError=String(e?.name==='AbortError'?'provider-status-timeout':(e.message||e)).slice(0,180);if(e?.httpStatus&&![408,425,429,500,502,503,504].includes(Number(e.httpStatus)))break;}
+    if(attempt<attempts)await new Promise(resolve=>setTimeout(resolve,350*attempt));
+  }
+  const saved=await persistProviderStatusRetryState(order,lastError);
+  return {ok:false,order:saved,error:lastError};
+}
+
 async function runProviderRejectionRefundMonitor(){
   // Retry only confirmed supplier rejections whose wallet release previously failed.
   // The Firebase reservation/request state is the idempotency guard; never credit a
@@ -2969,8 +3065,8 @@ async function runRefundReconciliationMonitor(){
   if(runRefundReconciliationMonitor.running)return;runRefundReconciliationMonitor.running=true;
   try{
     const snapshot=await loadOrderMonitorSnapshot();if(!snapshot.rows?.length)return;const now=Date.now();let examined=0;
-    const candidates=snapshot.rows.filter(r=>r.providerId&&r.providerOrderId&&(['pending','processing'].includes(r.status)||(['cancelled','partial','failed','refunded'].includes(r.status)&&!['credited','partial_credited','refunded','no_refund_due'].includes(String(r.refundState||''))))&&(!r.lastCheckedAt||now-(auditTimestamp(r.lastCheckedAt)||0)>60000)).sort((a,b)=>Number(a.createdMs||0)-Number(b.createdMs||0)).slice(0,12);
-    for(const row of candidates){if(examined++>=12)break;try{const full=await resolveFinancialOrder(row);await ensureProviderRuntime(row.providerId);const prov=getProviderById(row.providerId,{allowSingleFallback:false}).prov;if(!prov?.url||!prov?.key)continue;const d=await providerRequest(prov,{action:'status',order:String(row.providerOrderId)},15000);const normalized=normalizeProviderStatus(d?.status??d?.data?.status??d?.result?.status??'');if(normalized==='unknown')continue;await syncVerifiedOrderStatus(full,d,normalized);}catch(e){console.warn('refund/order status monitor:',String(e.message||e).slice(0,120));}}
+    const candidates=snapshot.rows.filter(r=>r.providerId&&r.providerOrderId&&(['pending','processing'].includes(r.status)||(['cancelled','partial','failed','refunded'].includes(r.status)&&!['credited','partial_credited','refunded','no_refund_due'].includes(String(r.refundState||''))))&&(!r.lastCheckedAt||now-(auditTimestamp(r.lastCheckedAt)||0)>30000)).sort((a,b)=>Number(a.createdMs||0)-Number(b.createdMs||0)).slice(0,12);
+    for(const row of candidates){if(examined++>=12)break;try{const full=await resolveFinancialOrder(row);await ensureProviderRuntime(row.providerId);const prov=getProviderById(row.providerId,{allowSingleFallback:false}).prov;if(!prov?.url||!prov?.key)continue;const d=await providerRequest(prov,{action:'status',order:String(row.providerOrderId)},15000);const normalized=normalizeProviderStatus(extractProviderStatus(d));if(normalized==='unknown')continue;await syncVerifiedOrderStatus(full,d,normalized);}catch(e){console.warn('refund/order status monitor:',String(e.message||e).slice(0,120));}}
   }catch(e){console.warn('refund reconciliation monitor:',String(e.message||e).slice(0,160));}finally{runRefundReconciliationMonitor.running=false;}
 }
 
@@ -3204,7 +3300,7 @@ async function runPriceWatch(){
     let first=readJSON('services.json',{});if(!first||typeof first!=='object'||Array.isArray(first))return {skipped:true};
     const recovered=recoverTransientlyHiddenServices(first,'price-watcher-recovery');
     if(recovered)first=readJSON('services.json',{});
-    const pids=[...new Set(Object.values(first).filter(v=>v&&typeof v==='object'&&!hasExplicitSiteServiceDisable(v)).map(v=>String(v.providerId||'').trim()).filter(Boolean))].slice(0,20);
+    const pids=[...new Set(Object.values(first).filter(v=>v&&typeof v==='object'&&!hasExplicitSiteServiceDisable(v)).map(v=>String(v.providerId||'').trim()).filter(Boolean))];
     let updated=0,availabilityChanged=0,unverified=0;const errors=[];
     for(const pid of pids){
       const rates=await priceGuardProviderRates(pid,{force:true});
@@ -3640,8 +3736,10 @@ function telegramConfig(){
   // This lets deployment recover from a leaked/revoked token without plaintext secrets in code.
   const token=String(envToken||storedToken||'').trim();
   const legacyChat=String(process.env.TELEGRAM_CHAT_ID||cfg.chat||'').trim();
-  const activationEnv=String(process.env.TELEGRAM_ACTIVATION_CHAT_ID||'-1004403189762').trim();
-  const overdueEnv=String(process.env.TELEGRAM_OVERDUE_CHAT_ID||'-1003800848795').trim();
+  // Do not hard-code a default channel ID here: it silently overrides the channel
+  // configured by the administrator/Firebase and can route order notices to the wrong chat.
+  const activationEnv=String(process.env.TELEGRAM_ACTIVATION_CHAT_ID||'').trim();
+  const overdueEnv=String(process.env.TELEGRAM_OVERDUE_CHAT_ID||'').trim();
   const adminEnv=String(process.env.TELEGRAM_ADMIN_CHAT_ID||'').trim();
   const legacyChannel=/^@[A-Za-z0-9_]{3,}$/i.test(legacyChat)||/^-100\d{5,}$/.test(legacyChat)?legacyChat:'';
   const activationChat=String(activationEnv||cfg.activationChat||TELEGRAM_CHANNELS_REMOTE.activationChat||legacyChannel).trim();
@@ -3813,7 +3911,18 @@ function telegramOrderReplyMarkup(o={}){
   try{const u=new URL(raw);if(!['http:','https:'].includes(u.protocol))return undefined;return {inline_keyboard:[[{text:'فتح الرابط ↗',url:u.href}]]};}catch(_){return undefined;}
 }
 function telegramOrderWasDelivered(entry){
-  return !!(entry&&typeof entry==='object'&&(entry.primaryOk===true||entry.sentAt||entry.deliveredAt||entry.delivered===true||entry.adminFallbackDelivered===true||(Array.isArray(entry.deliveredTo)&&entry.deliveredTo.length>0)));
+  if(!entry||typeof entry!=='object')return false;
+  if(entry.primaryOk===true||entry.primaryDelivered===true)return true;
+  if(entry.primaryOk===false||entry.primaryDelivered===false||entry.adminFallbackDelivered===true)return false;
+  const primary=String(telegramConfig().activationChat||'').trim();
+  const deliveredTo=Array.isArray(entry.deliveredTo)?[...new Set(entry.deliveredTo.map(x=>String(x||'').trim()).filter(Boolean))]:[];
+  // When the historical log includes recipient IDs, only the configured primary
+  // activation channel counts. Admin/private fallback is not channel delivery.
+  if(primary&&deliveredTo.length)return deliveredTo.includes(primary);
+  if(deliveredTo.length)return false;
+  // Legacy records with no recipient details are kept compatible only if they have
+  // an explicit delivered marker and predate the primary/fallback fields.
+  return entry.primaryOk===undefined&&entry.primaryDelivered===undefined&&!entry.adminFallbackDelivered&&!!(entry.sentAt||entry.deliveredAt||entry.delivered===true);
 }
 function mergeTelegramOrderStateEntry(remoteEntry,localEntry){
   if(!remoteEntry)return localEntry||{};
@@ -3855,8 +3964,9 @@ async function notifyTelegramNewOrder(o,meta={}){
     await persistTelegramOrderState(st);
     const result=await notifyTelegramRecipients(telegramOrderMessage(o),{kind:'new_order',orderId:String(o.publicOrderNo||o.publicOrderNumber||o.id||o.siteOrderId||''),replyMarkup:telegramOrderReplyMarkup(o),...meta});
     const latest=await readTelegramOrderState();latest.seen=latest.seen||{};const current=aliases.map(k=>latest.seen[k]).find(Boolean)||attempt;
-    const delivered=!!(result.primaryOk||result.delivered||result.ok||(Array.isArray(result.deliveredTo)&&result.deliveredTo.length));
-    const settled={...current,lastAttemptAt:attempt.lastAttemptAt,attempts:attempt.attempts,pending:false,primaryOk:!!result.primaryOk,adminFallbackDelivered:!!result.fallbackSent||(!result.primaryOk&&delivered),delivered,deliveredTo:Array.isArray(result.deliveredTo)?result.deliveredTo:[],source:meta.source||'backend',...(delivered?{sentAt:nowISO(),deliveredAt:nowISO()}:{}),lastError:delivered?'':String(result.description||result.error||'تعذر إرسال إشعار الطلب').slice(0,300)};
+    const delivered=!!result.primaryOk;
+    const fallbackDelivered=!!result.fallbackSent||(!result.primaryOk&&!!(result.delivered||result.ok||(Array.isArray(result.deliveredTo)&&result.deliveredTo.length)));
+    const settled={...current,lastAttemptAt:attempt.lastAttemptAt,attempts:attempt.attempts,pending:false,primaryOk:delivered,primaryDelivered:delivered,adminFallbackDelivered:fallbackDelivered,delivered,deliveredTo:Array.isArray(result.deliveredTo)?result.deliveredTo:[],source:meta.source||'backend',...(delivered?{sentAt:nowISO(),deliveredAt:nowISO()}:{}),lastError:delivered?'':String(result.description||result.error||'تعذر إرسال إشعار الطلب إلى قناة التفعيلات الأساسية').slice(0,300)};
     for(const alias of aliases)latest.seen[alias]={...latest.seen[alias],...settled};
     await persistTelegramOrderState(latest);return {...result,delivered,deliveredTo:Array.isArray(result.deliveredTo)?result.deliveredTo:[]};
   })();
@@ -4526,7 +4636,7 @@ async function apiStatusForOrder(auth,order){
   if(!order?.providerId||!order?.providerOrderId)return {http:409,body:{error:'Order has no linked provider tracking ID'}};
   await ensureProviderRuntime(order.providerId);const {prov}=getProviderById(order.providerId,{allowSingleFallback:false});if(!prov?.url||!prov?.key)return {http:502,body:{error:'Provider unavailable'}};
   try{
-    const d=await providerRequest(prov,{action:'status',order:String(order.providerOrderId)},20000);const status=d?.status??d?.data?.status??d?.result?.status??'';const normalized=normalizeProviderStatus(status);
+    const d=await providerRequest(prov,{action:'status',order:String(order.providerOrderId)},20000);const status=extractProviderStatus(d);const normalized=normalizeProviderStatus(status);
     if(!String(status||'').trim()||normalized==='unknown')return {http:502,body:{error:'Provider status response did not contain a recognized status; the saved order was not marked successful.',stage:'provider_status',uncertain:true}};
     const oldStatus=normalizeProviderStatus(order.providerStatusConfirmed===true?order.providerStatus:(order.status||''));
     let current={...order,providerStatus:String(status||order.providerStatus||''),providerStatusConfirmed:true,status:normalized,lastCheckedAt:nowISO(),updatedAt:nowISO(),providerRaw:safeProviderResponse(d),remains:d?.remains??d?.data?.remains??order.remains,startCount:d?.start_count??d?.startCount??d?.data?.start_count??order.startCount,providerCharge:d?.charge??d?.data?.charge??order.providerCharge,providerCurrency:d?.currency??d?.data?.currency??order.providerCurrency};
@@ -6535,8 +6645,10 @@ async function routeAPI(req,res,urlObj){
   }
   if(p==='/api/admin/services/import'&&req.method==='POST'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
+    // Bulk provider import/restore is intentionally disabled. New provider services
+    // enter the live catalog only through the reviewed single-Service-ID admin flow.
     const b=await bodyJSON(req,10*1024*1024);const services=Array.isArray(b.services)?b.services:[];
-    if(!services.length||services.length>500)return json(res,422,{ok:false,error:'حدد من 1 إلى 500 خدمة صالحة للاستيراد.'});
+    if(services.length!==1||b.manualApproval!==true)return json(res,410,{ok:false,error:'الاستيراد الجماعي واستعادة كتالوج المزود متوقفان. أضف خدمة واحدة يدوياً بعد مراجعة Service ID واعتمادها من المسؤول.'});
     try{await ensureLocalServiceCatalogSeeded();}catch(e){return json(res,503,{ok:false,error:'تعذر تحميل قاعدة Firebase؛ لم يبدأ الاستيراد: '+String(e.message||e).slice(0,160)});}
     const dest=String(b.destination||'__all__').trim().slice(0,100),at=nowISO();
     const categoryKey=dest==='__all__'?'':String(b.categoryKey||dest.replace(/[^a-zA-Z0-9_\-\u0600-\u06ff]+/g,'_')).slice(0,150)||'category';
@@ -6841,7 +6953,7 @@ async function routeAPI(req,res,urlObj){
         await ensureProviderRuntime(row.providerId);const prov=getProviderById(row.providerId,{allowSingleFallback:false}).prov;
         if(!prov?.url||!prov?.key){pending++;outcomes.push({siteOrderId:row.siteOrderId||row.id,status:'unknown',result:'provider-not-configured'});continue;}
         const providerData=await providerRequest(prov,{action:'status',order:String(row.providerOrderId)},18000);
-        const rawProviderStatus=providerData?.status??providerData?.data?.status??providerData?.result?.status??'';
+        const rawProviderStatus=extractProviderStatus(providerData);
         const normalized=normalizeProviderStatus(rawProviderStatus);
         if(normalized==='unknown'){pending++;outcomes.push({siteOrderId:row.siteOrderId||row.id,status:'unknown',result:'unrecognized-provider-status'});continue;}
         const synced=await syncVerifiedOrderStatus({...row,_firebaseKey:row._firebaseKey||row.firebaseKey||''},providerData,normalized);
@@ -6899,7 +7011,7 @@ async function routeAPI(req,res,urlObj){
       await ensureProviderRuntime(raw.providerId);const resolved=getProviderById(raw.providerId,{allowSingleFallback:false});const prov=resolved.prov;
       if(!prov?.url||!prov?.key)return json(res,200,{ok:true,externalVerified:false,saved:false,order,warning:'تم عرض آخر حالة مخزنة، لكن تعذر العثور على إعدادات المزود المحفوظة لهذا الطلب؛ لم يتم تغيير حالته.'});
       const d=await providerRequest(prov,{action:'status',order:String(raw.providerOrderId)});
-      const providerRawStatus=String(d?.status??d?.data?.status??d?.result?.status??'').trim();const normalized=auditStatus(providerRawStatus);const checkedAt=nowISO();const hasFirebaseOrderKey=!!(raw._firebaseKey||raw.firebaseKey);let saved=hasFirebaseOrderKey;let saveError='';
+      const providerRawStatus=extractProviderStatus(d);const normalized=auditStatus(providerRawStatus);const checkedAt=nowISO();const hasFirebaseOrderKey=!!(raw._firebaseKey||raw.firebaseKey);let saved=hasFirebaseOrderKey;let saveError='';
       const update={providerStatus:providerRawStatus,providerStatusConfirmed:normalized!=='unknown',lastCheckedAt:checkedAt,updatedAt:checkedAt};
       if(normalized!=='unknown')update.status=normalized;
       if(d?.remains!==undefined)update.remains=d.remains;
@@ -7539,8 +7651,38 @@ async function routeAPI(req,res,urlObj){
       }
       if(localChanged)writeJSON('orders.json',localRows);
     }
+    // Auto-check unconfirmed provider orders when the user opens/refreshes "My Orders".
+    // A bounded batch and short cooldown prevent repeated provider calls on every page render.
+    const refreshNow=Date.now();let refreshedProviderStatuses=0;
+    const terminalProviderStatuses=new Set(['completed','partial','cancelled','failed','refunded']);
+    const statusCandidates=mergedRows.filter(o=>{
+      const hasProvider=!!(o.providerId&&(o.providerOrderId||o.smmpartyOrderId||o.provider_order_id));
+      if(!hasProvider)return false;
+      const currentStatus=normalizeProviderStatus(o.providerStatus||o.status||'');
+      if(terminalProviderStatuses.has(currentStatus))return false;
+      const created=Date.parse(o.createdAt||0)||0;if(created&&refreshNow-created>24*60*60*1000)return false;
+      const last=Date.parse(o.statusSyncLastAttemptAt||o.lastCheckedAt||0)||0;return !last||refreshNow-last>=10000;
+    }).sort((a,b)=>{
+      // Fair rotation: check the least recently checked active order first, so a
+      // busy customer cannot starve older pending/processing orders behind two new ones.
+      const aLast=Date.parse(a.statusSyncLastAttemptAt||a.lastCheckedAt||0)||0;
+      const bLast=Date.parse(b.statusSyncLastAttemptAt||b.lastCheckedAt||0)||0;
+      return aLast-bLast||((Date.parse(b.createdAt||0)||0)-(Date.parse(a.createdAt||0)||0));
+    }).slice(0,2);
+    for(const order of statusCandidates){
+      try{
+        await ensureProviderRuntime(String(order.providerId||''));
+        const provider=getProviderById(String(order.providerId||''),{allowSingleFallback:false}).prov;
+        const checked=await checkAndSyncProviderOrderStatus({...order,_firebaseKey:String(order._k||order.firebaseKey||firebaseKeyById.get(String(order.id||''))||'')},provider,{attempts:1,timeoutMs:3500});
+        Object.assign(order,checked.order||{});
+        if(checked.ok)refreshedProviderStatuses++;
+      }catch(e){
+        const retry=await persistProviderStatusRetryState(order,e.message||e).catch(()=>order);
+        Object.assign(order,retry||{});
+      }
+    }
     const orders=mergedRows.sort((a,b)=>(Date.parse(b.createdAt||0)||0)-(Date.parse(a.createdAt||0)||0)).slice(0,500);
-    return json(res,200,{ok:true,orders,source:firebaseAvailable?firebaseOrderSource:'hosting-file',warning:warning||undefined});
+    return json(res,200,{ok:true,orders,refreshedProviderStatuses,source:firebaseAvailable?firebaseOrderSource:'hosting-file',warning:warning||undefined});
   }
   if(p==='/api/user/summary' && req.method==='GET'){
     const s=session(req);if(!s||!['user','admin'].includes(s.role))return json(res,401,{ok:false,error:'يجب تسجيل الدخول'});
@@ -7614,7 +7756,26 @@ async function routeAPI(req,res,urlObj){
     if(!/^https?:\/\//i.test(link))return json(res,422,{ok:false,error:'الرابط غير صالح',stage:'validate'});
     await ensureLocalServiceCatalogSeeded();ensureNumericSiteServiceIds();
     const existing=readJSON('orders.json',[]).find(x=>String(x.user||'')===username&&String(x.localId||'')===localId&&localId&&String(x.providerOrderId||''));
-    if(existing){const existingSiteId=String(existing.id||existing.localId||localId||'');let savedToFirebase=true;try{await persistOrderToFirebase(existing)}catch(_){savedToFirebase=false}if(!savedToFirebase)return json(res,503,{ok:false,uncertain:true,error:'عُثر على الطلب السابق محلياً لكن لم أستطع تأكيد حفظه في Firebase. لم يُرسل طلب جديد.'});if(existing.billingMode!=='admin-test'){try{await finalizeProviderOrderAccounting(username,localId,Number(existing.total??Number(existing.chargeUsd||0)*FIXED_RATE),existing.createdAt)}catch(e){console.warn('idempotent order accounting reconciliation:',String(e.message||e).slice(0,100));}}const providerTrackingToken=issueProviderOrderTrackingToken({username,providerId:String(existing.providerId||providerId),providerOrderId:String(existing.providerOrderId),siteOrderId:existingSiteId});return json(res,200,{ok:true,idempotent:true,siteOrderId:existingSiteId,publicOrderNo:String(existing.publicOrderNo||''),siteServiceId:String(existing.siteServiceId||existing.serviceId||''),serviceId:String(existing.siteServiceId||existing.serviceId||''),providerServiceId:String(existing.providerServiceId||existing.smmpartyId||''),providerId:String(existing.providerId||providerId),providerName:String(existing.providerName||''),providerOrderId:String(existing.providerOrderId),providerTrackingToken,providerRaw:existing.providerRaw||null,createdAt:existing.createdAt||new Date().toISOString()});}
+    if(existing){
+      const existingSiteId=String(existing.id||existing.localId||localId||'');let savedExisting;
+      try{savedExisting=await persistOrderToFirebase(existing)}catch(_){return json(res,503,{ok:false,uncertain:true,error:'عُثر على الطلب السابق محلياً لكن لم أستطع تأكيد حفظه في Firebase. لم يُرسل طلب جديد.'});}
+      if(existing.billingMode!=='admin-test'){try{await finalizeProviderOrderAccounting(username,localId,Number(existing.total??Number(existing.chargeUsd||0)*FIXED_RATE),existing.createdAt)}catch(e){console.warn('idempotent order accounting reconciliation:',String(e.message||e).slice(0,100));}}
+      let currentExisting={...existing,_firebaseKey:savedExisting.key};
+      if(currentExisting.providerStatusConfirmed!==true){
+        try{
+          await ensureProviderRuntime(String(existing.providerId||providerId));
+          const existingProv=getProviderById(String(existing.providerId||providerId),{allowSingleFallback:false}).prov;
+          const checked=await checkAndSyncProviderOrderStatus(currentExisting,existingProv,{attempts:2,timeoutMs:4500});
+          currentExisting={...currentExisting,...checked.order};
+          if(!checked.ok)appendJsonLedger('provider_failures.json',{stage:'idempotent_initial_status_check',uncertain:true,user:username,providerId:String(existing.providerId||providerId),providerOrderId:String(existing.providerOrderId),siteOrderId:existingSiteId,error:String(checked.error||'status-unconfirmed').slice(0,160),createdAt:nowISO()});
+        }catch(statusError){
+          currentExisting=await persistProviderStatusRetryState(currentExisting,statusError.message||statusError);
+          appendJsonLedger('provider_failures.json',{stage:'idempotent_initial_status_check',uncertain:true,user:username,providerId:String(existing.providerId||providerId),providerOrderId:String(existing.providerOrderId),siteOrderId:existingSiteId,error:String(statusError.message||statusError).slice(0,160),createdAt:nowISO()});
+        }
+      }
+      const providerTrackingToken=String(existing.providerTrackingToken||issueProviderOrderTrackingToken({username,providerId:String(existing.providerId||providerId),providerOrderId:String(existing.providerOrderId),siteOrderId:existingSiteId}));
+      return json(res,200,{ok:true,idempotent:true,siteOrderId:existingSiteId,publicOrderNo:String(currentExisting.publicOrderNo||''),siteServiceId:String(currentExisting.siteServiceId||currentExisting.serviceId||''),serviceId:String(currentExisting.siteServiceId||currentExisting.serviceId||''),providerServiceId:String(currentExisting.providerServiceId||currentExisting.smmpartyId||''),providerId:String(currentExisting.providerId||providerId),providerName:String(currentExisting.providerName||''),providerOrderId:String(currentExisting.providerOrderId),providerTrackingToken,providerRaw:currentExisting.providerRaw||null,status:String(currentExisting.status||'pending'),providerStatus:String(currentExisting.providerStatus||''),providerStatusConfirmed:currentExisting.providerStatusConfirmed===true,lastCheckedAt:currentExisting.lastCheckedAt||null,remains:currentExisting.remains??null,createdAt:currentExisting.createdAt||new Date().toISOString()});
+    }
     const svc=await guardServicePrice(await authoritativeWebsiteService(providerId,requestedProviderServiceId||legacyServiceId||requestedSiteServiceId,firebaseServiceKey));
     if(!svc)return json(res,409,{ok:false,error:'لم أستطع التحقق من الخدمة وربطها بالمزوّد. أعد فحص معرّف الموقع وربط خدمة المزود من لوحة الإدارة؛ لم يُخصم أي رصيد ولم يُرسل طلب.',stage:'service_lookup',siteServiceId:requestedSiteServiceId||firebaseServiceKey||null,providerServiceId:requestedProviderServiceId||legacyServiceId||null});
     if(svc.providerAvailable===false||String(svc.availabilityStatus||'').toLowerCase()==='unavailable')return json(res,409,{ok:false,error:'هذه الخدمة غير متاحة حالياً لدى المزود أو لم يُتحقق من سعرها الحي. أُوقف الطلب ولن يُخصم أي رصيد.',stage:'provider_service_unavailable',siteServiceId:String(svc.siteServiceId||''),providerServiceId:String(svc.providerServiceId||'')});
@@ -7705,11 +7866,18 @@ async function routeAPI(req,res,urlObj){
         const orderCategoryImage=nonPlatformImage(categoryMeta.image)||nonPlatformImage(svc.customCategoryImage)||nonPlatformImage(svc.categoryImage)||nonPlatformImage(svc.sectionImage)||nonPlatformImage(svc.groupImage);
         const orderImage=orderServiceImage||orderCategoryImage||platformFields.image;
         const memberProfile=verifiedUser?.user||localUser||{};const ord={id:siteOrderId,localId:siteOrderId,publicOrderNo,providerTrackingToken,user:username,userName:String(memberProfile.fullName||memberProfile.displayName||memberProfile.name||memberProfile.userName||memberProfile.username||username),memberId:String(memberProfile.id||memberProfile.userId||memberProfile.user_id||memberProfile.uid||memberProfile.firebaseUid||memberProfile.authUid||username),orderSource:'app',origin:'app',providerId,providerName:prov.name||providerId,providerOrderId,serviceId:siteServiceId,siteServiceId,providerServiceId,serviceName:String(svc.name||'خدمة'),serviceApp:platformFields.serviceApp,image:orderImage,serviceImage:orderServiceImage||orderImage,categoryImage:orderCategoryImage||'',platformIcon:platformFields.platformIcon,category:String(groups[0]||svc.category||''),link,quantity,unitSellingUsd:serviceRate,discountPct:userDiscount,chargeUsd,sellingPriceUsd:chargeUsd,providerRateUsd,providerCostUsd,providerCostIQD:Number((providerCostUsd*FIXED_RATE).toFixed(4)),grossProfitUsd,grossProfitIQD:Number((grossProfitUsd*FIXED_RATE).toFixed(4)),markupPct:Number.isFinite(Number(svc.markupPct))?Number(svc.markupPct):100,actualMarkupPct,profitMarginPct,total:chargeIqd,status:'pending',billingMode:isAdminSession?'admin-test':'user',free:!!svc.free||chargeUsd<=0,serviceKind:isAdminFreeService?'admin_funded_free':'provider_catalog',adminFreeService:!!isAdminFreeService,adminFreeServiceKey:isAdminFreeService?String(svc.adminFreeServiceKey||svc.fbKey||''):'',providerRaw:safeProviderResponse(d),createdAt}; appendJsonLedger('orders.json',ord);
-        try{await persistOrderToFirebase(ord);}catch(saveError){if(freeUsageClaim)await finalizeAdminFreeServiceUsage(username,String(svc.adminFreeServiceKey||svc.fbKey||siteServiceId),localId,'uncertain',walletUserPath);await markReservation('uncertain');appendJsonLedger('provider_failures.json',{stage:'firebase_order_persist',uncertain:true,user:username,providerId,siteServiceId,providerServiceId,localId,providerOrderId,error:String(saveError.message||saveError).slice(0,180),createdAt:nowISO()});return {error:'أنشأ المزود الطلب، لكن تعذر تأكيد حفظه في Firebase. لا تعِد إرسال طلب جديد؛ رقم طلب المزود: '+providerOrderId,uncertain:true};}
+        let orderPersist;
+        try{orderPersist=await persistOrderToFirebase(ord);}catch(saveError){if(freeUsageClaim)await finalizeAdminFreeServiceUsage(username,String(svc.adminFreeServiceKey||svc.fbKey||siteServiceId),localId,'uncertain',walletUserPath);await markReservation('uncertain');appendJsonLedger('provider_failures.json',{stage:'firebase_order_persist',uncertain:true,user:username,providerId,siteServiceId,providerServiceId,localId,providerOrderId,error:String(saveError.message||saveError).slice(0,180),createdAt:nowISO()});return {error:'أنشأ المزود الطلب، لكن تعذر تأكيد حفظه في Firebase. لا تعِد إرسال طلب جديد؛ رقم طلب المزود: '+providerOrderId,uncertain:true};}
         await markReservation('complete');
         if(isAdminFreeService&&!isAdminSession){try{await finalizeProviderOrderAccounting(username,localId,0,createdAt)}catch(e){console.warn('admin-funded free order accounting:',String(e.message||e).slice(0,100));}}
         if(freeUsageClaim)await finalizeAdminFreeServiceUsage(username,String(svc.adminFreeServiceKey||svc.fbKey||siteServiceId),localId,'accepted',walletUserPath);
-        return {ok:true,order:ord,providerTrackingToken};
+        // Query the supplier immediately after the durable Firebase save. If the supplier
+        // does not return a recognised status, persist a retry marker and never fake a final state.
+        ord={...ord,statusSyncState:'awaiting_initial_provider_check',providerStatusConfirmed:false,_firebaseKey:orderPersist?.key||''};
+        const initialStatus=await checkAndSyncProviderOrderStatus(ord,prov,{attempts:2,timeoutMs:3500,providerResponse:d});
+        ord={...ord,...initialStatus.order};
+        if(!initialStatus.ok)appendJsonLedger('provider_failures.json',{stage:'initial_provider_status_check',uncertain:true,user:username,providerId,siteServiceId,providerServiceId,localId,providerOrderId,error:String(initialStatus.error||'status-unconfirmed').slice(0,160),createdAt:nowISO()});
+        return {ok:true,order:ord,providerTrackingToken,initialStatusChecked:ord.initialStatusChecked===true,initialStatusError:ord.initialStatusError||''};
       }catch(e){
         const rejected=!!e.providerRejected; const authFail=providerAuthErrorText(e.message);
         if(freeUsageClaim)await finalizeAdminFreeServiceUsage(username,String(svc.adminFreeServiceKey||svc.fbKey||siteServiceId),localId,rejected?'rejected':'uncertain',walletUserPath);
@@ -7741,7 +7909,7 @@ async function routeAPI(req,res,urlObj){
     if(result?.walletUnavailable)return json(res,503,{ok:false,error:result.error||'تعذر حجز الرصيد بأمان؛ لم يتم إرسال الطلب'});
     if(result?.duplicateReservation)return json(res,409,{ok:false,error:'يوجد حجز سابق لهذا الطلب قيد التحقق؛ لم نرسل طلباً مكرراً.',uncertain:true,state:result.state});
     if(result?.error)return json(res,502,{ok:false,error:result.error,stage:result.stage||'provider_add',providerHttpStatus:result.providerHttpStatus||null,providerErrorCode:result.providerErrorCode||'',providerDiagnostic:result.providerDiagnostic||'',uncertain:!!result.uncertain,refundPending:!!result.refundPending,refundCredited:!!result.refundCredited,authFailure:!!result.authFailure,siteServiceId,providerServiceId});
-    if(result?.ok){const siteId=String(result.order.id||localId||'');createUserNotification(username,{type:'order_created',orderId:siteId,status:'pending',title:'تم استلام طلبك #'+siteId,message:'تم استلام طلب '+siteId+' لخدمة '+String(result.order.serviceName||'خدمة')+'، وسيتم تحديث حالته هنا.',meta:{serviceName:String(result.order.serviceName||'خدمة'),quantity:Number(result.order.quantity||0),providerName:String(result.order.providerName||''),providerOrderId:String(result.order.providerOrderId||'')}});notifyTelegramNewOrder(result.order,{source:'backend'}).catch(()=>{});return json(res,200,{ok:true,siteOrderId:siteId,publicOrderNo:String(result.order.publicOrderNo||''),siteServiceId:String(result.order.siteServiceId||siteServiceId),serviceId:String(result.order.siteServiceId||siteServiceId),providerServiceId:String(result.order.providerServiceId||providerServiceId),providerId,providerName:prov.name||providerId,providerOrderId:String(result.order.providerOrderId),providerTrackingToken:String(result.providerTrackingToken||''),providerRaw:result.order.providerRaw,providerBalanceBefore:null,chargeUsd,totalIQD:chargeIqd,discountPct:userDiscount,createdAt:result.order.createdAt});}
+    if(result?.ok){const siteId=String(result.order.id||localId||'');const visibleStatus=String(result.order.status||'pending');createUserNotification(username,{type:'order_created',orderId:siteId,status:visibleStatus,title:'تم استلام طلبك #'+siteId,message:'حالة طلبك الحالية: '+(result.order.providerStatus||visibleStatus)+'، وسيتم مزامنتها تلقائياً مع المزود.',meta:{serviceName:String(result.order.serviceName||'خدمة'),quantity:Number(result.order.quantity||0),providerName:String(result.order.providerName||''),providerOrderId:String(result.order.providerOrderId||'')}});notifyTelegramNewOrder(result.order,{source:'backend'}).catch(()=>{});return json(res,200,{ok:true,siteOrderId:siteId,publicOrderNo:String(result.order.publicOrderNo||''),siteServiceId:String(result.order.siteServiceId||siteServiceId),serviceId:String(result.order.siteServiceId||siteServiceId),providerServiceId:String(result.order.providerServiceId||providerServiceId),providerId,providerName:prov.name||providerId,providerOrderId:String(result.order.providerOrderId),providerTrackingToken:String(result.providerTrackingToken||''),providerRaw:result.order.providerRaw,providerBalanceBefore:null,chargeUsd,totalIQD:chargeIqd,discountPct:userDiscount,status:visibleStatus,providerStatus:String(result.order.providerStatus||''),providerStatusConfirmed:result.order.providerStatusConfirmed===true,statusSyncState:String(result.order.statusSyncState||'retry_pending'),initialStatusChecked:result.initialStatusChecked===true,initialStatusError:String(result.initialStatusError||''),lastCheckedAt:result.order.lastCheckedAt||null,remains:result.order.remains??null,createdAt:result.order.createdAt});}
     return json(res,500,{ok:false,error:'تعذر إنشاء الطلب'});
   }
 
@@ -7773,10 +7941,10 @@ async function routeAPI(req,res,urlObj){
     await ensureProviderRuntime(providerId); const {prov}=getProviderById(providerId); if(!prov)return json(res,404,{ok:false,error:'المزود المرتبط بالطلب غير موجود'});
     try{
       const d=await providerRequest(prov,{action:'status',order:providerOrderId});
-      const normalized=normalizeProviderStatus(d?.status??d?.data?.status??d?.result?.status??''); const checkedAt=nowISO();
+      const rawProviderStatus=extractProviderStatus(d); const normalized=normalizeProviderStatus(rawProviderStatus); const checkedAt=nowISO();
       const idx=rows.findIndex(x=>String(x.user||x.username||'')===username&&String(x.providerId||x.provider_id||'')===providerId&&String(x.providerOrderId||x.smmpartyOrderId||x.provider_order_id||'')===providerOrderId);
       let resolvedSiteOrderId=effectiveSiteOrderId;
-      if(normalized==='unknown')return json(res,502,{ok:false,error:'لم يرجع المزود حالة معروفة، لذلك لم نغيّر الحالة أو الرصيد.',providerStatus:String(d?.status||'')});
+      if(normalized==='unknown')return json(res,502,{ok:false,error:'لم يرجع المزود حالة معروفة، لذلك لم نغيّر الحالة أو الرصيد.',providerStatus:String(rawProviderStatus||'')});
       // Some orders are canonical in Firebase and absent from the local JSON ledger.
       // The tracking ticket proves ownership; resolve the canonical Firebase row by the same user/provider/order tuple.
       const sourceOrder=idx>=0?rows[idx]:(firebaseOwned||ledgerOrder?{...ledgerOrder,id:ledgerOrder.id||effectiveSiteOrderId,siteOrderId:ledgerOrder.siteOrderId||effectiveSiteOrderId,user:username,providerId,providerOrderId,_firebaseKey:ledgerOrder._firebaseKey||ledgerOrder.firebaseKey||''}:{id:effectiveSiteOrderId,siteOrderId:effectiveSiteOrderId,user:username,username,providerId,providerOrderId});
@@ -7787,7 +7955,7 @@ async function routeAPI(req,res,urlObj){
       resolvedSiteOrderId=String(financialOrder.id||financialOrder.siteOrderId||effectiveSiteOrderId||'');
       const synced=await syncVerifiedOrderStatus(financialOrder,d,normalized);
       if(!synced.ok)return json(res,503,{ok:false,error:'تم فحص حالة المزود لكن تعذر حفظها والتحقق منها في قاعدة البيانات. لم نغيّر الرصيد.',details:synced.error||synced.refund?.error||synced.refund?.reason});
-      return json(res,200,{ok:true,siteOrderId:resolvedSiteOrderId,providerId,providerOrderId,status:String(synced.order?.status||normalized),providerStatus:String(synced.order?.providerStatus||d?.status||normalized),providerStatusConfirmed:true,normalizedStatus:normalized,remains:d.remains??d?.data?.remains??null,startCount:d.start_count??d.startCount??null,charge:d.charge,currency:d.currency||'USD',refund:synced?.refund||null,checkedAt:synced.checkedAt||checkedAt});
+      return json(res,200,{ok:true,siteOrderId:resolvedSiteOrderId,providerId,providerOrderId,status:String(synced.order?.status||normalized),providerStatus:String(synced.order?.providerStatus||rawProviderStatus||normalized),providerStatusConfirmed:true,normalizedStatus:normalized,remains:d.remains??d?.data?.remains??null,startCount:d.start_count??d.startCount??null,charge:d.charge,currency:d.currency||'USD',refund:synced?.refund||null,checkedAt:synced.checkedAt||checkedAt});
     }catch(e){return json(res,502,{ok:false,error:e.name==='AbortError'?'انتهت مهلة الاتصال بالمزود':e.message});}
   }
   if(p==='/api/order/cancel' && req.method==='POST'){
@@ -7810,14 +7978,14 @@ async function routeAPI(req,res,urlObj){
     try{
       const cancelResp=await providerRequest(prov,{action:'cancel',orders:providerOrderId});
       if(!providerActionSucceeded('cancel',cancelResp,providerOrderId))return json(res,502,{ok:false,error:'المزود لم يؤكد طلب الإلغاء؛ لم يتغير الرصيد.',providerRaw:safeProviderResponse(cancelResp)});
-      let statusResp=null,norm='unknown';try{statusResp=await providerRequest(prov,{action:'status',order:providerOrderId});norm=normalizeProviderStatus(statusResp?.status??statusResp?.data?.status??statusResp?.result?.status??'');}catch(_){}
+      let statusResp=null,norm='unknown',rawStatusResp='';try{statusResp=await providerRequest(prov,{action:'status',order:providerOrderId});rawStatusResp=extractProviderStatus(statusResp);norm=normalizeProviderStatus(rawStatusResp);}catch(_){}
       if(!['cancelled','partial'].includes(norm)){
         appendJsonLedger('orders.json',{event:'cancel-request',user:username,providerId,providerOrderId,siteOrderId:siteOrderId||canonical.id||'',status:'cancel_requested',providerRaw:safeProviderResponse(cancelResp),createdAt:nowISO()});
         if(canonical._firebaseKey)try{await firebasePatchJson('orders/'+firebaseSafeKey(canonical._firebaseKey),{cancelRequestStatus:'pending',cancelRequestedAt:nowISO(),cancelProviderAccepted:true},6000)}catch(_){}
         if(idx>=0){localRows[idx]={...localRows[idx],cancelRequestStatus:'pending',cancelRequestedAt:nowISO(),cancelProviderAccepted:true};writeJSON('orders.json',localRows)}
-        return json(res,202,{ok:true,pending:true,providerOrderId,status:canonical.status||'pending',message:'قبل المزود طلب الإلغاء، لكنه لم يؤكد الحالة النهائية بعد؛ لم يُضف أي رصيد إلى المحفظة.',providerStatus:statusResp?.status||''});
+        return json(res,202,{ok:true,pending:true,providerOrderId,status:canonical.status||'pending',message:'قبل المزود طلب الإلغاء، لكنه لم يؤكد الحالة النهائية بعد؛ لم يُضف أي رصيد إلى المحفظة.',providerStatus:rawStatusResp});
       }
-      const updated={...canonical,providerStatus:String(statusResp?.status||statusResp?.data?.status||norm),providerStatusConfirmed:true,status:norm,providerRaw:safeProviderResponse(statusResp),remains:statusResp?.remains??statusResp?.data?.remains??canonical.remains,lastCheckedAt:nowISO(),cancelledAt:norm==='cancelled'?nowISO():canonical.cancelledAt};
+      const updated={...canonical,providerStatus:String(rawStatusResp||norm),providerStatusConfirmed:true,status:norm,providerRaw:safeProviderResponse(statusResp),remains:statusResp?.remains??statusResp?.data?.remains??canonical.remains,lastCheckedAt:nowISO(),cancelledAt:norm==='cancelled'?nowISO():canonical.cancelledAt};
       if(idx>=0){localRows[idx]=updated;writeJSON('orders.json',localRows)}
       const synced=await syncVerifiedOrderStatus(updated,statusResp||{status:norm,remains:updated.remains},norm);
       if(!synced.ok)return json(res,503,{ok:false,error:'أكد المزود الحالة لكن تعذر تثبيتها في قاعدة البيانات؛ لم يتم اعتماد استرداد جديد.',details:synced.refund?.error||synced.refund?.reason});
@@ -7922,8 +8090,8 @@ async function routeAPI(req,res,urlObj){
     await ensureProviderRuntime(providerId); const {prov}=getProviderById(providerId); if(!prov)return json(res,404,{ok:false,error:'المزود المرتبط بالطلب غير موجود'});
     try{
       const d=await providerRequest(prov,{action:'status',order:providerOrderId});
-      const normalized=normalizeProviderStatus(d?.status??d?.data?.status??d?.result?.status??'');
-      if(normalized==='unknown')return json(res,502,{ok:false,error:'رد المزود لا يحتوي على حالة معروفة؛ لم نغيّر الحالة أو الرصيد.',providerStatus:String(d?.status||'')});
+      const rawProviderStatus=extractProviderStatus(d);const normalized=normalizeProviderStatus(rawProviderStatus);
+      if(normalized==='unknown')return json(res,502,{ok:false,error:'رد المزود لا يحتوي على حالة معروفة؛ لم نغيّر الحالة أو الرصيد.',providerStatus:rawProviderStatus});
       const resolvedOrder=await resolveFinancialOrder({...order,providerId,providerOrderId,_firebaseKey:order._firebaseKey||order.firebaseKey||''});
       const synced=await syncVerifiedOrderStatus(resolvedOrder,d,normalized);
       if(!synced.ok)return json(res,503,{ok:false,error:'تم فحص المزود لكن تعذر تثبيت الحالة والتحقق من حفظها في قاعدة البيانات؛ لم يُنفذ الاسترداد.',details:synced.error||synced.refund?.error||synced.refund?.reason});
