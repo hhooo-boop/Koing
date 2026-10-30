@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '6.6';
-const BUILD_ID = 'SADA-6.6-STARTUP-RESTORE-3S-PROVIDER-STATUS-20261029';
+const BUILD_ID = 'SADA-6.6-BOOT-ROUTE-GATE-LEGACY-CACHE-CLEAN-20261030';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -8068,18 +8068,20 @@ function serveStatic(req,res,urlObj){
     staticRecord(file,st,ext,(readErr,record)=>{
       if(readErr)return json(res,404,{error:'Not found'});
       res.setHeader('Content-Type',MIME[ext]||'application/octet-stream');res.setHeader('Last-Modified',record.lastModified);res.setHeader('Vary','Accept-Encoding');
-      // HTML revalidates on every visit so deployments appear immediately; assets can be reused briefly.
-      res.setHeader('Cache-Control',ext==='.html'?'no-store, no-cache, must-revalidate, max-age=0':'public, max-age=300, must-revalidate');if(ext==='.html'){res.setHeader('CDN-Cache-Control','no-store');res.setHeader('Surrogate-Control','no-store');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0');}
+      // Never reuse old application documents, scripts, styles or worker code across releases.
+      const forceFresh=['.html','.js','.css','.json','.webmanifest'].includes(ext);
+      res.setHeader('Cache-Control',forceFresh?'no-store, no-cache, must-revalidate, max-age=0':'public, max-age=300, must-revalidate');
+      if(forceFresh){res.setHeader('CDN-Cache-Control','no-store');res.setHeader('Surrogate-Control','no-store');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0');}
       let body=record.raw,encoding='';const ae=String(req.headers['accept-encoding']||'');
       if(record.br&&/(?:^|,\s*)br(?:\s*;q=(?!0(?:\.0*)?)[0-9.]+)?(?:,|$)/i.test(ae)){body=record.br;encoding='br';}
       else if(record.gzip&&/(?:^|,\s*)gzip(?:\s*;q=(?!0(?:\.0*)?)[0-9.]+)?(?:,|$)/i.test(ae)){body=record.gzip;encoding='gzip';}
-      // Use representation-specific ETags for compressed vs. uncompressed bodies.
+      // Keep validators for media assets only. App code always receives a fresh 200 response.
       const etagKey=encoding||'raw';record.etags=record.etags||{raw:record.etag};
       if(!record.etags[etagKey])record.etags[etagKey]='"'+crypto.createHash('sha1').update(body).digest('hex')+'"';
       const selectedEtag=record.etags[etagKey];res.setHeader('ETag',selectedEtag);
       const inm=String(req.headers['if-none-match']||'');const ims=String(req.headers['if-modified-since']||'');
-      if(inm&&(inm.split(',').map(x=>x.trim()).includes(selectedEtag)||inm.trim()==='*')){res.statusCode=304;return res.end();}
-      if(!inm&&ims&&Number.isFinite(Date.parse(ims))&&Math.floor(st.mtimeMs/1000)<=Math.floor(Date.parse(ims)/1000)){res.statusCode=304;return res.end();}
+      if(!forceFresh&&inm&&(inm.split(',').map(x=>x.trim()).includes(selectedEtag)||inm.trim()==='*')){res.statusCode=304;return res.end();}
+      if(!forceFresh&&!inm&&ims&&Number.isFinite(Date.parse(ims))&&Math.floor(st.mtimeMs/1000)<=Math.floor(Date.parse(ims)/1000)){res.statusCode=304;return res.end();}
       if(encoding)res.setHeader('Content-Encoding',encoding);
       res.statusCode=200;res.setHeader('Content-Length',String(body.length));
       if(req.method==='HEAD')return res.end();
