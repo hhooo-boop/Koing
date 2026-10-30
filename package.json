@@ -1,6 +1,6 @@
 {
   "name": "sada-iraq",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "private": true,
   "description": "صدى العراق — Railway Node.js service",
   "scripts": {
@@ -14,7 +14,7 @@
   "engines": {
     "node": ">=22"
   },
-  "buildId": "SADA-3.0-MOBILE-ADMIN-SERVICE-ORDER-PERF-20261031-R4",
+  "buildId": "SADA-3.0-ADMIN-NAV-WHATSAPP-CATEGORY-20261031-R5",
   "dependencies": {
     "google-auth-library": "^11.2.0",
     "firebase-admin": "^14.5.0"
