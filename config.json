@@ -1,7 +1,7 @@
 {
   "appName": "صدى العراق",
-  "version": "6.6",
-  "buildId": "SADA-6.6-ADMIN-CATALOG-SYNC-ALL-PRICE-ORDER-DELETE-20261030",
+  "version": "6.7",
+  "buildId": "SADA-6.7-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261030",
   "currency": "USD",
   "exchangeRate": 1250,
   "fixedRecharge": "5000 IQD = 4 USD",

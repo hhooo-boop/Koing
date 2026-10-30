@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '6.6';
-const BUILD_ID = 'SADA-6.6-ADMIN-CATALOG-SYNC-ALL-PRICE-ORDER-DELETE-20261030';
+const APP_VERSION = '6.7';
+const BUILD_ID = 'SADA-6.7-DEPLOY-CACHE-BUILD-GUARD-PROVIDER-SYNC-20261030';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -1485,6 +1485,16 @@ function providerReturnedError(d){
   const walk=(x,depth=0)=>{
     if(x===null||x===undefined||depth>3||typeof x!=='object'||seen.has(x)) return false;
     seen.add(x);
+    // Providers use several response dialects. Treat explicit negative acceptance
+    // flags and terminal failure statuses as rejection; never infer rejection from
+    // a missing order ID or a timeout (those remain uncertain and are not refunded).
+    for(const flag of ['success','ok','accepted']) if(Object.prototype.hasOwnProperty.call(x,flag)&&x[flag]===false)return true;
+    const status=x.status??x.state??x.order_status;
+    if(status!==undefined&&status!==null){
+      const normalized=normalizeProviderStatus(status);
+      if(['failed','refunded','rejected'].includes(normalized))return true;
+      if(/^(?:error|fail(?:ed)?|reject(?:ed)?|declined)$/i.test(String(status).trim()))return true;
+    }
     const e=x.error;
     if(e===true) return true;
     if(typeof e==='string' && e.trim()!=='') return true;
@@ -2772,7 +2782,7 @@ async function resolveFinancialOrder(order={}){
 function calculateVerifiedRefundTarget(charged,status,order={},providerData={}){
   const amount=Number(charged);
   if(!Number.isFinite(amount)||amount<=0)return {ok:false,reason:'missing-charge-amount'};
-  if(status==='cancelled')return {ok:true,target:Math.round(amount*10000)/10000,quantity:Number(order.quantity||order.qty||0),remains:null};
+  if(['cancelled','failed','refunded'].includes(status))return {ok:true,target:Math.round(amount*10000)/10000,quantity:Number(order.quantity||order.qty||0),remains:null};
   if(status!=='partial')return {ok:false,reason:'status-not-refundable'};
   const quantity=Number(order.quantity||order.qty||0);
   const remainsValue=providerData.remains??providerData.remaining??providerData.data?.remains??providerData.data?.remaining??providerData.result?.remains??providerData.result?.remaining??order.remains;
@@ -2791,7 +2801,7 @@ function refundChargeIQD(order={}){
 async function applyVerifiedOrderRefund(inputOrder={},providerData={},normalizedStatus=''){
   const order=await resolveFinancialOrder(inputOrder);
   const status=normalizeProviderStatus(normalizedStatus||providerData.status||providerData.smmStatus||order.status||'');
-  if(!['cancelled','partial'].includes(status))return {ok:true,credited:false,state:'not-eligible',reason:'status-not-refundable'};
+  if(!['cancelled','partial','failed','refunded'].includes(status))return {ok:true,credited:false,state:'not-eligible',reason:'status-not-refundable'};
   const user=String(order.user||order.username||'').trim();if(!user)return {ok:false,credited:false,state:'pending',reason:'missing-user'};
   // Customer wallet refunds follow the provider's verified order status and unfulfilled quantity.
   // The upstream provider refund to Sada Iraq is a separate accounting matter and must not block the customer refund.
@@ -2828,7 +2838,7 @@ async function applyVerifiedOrderRefund(inputOrder={},providerData={},normalized
       const cumulative=Math.min(charged,Math.max(previous,target));const delta=Math.round((cumulative-previous)*10000)/10000;
       if(delta<=0)return {write:false,result:{credited:false,state:'already-credited',totalRefundIQD:previous,balanceIQD:Number(current.balance||0)}};
       const before=Number(current.balance||0);if(!Number.isFinite(before)||before<0)return {write:false,result:{error:'invalid-user-balance'}};const after=Math.round((before+delta)*10000)/10000;const at=nowISO();
-      const event={id:sha256(key+'|'+cumulative).slice(0,32),orderId:String(order.id||order.siteOrderId||order.orderId||''),providerOrderId:String(order.providerOrderId||order.smmpartyOrderId||''),providerId:String(order.providerId||''),serviceName:String(order.serviceName||order.name||order.service||'خدمة'),serviceId:String(order.serviceId||''),status,refundState:status==='partial'?'partial_credited':'credited',quantity:Number(order.quantity||order.qty||0),remains:providerData.remains??providerData.remaining??providerData.data?.remains??providerData.data?.remaining??providerData.result?.remains??providerData.result?.remaining??order.remains??null,amountIQD:delta,totalRefundIQD:cumulative,amountUSD:Number((delta/FIXED_RATE).toFixed(6)),reason:status==='cancelled'?'استرداد بعد تأكيد إلغاء الطلب من المزود':'استرداد الجزء غير المنفذ بعد تأكيد الحالة الجزئية من المزود',createdAt:at};
+      const event={id:sha256(key+'|'+cumulative).slice(0,32),orderId:String(order.id||order.siteOrderId||order.orderId||''),providerOrderId:String(order.providerOrderId||order.smmpartyOrderId||''),providerId:String(order.providerId||''),serviceName:String(order.serviceName||order.name||order.service||'خدمة'),serviceId:String(order.serviceId||''),status,refundState:status==='partial'?'partial_credited':(status==='refunded'?'refunded':'credited'),quantity:Number(order.quantity||order.qty||0),remains:providerData.remains??providerData.remaining??providerData.data?.remains??providerData.data?.remaining??providerData.result?.remains??providerData.result?.remaining??order.remains??null,amountIQD:delta,totalRefundIQD:cumulative,amountUSD:Number((delta/FIXED_RATE).toFixed(6)),reason:status==='cancelled'?'استرداد بعد تأكيد إلغاء الطلب من المزود':(status==='partial'?'استرداد الجزء غير المنفذ بعد تأكيد الحالة الجزئية من المزود':(status==='failed'?'استرداد كامل بعد تأكيد فشل الطلب من المزود':'استرداد بعد تأكيد المزود أن الطلب مسترد')),createdAt:at};
       const events=Array.isArray(old.events)?old.events.slice(-50):[];events.push(event);
       refunds[key]={key,orderId:event.orderId,providerOrderId:event.providerOrderId,providerId:event.providerId,serviceName:event.serviceName,status,totalIQD:cumulative,amountUSD:Number((cumulative/FIXED_RATE).toFixed(6)),events,updatedAt:at};
       current.balance=after;current.sadaRefunds=refunds;current.updatedAt=at;
@@ -2839,22 +2849,21 @@ async function applyVerifiedOrderRefund(inputOrder={},providerData={},normalized
   if(transaction.result?.credited){
     const ev=transaction.result.event;const refunds=readJSON('refunds.json',[]);if(Array.isArray(refunds)&&!refunds.some(x=>x.id===ev.id)){refunds.push({...ev,user});writeJSON('refunds.json',refunds.slice(-10000));}
     appendJsonLedger('balance_ledger.json',{user,type:'refund',amountUSD:ev.amountUSD,amountIQD:ev.amountIQD,after:transaction.result.balanceIQD,reason:ev.reason,admin:'system-provider-status',reference:ev.orderId,providerOrderId:ev.providerOrderId,createdAt:ev.createdAt,refundEventId:ev.id});
-    const local=readJSON('orders.json',[]);let changed=false;if(Array.isArray(local)){for(let i=0;i<local.length;i++){const x=local[i];if(!x||x.event)continue;const sameId=ev.orderId&&String(x.id||x.localId||'')===ev.orderId&&String(x.user||'')===user;const sameProvider=ev.providerOrderId&&String(x.providerOrderId||x.smmpartyOrderId||'')===ev.providerOrderId&&String(x.user||'')===user;if(sameId||sameProvider){local[i]={...x,refundState:(status==='partial'?'partial_credited':'credited'),refundAmountIQD:transaction.result.totalRefundIQD,refundLastUpdatedAt:ev.createdAt};changed=true;}}}if(changed)writeJSON('orders.json',local);
+    const local=readJSON('orders.json',[]);let changed=false;if(Array.isArray(local)){for(let i=0;i<local.length;i++){const x=local[i];if(!x||x.event)continue;const sameId=ev.orderId&&String(x.id||x.localId||'')===ev.orderId&&String(x.user||'')===user;const sameProvider=ev.providerOrderId&&String(x.providerOrderId||x.smmpartyOrderId||'')===ev.providerOrderId&&String(x.user||'')===user;if(sameId||sameProvider){local[i]={...x,refundState:(status==='partial'?'partial_credited':(status==='refunded'?'refunded':'credited')),refundAmountIQD:transaction.result.totalRefundIQD,refundLastUpdatedAt:ev.createdAt};changed=true;}}}if(changed)writeJSON('orders.json',local);
   }
   const result=transaction.result||{};const settledState=result.error?'pending':(result.credited||result.state==='already-credited'?'credited':'pending');
   if(settledState==='credited'){
-    const stamp=nowISO();const localRows=readJSON('orders.json',[]);let touched=false;if(Array.isArray(localRows)){for(let i=0;i<localRows.length;i++){const x=localRows[i];if(!x||x.event)continue;const sameId=String(order.id||order.siteOrderId||'')&&String(x.id||x.localId||'')===String(order.id||order.siteOrderId||'')&&(!user||String(x.user||'')===user);const samePo=String(order.providerOrderId||order.smmpartyOrderId||'')&&String(x.providerOrderId||x.smmpartyOrderId||'')===String(order.providerOrderId||order.smmpartyOrderId||'')&&(!user||String(x.user||'')===user);if(sameId||samePo){localRows[i]={...x,refundState:(status==='partial'?'partial_credited':'credited'),refundAmountIQD:Number(result.totalRefundIQD||target),refundLastUpdatedAt:stamp};touched=true;}}}if(touched)writeJSON('orders.json',localRows);
-    const fbKey=String(order._firebaseKey||order.firebaseKey||'');if(fbKey){try{await firebasePatchJson('orders/'+fbKey,{refundState:(status==='partial'?'partial_credited':'credited'),refundAmountIQD:Number(result.totalRefundIQD||target),refundLastUpdatedAt:stamp},5000)}catch(_) {}}
+    const stamp=nowISO();const localRows=readJSON('orders.json',[]);let touched=false;if(Array.isArray(localRows)){for(let i=0;i<localRows.length;i++){const x=localRows[i];if(!x||x.event)continue;const sameId=String(order.id||order.siteOrderId||'')&&String(x.id||x.localId||'')===String(order.id||order.siteOrderId||'')&&(!user||String(x.user||'')===user);const samePo=String(order.providerOrderId||order.smmpartyOrderId||'')&&String(x.providerOrderId||x.smmpartyOrderId||'')===String(order.providerOrderId||order.smmpartyOrderId||'')&&(!user||String(x.user||'')===user);if(sameId||samePo){localRows[i]={...x,refundState:(status==='partial'?'partial_credited':(status==='refunded'?'refunded':'credited')),refundAmountIQD:Number(result.totalRefundIQD||target),refundLastUpdatedAt:stamp};touched=true;}}}if(touched)writeJSON('orders.json',localRows);
+    const fbKey=String(order._firebaseKey||order.firebaseKey||'');if(fbKey){try{await firebasePatchJson('orders/'+fbKey,{refundState:(status==='partial'?'partial_credited':(status==='refunded'?'refunded':'credited')),refundAmountIQD:Number(result.totalRefundIQD||target),refundLastUpdatedAt:stamp},5000)}catch(_) {}}
   }
   const finalTotal=Number(result.totalRefundIQD||target)||0;
   if(settledState==='credited'&&finalTotal>0){
     const isCancelled=status==='cancelled';
-    const refundMessage=isCancelled
-      ? 'تم إلغاء طلبك من المزود بعد التحقق من الحالة، وإعادة '+finalTotal.toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع إلى رصيدك. يمكنك مراجعة سجل استرداد الأموال.'
-      : 'اكتمل طلبك جزئياً حسب بيانات المزود، وتم استرداد قيمة الكمية غير المنفذة بمبلغ '+finalTotal.toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع إلى رصيدك.';
-    createUserNotification(user,{type:'order_refund',orderId:String(order.id||order.siteOrderId||order.orderId||''),status:'credited:'+finalTotal.toFixed(4),title:isCancelled?'تم إلغاء الطلب واسترجاع الرصيد':'تم استرداد الجزء غير المنفذ',message:refundMessage,meta:{serviceName:String(order.serviceName||order.name||order.service||'خدمة'),quantity:Number(order.quantity||order.qty||0),providerName:String(order.providerName||''),providerOrderId:String(order.providerOrderId||order.smmpartyOrderId||'')}});
+    const statusTitle=status==='failed'?'فشل الطلب واسترجاع الرصيد':(status==='refunded'?'تأكيد استرداد الطلب':(isCancelled?'تم إلغاء الطلب واسترجاع الرصيد':'تم استرداد الجزء غير المنفذ'));
+    const refundMessage=status==='partial'?'اكتمل طلبك جزئياً حسب بيانات المزود، وتم استرداد قيمة الكمية غير المنفذة بمبلغ '+finalTotal.toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع إلى رصيدك.':'أكد المزود '+(status==='failed'?'فشل الطلب':(status==='refunded'?'استرداد الطلب':'إلغاء الطلب'))+'، وأُعيد مبلغ '+finalTotal.toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع إلى رصيدك. يمكنك مراجعة سجل الاسترداد.';
+    createUserNotification(user,{type:'order_refund',orderId:String(order.id||order.siteOrderId||order.orderId||''),status:'credited:'+finalTotal.toFixed(4),title:statusTitle,message:refundMessage,meta:{serviceName:String(order.serviceName||order.name||order.service||'خدمة'),quantity:Number(order.quantity||order.qty||0),providerName:String(order.providerName||''),providerOrderId:String(order.providerOrderId||order.smmpartyOrderId||'')}});
   }
-  const responseState=settledState!=='credited'?settledState:(status==='partial'&&finalTotal>0?'partial_credited':'credited');
+  const responseState=settledState!=='credited'?settledState:(status==='partial'&&finalTotal>0?'partial_credited':(status==='refunded'?'refunded':'credited'));
   return {ok:true,credited:!!result.credited,state:responseState,amountIQD:Number(result.deltaIQD||0),totalRefundIQD:finalTotal,balanceIQD:Number(result.balanceIQD??transaction.value?.balance??0),currency:'IQD',reason:result.reason||''};
 }
 async function syncVerifiedOrderStatus(order,providerData,normalizedStatus){
@@ -2894,10 +2903,10 @@ async function syncVerifiedOrderStatus(order,providerData,normalizedStatus){
   if(localChanged)writeJSON('orders.json',rows);
 
   let refund=null;
-  if(['cancelled','partial'].includes(normalized))refund=await applyVerifiedOrderRefund({...full,...update,_firebaseKey:fbKey},providerData,normalized);
+  if(['cancelled','partial','failed','refunded'].includes(normalized))refund=await applyVerifiedOrderRefund({...full,...update,_firebaseKey:fbKey},providerData,normalized);
   const notificationOrder={...full,...update};
   if(refund&&refund.ok&&Number(refund.totalRefundIQD||0)>0){
-    notificationOrder.refundState=normalized==='partial'?'partial_credited':'credited';
+    notificationOrder.refundState=normalized==='partial'?'partial_credited':(normalized==='refunded'?'refunded':'credited');
     notificationOrder.refundAmountIQD=Number(refund.totalRefundIQD||0);
   }else if(refund?.state==='no-refund-due'){
     notificationOrder.refundState='no_refund_due';notificationOrder.refundAmountIQD=0;
@@ -2906,12 +2915,61 @@ async function syncVerifiedOrderStatus(order,providerData,normalizedStatus){
   if(old!==normalized)notifyOrderStatusChange(notificationOrder,old,normalized).catch(()=>{});
   return {ok:true,saved:true,order:notificationOrder,refund,providerStatus:providerRaw,normalizedStatus:normalized,checkedAt};
 }
+async function runProviderRejectionRefundMonitor(){
+  // Retry only confirmed supplier rejections whose wallet release previously failed.
+  // The Firebase reservation/request state is the idempotency guard; never credit a
+  // missing reservation or a request that has already settled.
+  if(runProviderRejectionRefundMonitor.running)return;
+  runProviderRejectionRefundMonitor.running=true;
+  try{
+    const rows=readJSON('provider_failures.json',[]);if(!Array.isArray(rows)||!rows.length)return;
+    let changed=false,processed=0;
+    for(const row of rows){
+      if(processed>=12)break;
+      if(!row||row.refundPending!==true||row.refundReconciledAt||!['website_rejection_refund_pending','api_rejection_refund_pending'].includes(String(row.stage||'')))continue;
+      processed++;
+      try{
+        const username=String(row.user||row.username||'').trim();if(!username)continue;
+        const remote=await findRemoteUserByUsername(username);if(!remote?.firebasePath)continue;
+        let result=null;
+        if(row.stage==='api_rejection_refund_pending'){
+          const key=String(row.requestKey||'');if(!key)continue;
+          const released=await apiReleaseReservation(remote.firebasePath,key,'provider_rejection_reconciliation');
+          result=released.result||{};
+          if(result.released){
+            apiLedgerOnce({id:'APIREL_'+key,user:username,type:'refund',amountUSD:Number((Number(result.amountIQD||row.amountIQD||0)/FIXED_RATE).toFixed(6)),amountIQD:Number(result.amountIQD||row.amountIQD||0),beforeIQD:result.beforeIQD,afterIQD:result.afterIQD,reason:'استرداد تلقائي بعد تأكيد رفض المزود وإعادة المحاولة الآمنة',admin:'api-provider-rejection-reconciliation',reference:key,createdAt:nowISO()});
+          }
+        }else{
+          const reservationId=String(row.reservationId||'');if(!reservationId)continue;
+          const tx=await firebaseTransaction(remote.firebasePath,current=>{
+            if(!current||typeof current!=='object'||Array.isArray(current))return {write:false,result:{error:'user-record-not-found'}};
+            const reservations=current.sadaOrderReservations&&typeof current.sadaOrderReservations==='object'?{...current.sadaOrderReservations}:{};
+            const rec=reservations[reservationId];
+            if(!rec)return {write:false,result:{alreadyReleased:true}};
+            if(!['refund_pending','reserved'].includes(String(rec.state||'')))return {write:false,result:{alreadySettled:true,state:String(rec.state||'unknown')}};
+            const amount=Math.max(0,Number(rec.amountIQD||row.amountIQD||0)),before=Number(current.balance||0);
+            if(!Number.isFinite(amount)||amount<=0||!Number.isFinite(before)||before<0)return {write:false,result:{error:'invalid-reservation-or-balance'}};
+            const after=Number((before+amount).toFixed(4));current.balance=after;delete reservations[reservationId];current.sadaOrderReservations=reservations;current.updatedAt=nowISO();
+            return {write:true,value:current,result:{released:true,amountIQD:amount,beforeIQD:before,afterIQD:after}};
+          },10000,8);
+          result=tx.result||{};
+          if(result.released)appendJsonLedger('balance_ledger.json',{user:username,type:'refund',amountUSD:Number((Number(result.amountIQD||0)/FIXED_RATE).toFixed(6)),amountIQD:Number(result.amountIQD||0),beforeIQD:result.beforeIQD,afterIQD:result.afterIQD,reason:'استرداد تلقائي بعد تأكيد رفض المزود وإعادة المحاولة الآمنة',admin:'system-provider-rejection-reconciliation',reference:String(row.localId||reservationId),createdAt:nowISO()});
+        }
+        if(result?.released||result?.alreadyReleased||result?.alreadySettled){row.refundPending=false;row.refundReconciledAt=nowISO();row.refundReconcileState=result.released?'credited':(result.alreadyReleased?'reservation_already_absent_no_extra_credit':'already_settled_no_extra_credit');changed=true;}
+        else if(result?.error){row.lastRefundReconcileError=String(result.error).slice(0,120);row.lastRefundReconcileAt=nowISO();changed=true;}
+      }catch(e){row.lastRefundReconcileError=String(e.message||e).slice(0,140);row.lastRefundReconcileAt=nowISO();changed=true;}
+    }
+    if(changed)writeJSON('provider_failures.json',rows);
+  }catch(e){console.warn('provider rejection refund monitor:',String(e.message||e).slice(0,160));}
+  finally{runProviderRejectionRefundMonitor.running=false;}
+}
+
 async function runRefundReconciliationMonitor(){
   // Check in-flight provider orders at approximately one-minute intervals; cap work per cycle to avoid provider API bursts.
   if(runRefundReconciliationMonitor.running)return;runRefundReconciliationMonitor.running=true;
   try{
     const snapshot=await loadOrderMonitorSnapshot();if(!snapshot.rows?.length)return;const now=Date.now();let examined=0;
-    const candidates=snapshot.rows.filter(r=>r.providerId&&r.providerOrderId&&(['pending','processing'].includes(r.status)||(['cancelled','partial'].includes(r.status)&&!['credited','no_refund_due'].includes(String(r.refundState||''))))&&(!r.lastCheckedAt||now-(auditTimestamp(r.lastCheckedAt)||0)>60000)).sort((a,b)=>Number(a.createdMs||0)-Number(b.createdMs||0)).slice(0,12);
+    const candidates=snapshot.rows.filter(r=>r.providerId&&r.providerOrderId&&(['pending','processing'].includes(r.status)||(['cancelled','partial','failed','refunded'].includes(r.status)&&!['credited','partial_credited','refunded','no_refund_due'].includes(String(r.refundState||''))))&&(!r.lastCheckedAt||now-(auditTimestamp(r.lastCheckedAt)||0)>60000)).sort((a,b)=>Number(a.createdMs||0)-Number(b.createdMs||0)).slice(0,12);
     for(const row of candidates){if(examined++>=12)break;try{const full=await resolveFinancialOrder(row);await ensureProviderRuntime(row.providerId);const prov=getProviderById(row.providerId,{allowSingleFallback:false}).prov;if(!prov?.url||!prov?.key)continue;const d=await providerRequest(prov,{action:'status',order:String(row.providerOrderId)},15000);const normalized=normalizeProviderStatus(d?.status??d?.data?.status??d?.result?.status??'');if(normalized==='unknown')continue;await syncVerifiedOrderStatus(full,d,normalized);}catch(e){console.warn('refund/order status monitor:',String(e.message||e).slice(0,120));}}
   }catch(e){console.warn('refund reconciliation monitor:',String(e.message||e).slice(0,160));}finally{runRefundReconciliationMonitor.running=false;}
 }
@@ -3844,12 +3902,13 @@ let TELEGRAM_ORDER_MONITOR_RUNNING=false;
 async function notifyOrderStatusChange(order, oldStatus, newStatus){
   if(!order) return false;
   const changed=String(oldStatus||'')!==String(newStatus||'');
-  if(!changed&&!['cancelled','partial'].includes(String(newStatus||''))) return false;
+  if(!changed&&!['cancelled','partial','failed','refunded'].includes(String(newStatus||''))) return false;
   const labels={processing:'قيد التنفيذ',completed:'مكتمل',partial:'مكتمل جزئياً',cancelled:'ملغي',failed:'فشل',refunded:'تم الاسترداد',pending:'قيد الانتظار'};
   const orderId=String(order.id||order.siteOrderId||order.localId||'');
   const refunded=['credited','partial_credited','refunded'].includes(String(order.refundState||'').toLowerCase())&&Number(order.refundAmountIQD||0)>0;
-  const statusMessage=newStatus==='cancelled'?(refunded?'تم إلغاء طلبك من المزود، واسترجاع '+Number(order.refundAmountIQD).toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع إلى رصيدك.':'تم تأكيد إلغاء طلبك من المزود. يجري التحقق من مبلغ الاسترداد؛ سيظهر عند تثبيت العملية.'):(newStatus==='partial'&&refunded?'اكتمل الطلب جزئياً، وتم استرداد '+Number(order.refundAmountIQD).toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع عن الجزء غير المنفذ.':'الخدمة: '+String(order.serviceName||'خدمة')+' · الكمية: '+Number(order.quantity||0).toLocaleString('ar-IQ')+' · الحالة الجديدة: '+(labels[newStatus]||newStatus));
-  createUserNotification(order.user||order.username,{type:'order_status',orderId,status:newStatus,title:newStatus==='cancelled'?'تم إلغاء طلبك #'+orderId:'تحديث حالة طلبك #'+orderId,message:statusMessage,meta:{serviceName:String(order.serviceName||'خدمة'),quantity:Number(order.quantity||0),providerName:String(order.providerName||''),providerOrderId:String(order.providerOrderId||'')}});
+  const statusMessage=['cancelled','failed','refunded'].includes(newStatus)?(refunded?'أكد المزود '+(newStatus==='failed'?'فشل الطلب':newStatus==='refunded'?'استرداد الطلب':'إلغاء الطلب')+'، وأُعيد '+Number(order.refundAmountIQD).toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع إلى رصيدك.':'أكد المزود '+(newStatus==='failed'?'فشل الطلب':newStatus==='refunded'?'استرداد الطلب':'إلغاء الطلب')+'؛ يجري التحقق من إعادة الرصيد.'):(newStatus==='partial'&&refunded?'اكتمل الطلب جزئياً، وتم استرداد '+Number(order.refundAmountIQD).toLocaleString('ar-IQ',{maximumFractionDigits:2})+' د.ع عن الجزء غير المنفذ.':'الخدمة: '+String(order.serviceName||'خدمة')+' · الكمية: '+Number(order.quantity||0).toLocaleString('ar-IQ')+' · الحالة الجديدة: '+(labels[newStatus]||newStatus));
+  const statusTitle=['cancelled','failed','refunded'].includes(newStatus)&&refunded?'تم استرجاع رصيد الطلب #'+orderId:'تحديث حالة طلبك #'+orderId;
+  createUserNotification(order.user||order.username,{type:'order_status',orderId,status:newStatus,title:statusTitle,message:statusMessage,meta:{serviceName:String(order.serviceName||'خدمة'),quantity:Number(order.quantity||0),providerName:String(order.providerName||''),providerOrderId:String(order.providerOrderId||'')}});
   // Orders/status updates stay in the user's in-app notification center; Telegram channels only receive new-order alerts.
   return false;
 }
@@ -4435,11 +4494,18 @@ async function apiCreateOrder(auth,body){
     providerResponse=await providerRequest(prov,{action:'add',service:String(svc.providerServiceId),link,quantity});providerOrderId=normalizeProviderOrderId(providerResponse);
     if(!providerOrderId)throw Object.assign(new Error('Provider response did not include a confirmed order ID'),{providerRejected:false,uncertain:true});
   }catch(e){
-    const rejected=!!e.providerRejected;
-    if(rejected){try{const rel=await apiReleaseReservation(wallet.path,requestKey,String(e.message||'provider_rejected'));if(rel.result?.released)apiLedgerOnce({id:'APIREL_'+requestKey,user:auth.username,type:'refund',amountUSD:Number(total.toFixed(6)),amountIQD:chargeIQD,beforeIQD:rel.result.beforeIQD,afterIQD:rel.result.afterIQD,reason:'إرجاع حجز بعد رفض المزود للطلب بشكل مؤكد',admin:'api-provider-rejection',reference:requestKey,createdAt:nowISO()});}catch(re){console.error('API provider rejection refund failed:',String(re.message||re).slice(0,120));}}
-    else{try{await apiMarkRequest(wallet.path,requestKey,'uncertain',{uncertainAt:nowISO(),providerDiagnostic:apiSafeError(e)});}catch(_){} }
-    appendJsonLedger('provider_failures.json',{stage:'api_order_create',uncertain:!rejected,username:auth.username,providerId:svc.providerId,siteServiceId:canonicalServiceId,providerServiceId:svc.providerServiceId,quantity,providerHttpStatus:Number(e.httpStatus||0)||null,providerErrorCode:String(e.providerErrorCode||'').slice(0,60),error:apiSafeError(e),requestKey,createdAt:nowISO()});
-    return {http:rejected?502:504,body:{error:providerAuthErrorText(e.message)?'Provider API key rejected':apiSafeError(e),stage:'provider_add',uncertain:!rejected,request_id:requestKey}};
+    const rejected=!!e.providerRejected;let refundPending=false,refundCredited=false;
+    if(rejected){
+      try{
+        const rel=await apiReleaseReservation(wallet.path,requestKey,String(e.message||'provider_rejected'));
+        refundCredited=!!rel.result?.released||!!rel.result?.alreadyReleased;
+        if(rel.result?.released)apiLedgerOnce({id:'APIREL_'+requestKey,user:auth.username,type:'refund',amountUSD:Number(total.toFixed(6)),amountIQD:chargeIQD,beforeIQD:rel.result.beforeIQD,afterIQD:rel.result.afterIQD,reason:'إرجاع حجز بعد رفض المزود للطلب بشكل مؤكد',admin:'api-provider-rejection',reference:requestKey,createdAt:nowISO()});
+        if(!refundCredited&&rel.result?.error)refundPending=true;
+      }catch(re){refundPending=true;console.error('API provider rejection refund failed:',String(re.message||re).slice(0,120));}
+      if(refundPending)appendJsonLedger('provider_failures.json',{stage:'api_rejection_refund_pending',uncertain:false,refundPending:true,username:auth.username,requestKey,amountIQD:chargeIQD,error:'Provider rejected order but reservation release did not confirm',createdAt:nowISO()});
+    }else{try{await apiMarkRequest(wallet.path,requestKey,'uncertain',{uncertainAt:nowISO(),providerDiagnostic:apiSafeError(e)});}catch(_){} }
+    appendJsonLedger('provider_failures.json',{stage:'api_order_create',uncertain:!rejected,refundPending,refundCredited,username:auth.username,providerId:svc.providerId,siteServiceId:canonicalServiceId,providerServiceId:svc.providerServiceId,quantity,providerHttpStatus:Number(e.httpStatus||0)||null,providerErrorCode:String(e.providerErrorCode||'').slice(0,60),error:apiSafeError(e),requestKey,createdAt:nowISO()});
+    return {http:rejected?502:504,body:{error:refundPending?'رفض المزود الطلب، لكن تعذر تأكيد إعادة الرصيد تلقائياً. تم تسجيل العملية للمراجعة، لا تعِد الطلب.':(providerAuthErrorText(e.message)?'Provider API key rejected':apiSafeError(e)),stage:'provider_add',uncertain:!rejected,refundPending,refundCredited,request_id:requestKey}};
   }
   const id='API_'+crypto.randomUUID().replace(/-/g,'');const now=nowISO();
   const grossProfitUsd=Number((total-providerCostUsd).toFixed(6));
@@ -4465,9 +4531,9 @@ async function apiStatusForOrder(auth,order){
     const oldStatus=normalizeProviderStatus(order.providerStatusConfirmed===true?order.providerStatus:(order.status||''));
     let current={...order,providerStatus:String(status||order.providerStatus||''),providerStatusConfirmed:true,status:normalized,lastCheckedAt:nowISO(),updatedAt:nowISO(),providerRaw:safeProviderResponse(d),remains:d?.remains??d?.data?.remains??order.remains,startCount:d?.start_count??d?.startCount??d?.data?.start_count??order.startCount,providerCharge:d?.charge??d?.data?.charge??order.providerCharge,providerCurrency:d?.currency??d?.data?.currency??order.providerCurrency};
     current=await persistApiOrderUpdate(current);
-    let refund=null;if(['cancelled','partial'].includes(current.status))refund=await applyVerifiedOrderRefund(current,d,current.status);
-    if(refund?.state==='credited'){current={...current,refundState:current.status==='partial'?'partial_credited':'credited',refundAmountIQD:refund.totalRefundIQD};try{current=await persistApiOrderUpdate(current);}catch(_) {}}
-    if(oldStatus!==normalized||['cancelled','partial'].includes(normalized))notifyOrderStatusChange({...current,refundState:refund?.state||current.refundState,refundAmountIQD:refund?.totalRefundIQD??current.refundAmountIQD},oldStatus,normalized).catch(()=>{});
+    let refund=null;if(['cancelled','partial','failed','refunded'].includes(current.status))refund=await applyVerifiedOrderRefund(current,d,current.status);
+    if(refund?.state==='credited'){current={...current,refundState:current.status==='partial'?'partial_credited':(current.status==='refunded'?'refunded':'credited'),refundAmountIQD:refund.totalRefundIQD};try{current=await persistApiOrderUpdate(current);}catch(_) {}}
+    if(oldStatus!==normalized||['cancelled','partial','failed','refunded'].includes(normalized))notifyOrderStatusChange({...current,refundState:refund?.state||current.refundState,refundAmountIQD:refund?.totalRefundIQD??current.refundAmountIQD},oldStatus,normalized).catch(()=>{});
     return {http:200,body:{...apiSmmStatus(current),status:current.status,normalizedStatus:current.status,providerStatusConfirmed:true,remains:current.remains??null,refund:refund?{state:refund.state,credited:!!refund.credited,amountIQD:refund.amountIQD||0,totalRefundIQD:refund.totalRefundIQD||0}:undefined}};
   }catch(e){return {http:502,body:{error:apiSafeError(e),stage:'provider_status'}};}
 }
@@ -6763,13 +6829,13 @@ async function routeAPI(req,res,urlObj){
     let snapshot;try{snapshot=await loadOrderAuditSnapshot(true)}catch(e){return json(res,503,{ok:false,error:'تعذر قراءة سجل الطلبات من Firebase؛ لم يتغير أي رصيد.',details:String(e.message||e).slice(0,160)});}
     if(!snapshot.firebaseAvailable)return json(res,503,{ok:false,error:'تعذر تأكيد قراءة Firebase؛ لم يتغير أي رصيد.',details:snapshot.firebaseError||'Firebase unavailable'});
     const linked=snapshot.rows.filter(r=>r&&r.providerId&&r.providerOrderId&&r.user).sort((a,b)=>Number(a.createdMs||0)-Number(b.createdMs||0)||String(a.id||'').localeCompare(String(b.id||'')));
-    const storedRefundCandidates=linked.filter(r=>['cancelled','partial'].includes(auditStatus(r.status||r.rawStatus))&&!['credited','partial_credited','no_refund_due'].includes(String(r.refundState||'').toLowerCase())).length;
+    const storedRefundCandidates=linked.filter(r=>['cancelled','partial','failed','refunded'].includes(auditStatus(r.status||r.rawStatus))&&!['credited','partial_credited','refunded','no_refund_due'].includes(String(r.refundState||'').toLowerCase())).length;
     if(mode==='preview')return json(res,200,{ok:true,mode:'preview',totalLinked:linked.length,storedRefundCandidates,checked:0,refundTotalIQD:0,changedBalances:false,message:'معاينة للقراءة فقط؛ لم يتم فحص المزود أو تعديل أي رصيد.'});
     if(mode!=='apply')return json(res,422,{ok:false,error:'اختر preview أو apply.'});
     if(b.confirmation!=='VERIFY_PROVIDER_STATUS_AND_REFUND')return json(res,422,{ok:false,error:'يلزم تأكيد مراجعة حالة المزود قبل أي استرداد.'});
     const offset=Number(b.offset??0),limit=Number(b.limit??5);
     if(!Number.isInteger(offset)||offset<0||offset>linked.length||!Number.isInteger(limit)||limit<1||limit>5)return json(res,422,{ok:false,error:'الدفعة يجب أن تبدأ من موضع صحيح وأن تحتوي من طلب إلى خمسة طلبات.'});
-    const batch=linked.slice(offset,offset+limit);let checked=0,cancelled=0,partial=0,refundedNow=0,refundTotalIQD=0,pending=0,failed=0;const outcomes=[];
+    const batch=linked.slice(offset,offset+limit);let checked=0,cancelled=0,partial=0,failedStatus=0,refundedStatus=0,refundedNow=0,refundTotalIQD=0,pending=0,failed=0;const outcomes=[];
     for(const row of batch){
       try{
         await ensureProviderRuntime(row.providerId);const prov=getProviderById(row.providerId,{allowSingleFallback:false}).prov;
@@ -6780,9 +6846,9 @@ async function routeAPI(req,res,urlObj){
         if(normalized==='unknown'){pending++;outcomes.push({siteOrderId:row.siteOrderId||row.id,status:'unknown',result:'unrecognized-provider-status'});continue;}
         const synced=await syncVerifiedOrderStatus({...row,_firebaseKey:row._firebaseKey||row.firebaseKey||''},providerData,normalized);
         if(!synced.ok){failed++;outcomes.push({siteOrderId:row.siteOrderId||row.id,status:normalized,result:'status-save-failed'});continue;}
-        checked++;if(normalized==='cancelled')cancelled++;if(normalized==='partial')partial++;
+        checked++;if(normalized==='cancelled')cancelled++;if(normalized==='partial')partial++;if(normalized==='failed')failedStatus++;if(normalized==='refunded')refundedStatus++;
         const refund=synced.refund;
-        if(refund&&['cancelled','partial'].includes(normalized)){
+        if(refund&&['cancelled','partial','failed','refunded'].includes(normalized)){
           if(refund.credited&&Number(refund.amountIQD||0)>0){refundedNow++;refundTotalIQD+=Number(refund.amountIQD||0);}
           else if(refund.state==='pending')pending++;
         }
@@ -6790,7 +6856,7 @@ async function routeAPI(req,res,urlObj){
       }catch(e){failed++;outcomes.push({siteOrderId:row.siteOrderId||row.id,status:'error',result:String(e.message||e).slice(0,120)});}
     }
     const nextOffset=Math.min(linked.length,offset+batch.length);
-    return json(res,200,{ok:true,mode:'apply',totalLinked:linked.length,offset,nextOffset,limit:batch.length,hasMore:nextOffset<linked.length,checked,cancelled,partial,refundedNow,refundTotalIQD:Number(refundTotalIQD.toFixed(4)),pending,failed,outcomes,changedBalances:refundedNow>0,message:nextOffset<linked.length?'تم فحص هذه الدفعة؛ توجد طلبات أخرى.':'اكتملت مراجعة جميع الطلبات المرتبطة بالمزود ضمن هذه القراءة.'});
+    return json(res,200,{ok:true,mode:'apply',totalLinked:linked.length,offset,nextOffset,limit:batch.length,hasMore:nextOffset<linked.length,checked,cancelled,partial,failedStatus,refundedStatus,refundedNow,refundTotalIQD:Number(refundTotalIQD.toFixed(4)),pending,failed,outcomes,changedBalances:refundedNow>0,message:nextOffset<linked.length?'تم فحص هذه الدفعة؛ توجد طلبات أخرى.':'اكتملت مراجعة جميع الطلبات المرتبطة بالمزود ضمن هذه القراءة.'});
   }
   if(p==='/api/admin/order-audit/settings' && req.method==='GET'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
@@ -6850,7 +6916,7 @@ async function routeAPI(req,res,urlObj){
       }
       if(localChanged){try{writeJSON('orders.json',localRows)}catch(e){if(!hasFirebaseOrderKey)saved=false;saveError=saveError||String(e.message||e).slice(0,160)}}
       const oldStatus=auditStatus(raw.status||raw.rawStatus);const newStatus=normalized==='unknown'?oldStatus:normalized;
-      if(saved&&['cancelled','partial'].includes(newStatus)){const full=await resolveFinancialOrder({...raw,...(raw._firebaseKey?{_firebaseKey:raw._firebaseKey}:{}),user:raw.user,providerId:raw.providerId,providerOrderId:raw.providerOrderId});update.refundResult=await applyVerifiedOrderRefund({...full,...update,status:newStatus},d,newStatus);}
+      if(saved&&['cancelled','partial','failed','refunded'].includes(newStatus)){const full=await resolveFinancialOrder({...raw,...(raw._firebaseKey?{_firebaseKey:raw._firebaseKey}:{}),user:raw.user,providerId:raw.providerId,providerOrderId:raw.providerOrderId});update.refundResult=await applyVerifiedOrderRefund({...full,...update,status:newStatus},d,newStatus);}
       if(saved&&oldStatus!==newStatus&&newStatus!=='unknown')notifyOrderStatusChange({...raw,...update,user:raw.user},oldStatus,newStatus).catch(()=>{});
       const mergedOrder={...order,status:newStatus,rawStatus:providerRawStatus||order.rawStatus,lastCheckedAt:checkedAt,remains:update.remains??order.remains,startCount:update.startCount??order.startCount};
       return json(res,200,{ok:true,externalVerified:true,saved,order:mergedOrder,providerStatus:providerRawStatus,providerNormalizedStatus:normalized,refund:update.refundResult||null,checkedAt,warning:normalized==='unknown'?'اتصل النظام بالمزوّد، لكن رد الحالة غير معروف؛ حافظنا على الحالة المخزنة ولم نعتبر الطلب مكتملاً.':(!saved?'تم فحص المزود لكن تعذر حفظ الحالة الجديدة في قاعدة الموقع: '+saveError:'')});
@@ -7647,10 +7713,25 @@ async function routeAPI(req,res,urlObj){
       }catch(e){
         const rejected=!!e.providerRejected; const authFail=providerAuthErrorText(e.message);
         if(freeUsageClaim)await finalizeAdminFreeServiceUsage(username,String(svc.adminFreeServiceKey||svc.fbKey||siteServiceId),localId,rejected?'rejected':'uncertain',walletUserPath);
+        let refundPending=false,refundCredited=false;
         if(reserved&&rejected){
-          try{const refundTx=await firebaseTransaction(walletUserPath||('users/'+firebaseSafeKey(username)),current=>{if(!current||typeof current!=='object'||Array.isArray(current))return {write:false,result:{error:'user-record-not-found'}};const map=current.sadaOrderReservations&&typeof current.sadaOrderReservations==='object'?{...current.sadaOrderReservations}:{};const rec=map[reservationId];if(!rec)return {write:false,result:{alreadyReleased:true}};const amount=Math.max(0,Number(rec.amountIQD||chargeIqd)),bal=Number(current.balance||0);current.balance=Number((bal+amount).toFixed(4));delete map[reservationId];current.sadaOrderReservations=map;current.updatedAt=nowISO();return {write:true,value:current,result:{released:true,beforeIQD:bal,afterIQD:current.balance,amountIQD:amount}}},10000,8);if(refundTx.result?.released)appendJsonLedger('balance_ledger.json',{user:username,type:'refund',amountUSD:Number((Number(refundTx.result.amountIQD||chargeIqd)/FIXED_RATE).toFixed(6)),amountIQD:Number(refundTx.result.amountIQD||chargeIqd),beforeIQD:refundTx.result.beforeIQD,afterIQD:refundTx.result.afterIQD,reason:'استرداد حجز بعد رفض المزود للطلب بشكل مؤكد',admin:'system-provider-rejection',reference:localId,createdAt:nowISO()});}catch(refundError){console.error('Failed to release rejected provider reservation:',String(refundError.message||refundError).slice(0,160))}
+          try{
+            const refundTx=await firebaseTransaction(walletUserPath||('users/'+firebaseSafeKey(username)),current=>{
+              if(!current||typeof current!=='object'||Array.isArray(current))return {write:false,result:{error:'user-record-not-found'}};
+              const map=current.sadaOrderReservations&&typeof current.sadaOrderReservations==='object'?{...current.sadaOrderReservations}:{};
+              const rec=map[reservationId];if(!rec)return {write:false,result:{alreadyReleased:true}};
+              const amount=Math.max(0,Number(rec.amountIQD||chargeIqd)),bal=Number(current.balance||0);
+              if(!Number.isFinite(bal)||bal<0)return {write:false,result:{error:'invalid-user-balance'}};
+              current.balance=Number((bal+amount).toFixed(4));delete map[reservationId];current.sadaOrderReservations=map;current.updatedAt=nowISO();
+              return {write:true,value:current,result:{released:true,beforeIQD:bal,afterIQD:current.balance,amountIQD:amount}};
+            },10000,8);
+            refundCredited=!!refundTx.result?.released||!!refundTx.result?.alreadyReleased;
+            if(refundTx.result?.released)appendJsonLedger('balance_ledger.json',{user:username,type:'refund',amountUSD:Number((Number(refundTx.result.amountIQD||chargeIqd)/FIXED_RATE).toFixed(6)),amountIQD:Number(refundTx.result.amountIQD||chargeIqd),beforeIQD:refundTx.result.beforeIQD,afterIQD:refundTx.result.afterIQD,reason:'استرداد حجز بعد رفض المزود للطلب بشكل مؤكد',admin:'system-provider-rejection',reference:localId,createdAt:nowISO()});
+            if(refundTx.result?.error)refundPending=true;
+          }catch(refundError){refundPending=true;console.error('Failed to release rejected provider reservation:',String(refundError.message||refundError).slice(0,160));}
+          if(refundPending){await markReservation('refund_pending').catch(()=>{});appendJsonLedger('provider_failures.json',{stage:'website_rejection_refund_pending',refundPending:true,uncertain:false,user:username,providerId,siteServiceId,providerServiceId,localId,reservationId,amountIQD:chargeIqd,error:'Provider rejection confirmed but wallet release not confirmed',createdAt:nowISO()});}
         }else if(reserved){await markReservation('uncertain')}
-        appendJsonLedger('provider_failures.json',{stage:'website_provider_add',uncertain:!rejected,authFailure:authFail,user:username,providerId,siteServiceId,providerServiceId,localId,link,quantity,providerHttpStatus:Number(e.httpStatus||0)||null,providerErrorCode:String(e.providerErrorCode||'').slice(0,60),providerDiagnostic:String(e.providerDiagnostic||'').slice(0,180),error:String(e.message||e).slice(0,240),createdAt:nowISO()}); return {error:authFail?'مفتاح API للمزود مرفوض أو منتهي':String(e.message||e),uncertain:!rejected,authFailure:authFail,stage:'provider_add',providerHttpStatus:Number(e.httpStatus||0)||null,providerErrorCode:String(e.providerErrorCode||'').slice(0,60),providerDiagnostic:String(e.providerDiagnostic||'').slice(0,180)};
+        appendJsonLedger('provider_failures.json',{stage:'website_provider_add',uncertain:!rejected,authFailure:authFail,user:username,providerId,siteServiceId,providerServiceId,localId,link,quantity,providerHttpStatus:Number(e.httpStatus||0)||null,providerErrorCode:String(e.providerErrorCode||'').slice(0,60),providerDiagnostic:String(e.providerDiagnostic||'').slice(0,180),error:String(e.message||e).slice(0,240),createdAt:nowISO()}); return {error:refundPending?'رفض المزود الطلب لكن تعذر تأكيد إعادة الرصيد تلقائياً. تم تسجيل العملية للمراجعة؛ لا تعِد الطلب.':(authFail?'مفتاح API للمزود مرفوض أو منتهي':String(e.message||e)),uncertain:!rejected,refundPending,refundCredited,authFailure:authFail,stage:'provider_add',providerHttpStatus:Number(e.httpStatus||0)||null,providerErrorCode:String(e.providerErrorCode||'').slice(0,60),providerDiagnostic:String(e.providerDiagnostic||'').slice(0,180)};
       }
     });
     if(result?.freeLimitReached)return json(res,429,{ok:false,error:result.error||'وصلت إلى الحد المشترك لجميع الخدمات المجانية: طلبان لكل حساب خلال 24 ساعة.',stage:'free_service_limit',limit:result.limit,nextAllowedAt:result.nextAllowedAt||null});
@@ -7659,7 +7740,7 @@ async function routeAPI(req,res,urlObj){
     if(result?.insufficient)return json(res,402,{ok:false,error:'رصيد المستخدم غير كافٍ',balanceUsd:result.balanceUsd});
     if(result?.walletUnavailable)return json(res,503,{ok:false,error:result.error||'تعذر حجز الرصيد بأمان؛ لم يتم إرسال الطلب'});
     if(result?.duplicateReservation)return json(res,409,{ok:false,error:'يوجد حجز سابق لهذا الطلب قيد التحقق؛ لم نرسل طلباً مكرراً.',uncertain:true,state:result.state});
-    if(result?.error)return json(res,502,{ok:false,error:result.error,stage:result.stage||'provider_add',providerHttpStatus:result.providerHttpStatus||null,providerErrorCode:result.providerErrorCode||'',providerDiagnostic:result.providerDiagnostic||'',uncertain:!!result.uncertain,authFailure:!!result.authFailure,siteServiceId,providerServiceId});
+    if(result?.error)return json(res,502,{ok:false,error:result.error,stage:result.stage||'provider_add',providerHttpStatus:result.providerHttpStatus||null,providerErrorCode:result.providerErrorCode||'',providerDiagnostic:result.providerDiagnostic||'',uncertain:!!result.uncertain,refundPending:!!result.refundPending,refundCredited:!!result.refundCredited,authFailure:!!result.authFailure,siteServiceId,providerServiceId});
     if(result?.ok){const siteId=String(result.order.id||localId||'');createUserNotification(username,{type:'order_created',orderId:siteId,status:'pending',title:'تم استلام طلبك #'+siteId,message:'تم استلام طلب '+siteId+' لخدمة '+String(result.order.serviceName||'خدمة')+'، وسيتم تحديث حالته هنا.',meta:{serviceName:String(result.order.serviceName||'خدمة'),quantity:Number(result.order.quantity||0),providerName:String(result.order.providerName||''),providerOrderId:String(result.order.providerOrderId||'')}});notifyTelegramNewOrder(result.order,{source:'backend'}).catch(()=>{});return json(res,200,{ok:true,siteOrderId:siteId,publicOrderNo:String(result.order.publicOrderNo||''),siteServiceId:String(result.order.siteServiceId||siteServiceId),serviceId:String(result.order.siteServiceId||siteServiceId),providerServiceId:String(result.order.providerServiceId||providerServiceId),providerId,providerName:prov.name||providerId,providerOrderId:String(result.order.providerOrderId),providerTrackingToken:String(result.providerTrackingToken||''),providerRaw:result.order.providerRaw,providerBalanceBefore:null,chargeUsd,totalIQD:chargeIqd,discountPct:userDiscount,createdAt:result.order.createdAt});}
     return json(res,500,{ok:false,error:'تعذر إنشاء الطلب'});
   }
@@ -8334,8 +8415,8 @@ if(process.env.SADA_NETLIFY_FUNCTION==='true'){
   Promise.allSettled([hydrateProviderRuntimeFromFirebase(),hydrateTelegramChannelsFromFirebase(),hydrateApiServicesFromFirebase()]).then(()=>{
     // The bundled Base44 dump was removed from this release. Only the explicitly configured Firebase is used.
     if(process.env.NODE_ENV!=='test'){
-      setTimeout(()=>{runOrderAuditMonitor().catch(()=>{});runTelegramNewOrdersMonitor().catch(()=>{});runRefundReconciliationMonitor().catch(()=>{});},3000).unref();
-      setInterval(()=>{runOrderAuditMonitor().catch(()=>{});runTelegramNewOrdersMonitor().catch(()=>{});runRefundReconciliationMonitor().catch(()=>{});},60*1000).unref();
+      setTimeout(()=>{runOrderAuditMonitor().catch(()=>{});runTelegramNewOrdersMonitor().catch(()=>{});runRefundReconciliationMonitor().catch(()=>{});runProviderRejectionRefundMonitor().catch(()=>{});},3000).unref();
+      setInterval(()=>{runOrderAuditMonitor().catch(()=>{});runTelegramNewOrdersMonitor().catch(()=>{});runRefundReconciliationMonitor().catch(()=>{});runProviderRejectionRefundMonitor().catch(()=>{});},60*1000).unref();
     }
   });
 });
