@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '3.0';
-const BUILD_ID = 'SADA-3.0-FAST-BULK-CATEGORY-IMPORT-20261031-R9';
+const BUILD_ID = 'SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -319,6 +319,9 @@ const LOCAL_CATALOG_BUCKETS = Object.freeze({services:'services.json',categoryMe
 const CATALOG_FORBIDDEN_KEYS = new Set(['__proto__','prototype','constructor']);
 let CATALOG_SEED_IN_FLIGHT = null, CATALOG_SEED_LAST_AT = 0;
 let CATALOG_FIREBASE_READY = false, CATALOG_FIREBASE_READY_IN_FLIGHT = null;
+// One compact catalog snapshot replaces several parallel full-catalog reads on mobile.
+const CATALOG_SNAPSHOT_CACHE = new Map();
+const CATALOG_SNAPSHOT_IN_FLIGHT = new Map();
 function catalogPathSpec(rawPath){
   const parts=String(rawPath||'').split('/').filter(Boolean).map(x=>String(x));
   if(!parts.length) return null;
@@ -670,6 +673,7 @@ function catalogApplyBatch(updates){
     else if(!validated.some(x=>x.spec.bucket==='services'&&x.spec.parts.length>0)){const keys=new Set([...Object.keys(beforeServices||{}),...Object.keys(after||{})]);for(const key of keys)if(JSON.stringify(beforeServices?.[key]||null)!==JSON.stringify(after?.[key]||null))changes.push({key,oldRow:beforeServices?.[key]||null,newRow:after?.[key]||null});}
     syncCatalogServiceOrderChanges(changes);
   }
+  CATALOG_SNAPSHOT_CACHE.clear();
   // Re-run canonical ordering after possible new category metadata and service memberships.
   const cfg=readJSON('catalog_settings.json',{});if(cfg.catalogOrder){const normalized=canonicalCatalogOrder(cfg.catalogOrder,readJSON('category_meta.json',{}));if(JSON.stringify(normalized)!==JSON.stringify(cfg.catalogOrder)){cfg.catalogOrder=normalized;writeJSON('catalog_settings.json',cfg);}}
   return {ok:true,count:entries.length,storage:'hosting-json'};
@@ -5706,6 +5710,85 @@ async function routeAPI(req,res,urlObj){
       return json(res,200,{ok:true,providerId,providerName:String(prov.name||providerId),providerServiceId,service:{name:String(found.name||('خدمة رقم '+providerServiceId)),description:String(found.description||''),rate:Number(found.rate),min:Math.max(1,Number(found.min||found.minimum||1)||1),max:Math.max(Math.max(1,Number(found.min||found.minimum||1)||1),Number(found.max||found.maximum||1000000)||1000000),refill:!!found.refill,cancel:!!found.cancel,category:String(found.category||found.category_name||found.categoryName||''),rawType:String(found.type||found.service_type||'')},checkedAt:nowISO()});
     }catch(e){return json(res,502,{ok:false,error:'تعذر التحقق من الخدمة لدى المزود: '+String(e.message||e).slice(0,200)});}
   }
+  if(p==='/api/admin/catalog/add-provider-service'&&req.method==='POST'){
+    if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
+    const b=await bodyJSON(req,256*1024);
+    const providerId=String(b.providerId||'').trim(),providerServiceId=String(b.providerServiceId||'').trim();
+    const platform=String(b.platform||'').trim();
+    const markupPct=Number(b.markupPct);
+    const categories=[...new Map((Array.isArray(b.categories)?b.categories:[]).map(x=>String(x??'').trim()).filter(Boolean).map(x=>[normalizeCatalogLabel(x),x])).values()];
+    const validPlatforms=new Set(['Instagram','Tiktok','Youtube','Facebook','Telegram','Twitter','Snapchat','Whatsapp','Linkedin','Other']);
+    if(!providerId||!providerServiceId)return json(res,422,{ok:false,error:'اختر المزود وأدخل رقم الخدمة لديه.'});
+    if(!validPlatforms.has(platform))return json(res,422,{ok:false,error:'اختر منصة صحيحة للخدمة.'});
+    if(!categories.length||categories.length>12)return json(res,422,{ok:false,error:'اختر قسماً واحداً على الأقل، وبحد أقصى 12 قسماً للخدمة الواحدة.'});
+    if(!Number.isFinite(markupPct)||markupPct<0||markupPct>5000)return json(res,422,{ok:false,error:'نسبة الربح يجب أن تكون بين 0 و5000 بالمئة.'});
+    if(providerServiceId.length>100)return json(res,422,{ok:false,error:'رقم الخدمة طويل أو غير صالح.'});
+    try{
+      await ensureProviderRuntime(providerId);
+      const {prov}=getProviderById(providerId,{allowSingleFallback:false});
+      if(!prov?.url||!prov?.key)return json(res,404,{ok:false,error:'المزود غير موجود أو بيانات API غير مكتملة.'});
+      const remote=normalizeProviderServices(await providerRequest(prov,{action:'services'},25000));
+      const found=remote.find(row=>String(row.service||'').trim()===providerServiceId);
+      if(!found)return json(res,404,{ok:false,verified:false,error:'رقم الخدمة غير موجود في كتالوج المزود المحدد. لم تتم أي إضافة.'});
+      const serviceName=String(found.name||'').trim();
+      if(!serviceName)return json(res,422,{ok:false,verified:false,error:'المزود لم يرجع اسم الخدمة؛ لم تتم إضافتها حتى لا تظهر باسم ناقص.'});
+      if(found.ratePresent!==true||!Number.isFinite(Number(found.rate))||Number(found.rate)<0)return json(res,422,{ok:false,verified:false,error:'المزود لم يرجع تكلفة رقمية موثوقة لهذه الخدمة؛ لم تتم إضافتها.'});
+      await ensureLocalServiceCatalogSeeded();
+      await ensureAdminFreeServicesDurable();
+      ensureNumericSiteServiceIds();
+      const servicesRoot=catalogObject(readJSON('services.json',{}));
+      let existingKey='',existingRow=null;
+      for(const [key,row] of Object.entries(servicesRoot)){
+        if(!row||typeof row!=='object')continue;
+        const rowProvider=String(row.providerId||row.providerID||row.sourceProviderId||'').trim();
+        const rowService=String(row.providerServiceId||row.smmpartyId||row.serviceId||'').trim();
+        if(rowProvider===providerId&&rowService===providerServiceId){existingKey=key;existingRow=row;break;}
+      }
+      let serviceKey=existingKey;
+      if(!serviceKey){
+        const stable='provider_'+crypto.createHash('sha256').update(providerId+'|'+providerServiceId).digest('hex').slice(0,28);
+        serviceKey=stable;
+        if(servicesRoot[serviceKey]&&String(servicesRoot[serviceKey].providerId||'')!==providerId)serviceKey=stable+'_'+crypto.randomBytes(3).toString('hex');
+      }
+      const oldGroups=catalogRowGroups(existingRow||{});
+      const mergedGroups=[...new Map([...oldGroups,...categories].map(name=>[normalizeCatalogLabel(name),name])).values()];
+      const oldApps=[...(Array.isArray(existingRow?.apps)?existingRow.apps:[]),...(Array.isArray(existingRow?.platforms)?existingRow.platforms:[]),existingRow?.app,existingRow?.platform].filter(Boolean).map(String);
+      const apps=[...new Set([...oldApps,platform])];
+      const baseRate=Number(found.rate),sellingUsd=Number((baseRate*(1+markupPct/100)).toFixed(6));
+      const description=String(found.description||found.providerDescription||providerServiceDescription(found)||'').trim().slice(0,5000);
+      const at=nowISO();
+      const serviceRow={...(existingRow||{}),key:serviceKey,fbKey:serviceKey,name:serviceName,app:apps[0]||platform,apps,platforms:apps,serviceApp:platform,servicePlatform:platform,platformsExplicit:true,groups:mergedGroups,categories:mergedGroups,category:mergedGroups[0]||categories[0],providerId,providerName:String(prov.name||providerId),providerServiceId,smmpartyId:providerServiceId,serviceId:providerServiceId,source:'smmparty',sourceProviderId:providerId,providerRateUsd:baseRate,smmRateUsd:baseRate,smmRate:baseRate,sellingUsd,rateUsd:sellingUsd,markupPct,basePrice:Number((baseRate*FIXED_RATE).toFixed(4)),price:Number((sellingUsd*FIXED_RATE).toFixed(4)),min:Math.max(1,Math.floor(Number(found.min||found.minimum||1)||1)),max:Math.max(Math.max(1,Math.floor(Number(found.min||found.minimum||1)||1)),Math.floor(Number(found.max||found.maximum||1000000)||1000000)),desc:description,description,providerDescription:description,refill:!!found.refill,cancel:!!found.cancel,quality:String(found.rawType||found.type||'SMM'),active:existingRow?.active!==false,enabled:existingRow?.enabled!==false,deleted:false,createdAt:existingRow?.createdAt||at,updatedAt:at,updatedBy:String(currentSession?.username||ADMIN_USER)};
+      const metaRoot=catalogObject(readJSON('category_meta.json',{}));
+      const metaUpdates={};
+      for(const name of categories){
+        const nk=normalizeCatalogLabel(name);
+        let metaKey=Object.keys(metaRoot).find(key=>normalizeCatalogLabel(metaRoot[key]?.name||key)===nk)||normalizeCatalogKey(name);
+        const oldMeta=metaRoot[metaKey]&&typeof metaRoot[metaKey]==='object'?metaRoot[metaKey]:{};
+        const serviceKeys=[...new Set([...(Array.isArray(oldMeta.serviceKeys)?oldMeta.serviceKeys.map(String):[]),serviceKey])];
+        const metaPlatforms=[...new Set([...(Array.isArray(oldMeta.platforms)?oldMeta.platforms.map(String):[]),platform])];
+        metaUpdates['categoryMeta/'+metaKey]={...oldMeta,name,image:oldMeta.image||'sadairaq-logo.jpg',platform:oldMeta.platform||platform,platforms:metaPlatforms,serviceKeys,updatedAt:at,updatedBy:String(currentSession?.username||ADMIN_USER)};
+      }
+      const settings=readJSON('catalog_settings.json',{}),oldOrder=catalogObject(settings.catalogOrder),order={...oldOrder,categories:Array.isArray(oldOrder.categories)?oldOrder.categories.slice():[],services:catalogObject(oldOrder.services),platforms:catalogObject(oldOrder.platforms),sortModes:catalogObject(oldOrder.sortModes)};
+      const platformScope=({Instagram:'instagram',Tiktok:'tiktok',Youtube:'youtube',Facebook:'facebook',Telegram:'telegram',Twitter:'twitter',Snapchat:'snapchat',Whatsapp:'whatsapp',Linkedin:'linkedin',Other:'other'})[platform]||'other';
+      order.platforms[platformScope]=catalogObject(order.platforms[platformScope]);
+      order.platforms[platformScope].categories=Array.isArray(order.platforms[platformScope].categories)?order.platforms[platformScope].categories.slice():[];
+      order.platforms[platformScope].services=catalogObject(order.platforms[platformScope].services);
+      const addUnique=(arr,value)=>{if(!arr.some(x=>normalizeCatalogLabel(x)===normalizeCatalogLabel(value)))arr.push(value);};
+      for(const name of categories){
+        addUnique(order.categories,name);addUnique(order.platforms[platformScope].categories,name);
+        const bucket=normalizeCatalogKey(name);
+        order.services[bucket]=Array.isArray(order.services[bucket])?order.services[bucket].map(String):[];
+        order.platforms[platformScope].services[bucket]=Array.isArray(order.platforms[platformScope].services[bucket])?order.platforms[platformScope].services[bucket].map(String):[];
+        if(!order.services[bucket].includes(serviceKey))order.services[bucket].push(serviceKey);
+        if(!order.platforms[platformScope].services[bucket].includes(serviceKey))order.platforms[platformScope].services[bucket].push(serviceKey);
+      }
+      const updates={['services/'+serviceKey]:serviceRow,'settings/catalogOrder':order,...metaUpdates};
+      const applied=catalogApplyBatch(updates);if(!applied.ok)return json(res,422,{ok:false,error:applied.error||'تعذر تجهيز بيانات الخدمة.'});
+      try{await persistCatalogBatchToFirebase(updates);await firebaseWriteJson('settings/svcsVersion',String(Date.now()),8000);CATALOG_SNAPSHOT_CACHE.clear();purgeCatalogServiceSnapshots();}
+      catch(e){try{await reloadLocalCatalogFromFirebase()}catch(reloadError){console.error('Provider service add rollback reload failed:',String(reloadError.message||reloadError))}return json(res,503,{ok:false,persisted:false,verified:false,error:'لم يتم تأكيد إضافة الخدمة في Firebase؛ لم نعلن نجاحها. '+String(e.message||e).slice(0,180)});}
+      return json(res,200,{ok:true,persisted:true,verified:true,created:!existingRow,serviceKey,serviceName,providerId,providerName:String(prov.name||providerId),providerServiceId,categories:mergedGroups.filter(name=>categories.some(c=>normalizeCatalogLabel(c)===normalizeCatalogLabel(name))),platform,providerRateUsd:baseRate,sellingUsd,markupPct,message:existingRow?'تم تحديث الخدمة وربطها بالأقسام المختارة.':'تمت إضافة الخدمة الحقيقية من المزود وربطها بالأقسام المختارة.'});
+    }catch(e){return json(res,502,{ok:false,persisted:false,verified:false,error:'تعذر التحقق من الخدمة أو إضافتها: '+String(e.message||e).slice(0,200)});}
+  }
   if(p==='/api/admin/free-services'&&req.method==='POST'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
     try{await ensureAdminFreeServicesDurable({refresh:true});ensureNumericSiteServiceIds()}catch(e){return json(res,503,{ok:false,error:'تعذر تحميل بيانات الخدمات المجانية الموثوقة؛ لم يتم تعديل أي خدمة. '+String(e.message||e).slice(0,180)})}
@@ -5804,6 +5887,57 @@ async function routeAPI(req,res,urlObj){
     return json(res,410,{ok:false,error:'تم تعطيل نقل/نسخ كتالوج الخدمات حتى لا تُنشأ نسخ احتياطية أو تُحذف بيانات من مسار غير مقصود. استخدم إدارة الخدمات والأقسام للحذف النهائي من Firebase.'});
   }
   // Server-backed host-file catalog API. Only these catalog nodes leave Firebase.
+  if(p==='/api/catalog/snapshot'&&req.method==='GET'){
+    const role=isAdmin(req)?'admin':'public';
+    const includeUnapproved=role==='admin'&&urlObj.searchParams.get('includeUnapprovedAutoImports')==='1';
+    const cacheKey=role+':'+(includeUnapproved?'unapproved':'approved');
+    const force=urlObj.searchParams.get('fresh')==='1';
+    const cached=CATALOG_SNAPSHOT_CACHE.get(cacheKey);
+    if(!force&&cached&&Date.now()-cached.at<1200)return json(res,200,{...cached.payload,cached:true});
+    try{
+      let pending=!force?CATALOG_SNAPSHOT_IN_FLIGHT.get(cacheKey):null;
+      if(!pending){
+        pending=(async()=>{
+          await ensureLocalServiceCatalogSeeded();
+          await ensureAdminFreeServicesDurable();
+          ensureNumericSiteServiceIds();
+          const allServices=catalogObject(catalogReadPath('services').value);
+          let services=Object.fromEntries(Object.entries(allServices).filter(([,row])=>row&&typeof row==='object'&&(includeUnapproved||row.unapprovedAutoImport!==true)&&(role==='admin'||!hasExplicitSiteServiceDisable(row))));
+          if(includeUnapproved){
+            const archived=readJSON('quarantined_provider_services.json',{});
+            for(const [key,row] of Object.entries(archived&&typeof archived==='object'&&!Array.isArray(archived)?archived:{}))if(row&&typeof row==='object')services[key]=row;
+          }
+          for(const [key,row] of Object.entries(readAdminFreeServices())){
+            if(!row||row.adminFreeService!==true||row.enabled===false||row.deleted===true)continue;
+            services[key]=role==='admin'?{...row,fbKey:key,adminFreeServiceKey:key}:{...adminFreeServicePublic({...row,fbKey:key,adminFreeServiceKey:key})};
+          }
+          for(const [key,row] of Object.entries(readAdminManualServices())){
+            if(!row||row.serviceKind!=='manual_support'||row.enabled===false||row.deleted===true)continue;
+            services[key]=adminManualServicePublic(row,key);
+          }
+          const metaRoot=catalogObject(catalogReadPath('categoryMeta').value);
+          const order=catalogObject(readJSON('catalog_settings.json',{}).catalogOrder);
+          const explicit=new Set((Array.isArray(order.categories)?order.categories:[]).map(normalizeCatalogLabel));
+          const groups=new Set();for(const row of Object.values(allServices))for(const name of catalogRowGroups(row)){const key=normalizeCatalogLabel(name);if(key)groups.add(key);}
+          const liveKeys=new Set(Object.keys(allServices));
+          const categoryMeta=Object.fromEntries(Object.entries(metaRoot).filter(([key,meta])=>{
+            const name=String(meta?.name||key),norm=normalizeCatalogLabel(name);
+            const linked=Array.isArray(meta?.serviceKeys)&&meta.serviceKeys.some(serviceKey=>liveKeys.has(String(serviceKey)));
+            return (norm&&explicit.has(norm))||linked||(norm&&groups.has(norm));
+          }));
+          const normalizedOrder={...order,categories:Array.isArray(order.categories)?order.categories:[],allServices:Array.isArray(order.allServices)?order.allServices:[],services:catalogObject(order.services),platforms:catalogObject(order.platforms),sortModes:catalogObject(order.sortModes)};
+          return {ok:true,value:{services,categoryMeta,catalogOrder:normalizedOrder},source:'firebase',storage:'firebase+verified-server-cache',storageMode:'firebase',counts:{services:Object.keys(services).length,categories:Object.keys(categoryMeta).length},verifiedAt:nowISO()};
+        })();
+        if(!force)CATALOG_SNAPSHOT_IN_FLIGHT.set(cacheKey,pending);
+      }
+      const payload=await pending;
+      if(!force)CATALOG_SNAPSHOT_CACHE.set(cacheKey,{at:Date.now(),payload});
+      return json(res,200,payload);
+    }catch(e){
+      return json(res,503,{ok:false,error:'تعذر تحميل لقطة الخدمات والأقسام الموثوقة من Firebase: '+String(e.message||e).slice(0,200),source:'firebase',storageMode:'firebase'});
+    }finally{if(CATALOG_SNAPSHOT_IN_FLIGHT.get(cacheKey))CATALOG_SNAPSHOT_IN_FLIGHT.delete(cacheKey);}
+  }
+
   if(p==='/api/catalog'&&req.method==='GET'){
     const raw=String(urlObj.searchParams.get('path')||'services');const spec=catalogPathSpec(raw);
     if(!spec)return json(res,422,{ok:false,error:'مسار الكتالوج غير مسموح'});
