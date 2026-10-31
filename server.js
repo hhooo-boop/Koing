@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '3.0';
-const BUILD_ID = 'SADA-3.0-ADMIN-UX-RESTORE-CATEGORY-20261031-R6';
+const BUILD_ID = 'SADA-3.0-ADMIN-INNER-REDESIGN-MULTI-IMPORT-20261031-R7';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -6645,18 +6645,23 @@ async function routeAPI(req,res,urlObj){
   }
   if(p==='/api/admin/services/import'&&req.method==='POST'){
     if(!isAdmin(req))return json(res,403,{ok:false,error:'غير مصرح'});
-    // Bulk provider import/restore is intentionally disabled. New provider services
-    // enter the live catalog only through the reviewed single-Service-ID admin flow.
+    // Provider catalogue additions are manual-only: the admin selects and reviews
+    // each row in the importer, then confirms the upload. The server accepts a
+    // bounded batch, never imports anything automatically, and remains idempotent
+    // by provider ID + provider service ID.
     const b=await bodyJSON(req,10*1024*1024);const services=Array.isArray(b.services)?b.services:[];
-    if(services.length!==1||b.manualApproval!==true)return json(res,410,{ok:false,error:'الاستيراد الجماعي واستعادة كتالوج المزود متوقفان. أضف خدمة واحدة يدوياً بعد مراجعة Service ID واعتمادها من المسؤول.'});
+    if(b.manualApproval!==true)return json(res,422,{ok:false,error:'يلزم تأكيد مراجعة الخدمات يدوياً قبل الرفع.'});
+    if(!services.length||services.length>500)return json(res,422,{ok:false,error:'اختر من خدمة واحدة إلى 500 خدمة في كل دفعة.'});
     try{await ensureLocalServiceCatalogSeeded();}catch(e){return json(res,503,{ok:false,error:'تعذر تحميل قاعدة Firebase؛ لم يبدأ الاستيراد: '+String(e.message||e).slice(0,160)});}
     const dest=String(b.destination||'__all__').trim().slice(0,100),at=nowISO();
     const categoryKey=dest==='__all__'?'':String(b.categoryKey||dest.replace(/[^a-zA-Z0-9_\-\u0600-\u06ff]+/g,'_')).slice(0,150)||'category';
     const root=readJSON('services.json',{}),metaRoot=readJSON('category_meta.json',{}),quarantineArchive=readJSON('quarantined_provider_services.json',{});const servicesBeforeImport=JSON.parse(JSON.stringify(root)),metaBeforeImport=JSON.parse(JSON.stringify(metaRoot)),quarantineBeforeImport=JSON.parse(JSON.stringify(quarantineArchive)),settingsBeforeImport=JSON.parse(JSON.stringify(readJSON('catalog_settings.json',{})));let added=0,updated=0,skipped=0,restoredArchived=0;const serviceKeys=[];
+    const importedIdentities=new Set();
     for(const item of services){
       const data=item&&item.data&&typeof item.data==='object'?item.data:null;if(!data){skipped++;continue;}
       const providerId=String(data.providerId||'').trim(),sourceId=String(data.providerServiceId||data.smmpartyId||data.sourceServiceId||data.serviceId||'').trim(),name=String(data.name||'').trim(),price=Number(data.sellingUsd??(Number(data.price||0)/FIXED_RATE));
       if(!providerId||!sourceId||!name||!Number.isFinite(price)||price<0){skipped++;continue;}
+      const identity=providerId+'|'+sourceId;if(importedIdentities.has(identity)){skipped++;continue;}importedIdentities.add(identity);
       let key=Object.keys(root).find(k=>String(root[k]?.providerId||'')===providerId&&String(root[k]?.providerServiceId||root[k]?.smmpartyId||root[k]?.serviceId||'')===sourceId);
       let archivedKey='';if(!key)archivedKey=Object.keys(quarantineArchive).find(k=>String(quarantineArchive[k]?.providerId||'')===providerId&&String(quarantineArchive[k]?.providerServiceId||quarantineArchive[k]?.smmpartyId||quarantineArchive[k]?.serviceId||'')===sourceId)||'';
       const fromArchive=!key&&!!archivedKey;if(fromArchive)key=archivedKey;
