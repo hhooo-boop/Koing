@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="sada-version" content="3.0">
-<meta name="sada-build-id" content="SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10">
+<meta name="sada-version" content="3.2">
+<meta name="sada-build-id" content="SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11">
 <script id="sada169-boot-route-gate">
 (function(){
-  const BUILD='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+  const BUILD='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
   const root=document.documentElement;
   root.classList.add('sada-boot-pending');
   try{window.__SADA_BOOT_HAD_SESSION=Boolean(localStorage.getItem('sadairaq_session_token')||localStorage.getItem('tz_u'));}catch(_){window.__SADA_BOOT_HAD_SESSION=false}
@@ -2646,7 +2646,23 @@ html.sada-lite-motion .ks-particle{display:none!important}
     <div class="sada-preboot-bar"><span></span></div>
     <div class="sada-preboot-foot">SADA IRAQ</div>
   </div>
-  <script>window.__SADA_PREBOOT_STARTED=Date.now();</script>
+  <script>
+  window.__SADA_PREBOOT_STARTED=Date.now();
+  // Independent boot failsafe: it is parsed before external SDK files and can
+  // release the visible app if a CDN request stalls the HTML parser later.
+  (function(){
+    const root=document.documentElement;
+    const release=()=>{
+      if(!root.classList.contains('sada-boot-pending'))return;
+      const splash=document.getElementById('sada-preboot-splash');
+      if(splash)splash.remove();
+      root.classList.remove('sada-boot-pending');
+      root.dataset.sadaBootWatchdog='released';
+      try{window.dispatchEvent(new CustomEvent('sada:boot-watchdog-release',{detail:{build:'R11',reason:'startup-timeout'}}))}catch(_){}
+    };
+    window.__SADA_BOOT_WATCHDOG=setTimeout(release,12000);
+  })();
+  </script>
 </div>
 
 <!-- WhatsApp Float Button -->
@@ -3689,10 +3705,10 @@ html.sada-lite-motion .ks-particle{display:none!important}
     <div class="m-body" id="m-body"></div>
   </div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 //  صدى العراق v5 — Complete Professional SMM Panel
@@ -3864,6 +3880,19 @@ async function loadServerConfig() {
 }
 
 // ── FIREBASE INIT (safe) ──────────────────────────────────
+// Firebase SDK files are deferred so a slow CDN cannot block HTML parsing or trap
+// the user behind the preboot screen. Wait for app/database/auth in a bounded way.
+async function waitForFirebaseSDK(timeoutMs=10000){
+  const started=Date.now();
+  while(Date.now()-started<timeoutMs){
+    try{
+      const fb=window.firebase;
+      if(fb&&Array.isArray(fb.apps)&&typeof fb.initializeApp==='function'&&typeof fb.database==='function'&&typeof fb.auth==='function')return true;
+    }catch(_){}
+    await new Promise(resolve=>setTimeout(resolve,80));
+  }
+  return false;
+}
 async function syncSadaFirebaseAuth(){
   if(!FB_OK||!window.firebase?.auth||!CFG.firebase?.databaseURL)return false;
   try{
@@ -3877,7 +3906,9 @@ async function syncSadaFirebaseAuth(){
 window.syncSadaFirebaseAuth=syncSadaFirebaseAuth;
 let fbReady = (async function() {
   await loadServerConfig();
-  if(!CFG.firebase?.databaseURL){FB_OK=false;console.warn('Firebase URL is bundled with this release; verify service-account credentials and database rules if connection fails.');return false;}
+  if(!CFG.firebase?.databaseURL){FB_OK=false;console.warn('Firebase URL is not configured by the server; server-backed login remains available.');return false;}
+  const sdkReady=await waitForFirebaseSDK(10000);
+  if(!sdkReady){FB_OK=false;console.warn('Firebase Web SDK did not load before timeout; continuing with Railway server APIs.');return false;}
   try {
     if(!firebase.apps.length) firebase.initializeApp(CFG.firebase);
     DB = firebase.database();
@@ -7083,7 +7114,7 @@ function tgSend(msg){fetch(`https://api.telegram.org/bot${CFG.tg.token}/sendMess
   };
   // Refresh the catalog index only; never rewrite every service's image on page load.
   setTimeout(()=>{hydrateAllCategoryMeta().then(()=>{repairServiceIndex();try{window.buildCatDD?.();window.buildSvcDD?.(SEL_CAT||'__all__')}catch(_){}})},900);
-  window.SadaIraqBuildId='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+  window.SadaIraqBuildId='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
 })();
 
 </script>
@@ -8818,7 +8849,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
 ═══════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  const SADA_VERSION='3.0';
+  const SADA_VERSION='3.2';
   const RATE=1250;
   const ATHIR_NUMBER='07903221783';
     window.SadaIraqVersion=SADA_VERSION;
@@ -8839,7 +8870,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
       b=document.createElement('div'); b.id='sadairaq-version-badge';
       document.body.appendChild(b);
     }
-    const EXPECTED_BUILD='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+    const EXPECTED_BUILD='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
     const applyClientVersion=()=>{
       b.dataset.deployState='checking';
       b.textContent='صدى العراق · الإصدار '+SADA_VERSION+' · جارٍ فحص الخادم…';
@@ -9189,7 +9220,7 @@ function admPays(){nav('admin');setTimeout(()=>admNavTo('payments',null),150);}
   const ensure=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   window.SECTION_META=window.SECTION_META||{};
   window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+window.SadaIraqBuildId='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
 
   function safe(v){return txt(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
   function appLabel(id){const p=(CFG.platforms||[]).find(x=>x.id===id);return p?.lbl||id||'عام';}
@@ -9618,7 +9649,7 @@ const safe=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':
 const api=window.apiJSON||((p,o)=>fetch(p,Object.assign({credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'}},o||{})).then(async r=>{const t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch(_){d={error:t}}if(!r.ok||d.error)throw new Error(d.error||('HTTP '+r.status));return d;}));
 const mk=window.mk||((tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;});
 window.SadaIraqVersion=V;
-window.SadaIraqBuildId='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+window.SadaIraqBuildId='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
 
 function setVersion(){
   const b=$('sadairaq-version-badge');
@@ -10519,9 +10550,9 @@ setTimeout(repairNow,250);
 
   // Keep the existing buttons bound to the final, stable actions.
   function wireFinal(){
-    try{
-      const hd=document.querySelector('#adm-sub-services .adm-sec-hd');if(hd&&hd.lastElementChild){const tools=hd.lastElementChild;tools.innerHTML='';const a=document.createElement('button');a.className='btn bp btn-sm';a.textContent='➕ إضافة خدمة من المزود';a.onclick=()=>window.openSadaCatalogImport?.();const b=document.createElement('button');b.className='btn bok btn-sm';b.textContent='☁️ رفع خدمات محددة';b.onclick=()=>window.openSadaCatalogImport?.();const c=document.createElement('button');c.className='btn bs2 btn-sm';c.textContent='📂 اختيار خدمات قسم';c.onclick=()=>window.openSadaCatalogImport?.();const d=document.createElement('button');d.className='btn bs2 btn-sm';d.textContent='🔄 تحديث';d.onclick=()=>window.loadAdmSvcsFull?.();tools.append(a,b,c,d);}
-    }catch(_){ }
+    // R10 keeps the original manual/sync/refresh actions. Provider-ID add and bulk import
+    // are wired once by the final R10 toolbar normalizer instead of replacing all controls.
+    try{document.dispatchEvent(new CustomEvent('sada:r10-service-toolbar-refresh'))}catch(_){}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(wireFinal,120),{once:true});else setTimeout(wireFinal,120);
   setTimeout(wireFinal,900);setTimeout(wireFinal,1800);
@@ -12927,7 +12958,7 @@ curl -X POST ${base}/order -H "Authorization: Bearer YOUR_API_KEY" -H "Content-T
   document.addEventListener('DOMContentLoaded',startFinal);window.addEventListener('load',()=>setTimeout(startFinal,100));setTimeout(startFinal,250);setTimeout(startFinal,1200);
   // Observe the whole document so both independent controls survive page/route re-renders.
   if(document.body){const mo=new MutationObserver(()=>{ensureOrderWhatsApp();});mo.observe(document.body,{childList:true});}
-  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10',hasFetchGuard:true,orderAudit:true};
+  window.__SADA_V1562_DIAGNOSTIC__={version:'1.6.86',buildId:'SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11',hasFetchGuard:true,orderAudit:true};
 })();
 </script>
 
@@ -13770,7 +13801,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada1666-welcome-refunds-admin-splash">
 (function(){
  'use strict';
- const BUILD='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+ const BUILD='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -13984,7 +14015,7 @@ body:has(#modal-mask.on) #wa-float{display:none!important}
 <script id="sada167-earn-notifications-dashboard">
 (function(){
 'use strict';
-const BUILD='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+const BUILD='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=v=>'$'+Math.max(0,Number(v)||0).toFixed(2);
@@ -14628,8 +14659,8 @@ window.SADA_V1626_RELEASE={version:'1.6.86',features:['earn-page-premium-order',
 <script id="sada1629-runtime-version-badge-fix">
 (function(){
   'use strict';
-  const EXPECTED_VERSION='3.0';
-  const EXPECTED_BUILD='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+  const EXPECTED_VERSION='3.2';
+  const EXPECTED_BUILD='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
   const $=id=>document.getElementById(id);
   function ensureBadge(){
     let b=$('sadairaq-version-badge');
@@ -17253,7 +17284,7 @@ window.SADA1637_UI_FIXES={version:'1.6.86',openAsiaCell:openWizard,polishOrderFo
 </style>
 <script id="sada-1.6.86-final-ui-enforcement">
 (()=>{'use strict';
- const BUILD='SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+ const BUILD='SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
  const $=id=>document.getElementById(id);
  const oldPromo=/(?:اشتراكات\s*و\s*خدمات\s*خاصة|تصفح\s*الخدمات\s*الخاصة|خدمات\s+مستقلة\s+عن\s+المزود)/i;
  const browse=/تصفح\s*الخدمات\s*الخاصة/i;
@@ -19010,18 +19041,22 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
  function platformMatches(row,scope){if(scope==='all')return true;const vals=[];for(const k of ['apps','platforms','app','platform','serviceApp','servicePlatform','network','site']){const v=row?.[k];if(Array.isArray(v))vals.push(...v);else if(v)vals.push(v)}if(vals.length)return vals.some(v=>platformOf(v)===scope);const cats=groupsOf(row);return cats.some(cat=>{const m=Object.values(metaRows).find(x=>norm(x?.name||'')===norm(cat))||metaRows[catKey(cat)]||{};const ps=[...(Array.isArray(m.platforms)?m.platforms:[]),m.platform,m.imagePlatform].filter(Boolean);return ps.some(p=>platformOf(p)===scope)});}
  function servicePrice(row){for(const k of ['sellingUsd','priceUsd','rateUsd','providerRateUsd','smmRateUsd','smmRate']){const raw=row?.[k],n=Number(raw);if(raw!==undefined&&raw!==null&&raw!==''&&Number.isFinite(n)&&n>=0)return n;}const p=Number(row?.price??row?.basePrice);return Number.isFinite(p)&&p>=0?p/Math.max(1,Number(window.RATE||1300)):Infinity;}
  function catKey(name){try{if(typeof window.categoryKey==='function')return window.categoryKey(name)}catch(_){}return String(name||'').trim().toLocaleLowerCase('ar').replace(/[^a-zA-Z0-9\u0600-\u06ff_-]+/g,'_');}
- let catalogRows=[],metaRows={},orderData={categories:[],services:{},platforms:{},sortModes:{}},sortState={scope:'all',kind:'categories',category:'__all__',mode:'manual'};
+ let catalogRows=[],metaRows={},orderData={categories:[],services:{},platforms:{},sortModes:{}},sortState={scope:'all',kind:'categories',category:'__all__',mode:'manual'},sortLoadFlight=null,sortLoaded=false;
  async function loadSortData(force=false){
-  const loader=window.sadairaqFastCatalogData;
-  if(typeof loader!=='function')throw new Error('خدمة قراءة كتالوج الموقع غير جاهزة. أعد تحميل لوحة الإدارة.');
-  let timer;const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('انتهت مهلة قراءة الكتالوج بعد 18 ثانية. اضغط إعادة المحاولة.')),18000)});
-  let snap;try{snap=await Promise.race([loader(force===true),timeout])}finally{clearTimeout(timer)}
-  if(!snap||!snap.services||typeof snap.services!=='object')throw new Error('لم يرجع الخادم لقطة كتالوج صالحة.');
-  const raw=snap.services;catalogRows=Object.entries(raw).filter(([,v])=>v&&typeof v==='object'&&!v.deleted).map(([key,value])=>({key,value:{...value,fbKey:value.fbKey||key}}));
-  metaRows=snap.categoryMeta&&typeof snap.categoryMeta==='object'?snap.categoryMeta:{};
-  const o=snap.catalogOrder&&typeof snap.catalogOrder==='object'?snap.catalogOrder:{};
-  orderData={...o,categories:Array.isArray(o.categories)?o.categories:[],allServices:Array.isArray(o.allServices)?o.allServices:[],services:o.services&&typeof o.services==='object'?o.services:{},platforms:o.platforms&&typeof o.platforms==='object'?o.platforms:{},sortModes:o.sortModes&&typeof o.sortModes==='object'?o.sortModes:{}};
-  window.SADA31_ORDER=orderData;return catalogRows.length;
+  if(sortLoadFlight&&!force)return sortLoadFlight;
+  const task=(async()=>{
+   const loader=window.sadairaqFastCatalogData;
+   if(typeof loader!=='function')throw new Error('خدمة قراءة كتالوج الموقع غير جاهزة. أعد تحميل لوحة الإدارة.');
+   let timer;const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('انتهت مهلة قراءة الكتالوج بعد 18 ثانية. اضغط إعادة المحاولة.')),18000)});
+   let snap;try{snap=await Promise.race([loader(force===true),timeout])}finally{clearTimeout(timer)}
+   if(!snap||!snap.services||typeof snap.services!=='object')throw new Error('لم يرجع الخادم لقطة كتالوج صالحة.');
+   const raw=snap.services;catalogRows=Object.entries(raw).filter(([,v])=>v&&typeof v==='object'&&!v.deleted).map(([key,value])=>({key,value:{...value,fbKey:value.fbKey||key}}));
+   metaRows=snap.categoryMeta&&typeof snap.categoryMeta==='object'?snap.categoryMeta:{};
+   const o=snap.catalogOrder&&typeof snap.catalogOrder==='object'?snap.catalogOrder:{};
+   orderData={...o,categories:Array.isArray(o.categories)?o.categories:[],allServices:Array.isArray(o.allServices)?o.allServices:[],services:o.services&&typeof o.services==='object'?o.services:{},platforms:o.platforms&&typeof o.platforms==='object'?o.platforms:{},sortModes:o.sortModes&&typeof o.sortModes==='object'?o.sortModes:{}};
+   sortLoaded=true;window.SADA31_ORDER=orderData;return catalogRows.length;
+  })();
+  sortLoadFlight=task;try{return await task}finally{if(sortLoadFlight===task)sortLoadFlight=null;}
  }
  function allCategories(scope){const found=new Map();for(const r of catalogRows){if(!platformMatches(r.value,scope))continue;groupsOf(r.value).forEach(g=>found.set(norm(g),g));}for(const v of Object.values(metaRows)){const name=String(v?.name||'').trim();if(!name)continue;const ps=[...(Array.isArray(v.platforms)?v.platforms:[]),v.platform,v.imagePlatform].filter(Boolean);if(scope==='all'||ps.some(p=>platformOf(p)===scope))found.set(norm(name),name);}return [...found.values()];}
  function categoryMinPrice(cat,scope){const vals=catalogRows.filter(r=>platformMatches(r.value,scope)&&groupsOf(r.value).some(g=>norm(g)===norm(cat))).map(r=>servicePrice(r.value));return vals.length?Math.min(...vals):Infinity;}
@@ -19053,7 +19088,7 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
  function renderSortPanel(){
   const root=$('sada167-sort-root');if(!root)return;
   const platformSelect=root.querySelector('#sada167-scope'),kindSelect=root.querySelector('#sada167-kind'),categorySelect=root.querySelector('#sada167-category'),modeSelect=root.querySelector('#sada167-mode');if(!platformSelect||!kindSelect||!categorySelect||!modeSelect)return;
-  platformSelect.value=sortState.scope;kindSelect.value=sortState.kind;categorySelect.replaceChildren(new Option('كل الخدمات في النطاق','__all__'));const status=root.querySelector('#sada167-sort-status');if(status){status.textContent='تم تحميل الكتالوج: '+catalogRows.length.toLocaleString('ar-IQ')+' خدمة. اختر المنصة ثم نوع الترتيب.';status.dataset.state='ready';}
+  platformSelect.value=sortState.scope;kindSelect.value=sortState.kind;categorySelect.replaceChildren(new Option('كل الخدمات في النطاق','__all__'));const status=root.querySelector('#sada167-sort-status');if(status){if(sortLoaded){status.textContent='تم تحميل الكتالوج: '+catalogRows.length.toLocaleString('ar-IQ')+' خدمة. اختر المنصة ثم نوع الترتيب.';status.dataset.state='ready';}else{status.textContent='اختر المنصة أو «الكل». يتم تحميل الأقسام في الخلفية دون إخفاء خياراتك.';status.dataset.state='idle';}}
   allCategories(sortState.scope).sort((a,b)=>a.localeCompare(b,'ar')).forEach(c=>categorySelect.add(new Option(c,c)));
   categorySelect.value=[...categorySelect.options].some(o=>o.value===sortState.category)?sortState.category:'__all__';categorySelect.disabled=sortState.kind!=='services';
   modeSelect.value=String(orderData.sortModes?.[sortState.scope]?.[sortState.kind]||orderData.sortModes?.all?.[sortState.kind]||(sortState.kind==='categories'?'priceAsc':'manual'));
@@ -19080,13 +19115,15 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
   let root=pane.querySelector('#sada167-sort-root');
   const schema='r10-sort-controls-v2';
   const required=['#sada167-sort-status','#sada167-scope','#sada167-kind','#sada167-category','#sada167-mode','#sada167-sort-note','#sada167-sort-summary','#sada167-sort-list','#sada167-sort-refresh'];
-  if(root&&root.dataset.schemaVersion===schema&&required.every(sel=>root.querySelector(sel)))return;
+  const complete=!!root&&required.every(sel=>root.querySelector(sel));
   if(!root){root=document.createElement('div');root.id='sada167-sort-root';pane.appendChild(root);}
-  // Rebuild stale/incomplete legacy markup instead of trusting a root that may only contain a spinner.
+  // Rebuild stale/incomplete legacy markup, and repair option lists even when an old root exists.
+  if(!complete){root.innerHTML='<div class="sada167-sort-status" id="sada167-sort-status" role="status" aria-live="polite" data-state="idle">اختر المنصة لعرض أقسامها وخدماتها.</div><div class="sada167-sort-controls"><div class="sada167-sort-field"><label for="sada167-scope">١. اختر المنصة</label><select class="inp" id="sada167-scope"></select></div><div class="sada167-sort-field"><label for="sada167-kind">٢. ماذا تريد أن ترتب؟</label><select class="inp" id="sada167-kind"><option value="categories">الأقسام</option><option value="services">الخدمات</option></select></div><div class="sada167-sort-field"><label for="sada167-category">٣. اختر القسم (للخدمات)</label><select class="inp" id="sada167-category"><option value="__all__">كل الخدمات في النطاق</option></select></div><div class="sada167-sort-field"><label for="sada167-mode">٤. طريقة الترتيب</label><select class="inp" id="sada167-mode"><option value="manual">ترتيب يدوي حسب اختياري</option><option value="priceAsc">من الأرخص إلى الأغلى</option><option value="priceDesc">من الأغلى إلى الأرخص</option></select></div></div><div class="sada167-sort-note" id="sada167-sort-note">اختر «الكل» لعرض جميع الأقسام، أو اختر منصة محددة.</div><div id="sada167-sort-summary" class="sada167-sort-note">يتم تحميل القائمة بعد اختيار المنصة.</div><div class="sada167-sort-list" id="sada167-sort-list"></div><button type="button" class="btn bs2 btn-w" id="sada167-sort-refresh" style="margin-top:10px">إعادة قراءة الأقسام والخدمات</button>'; }
   root.dataset.schemaVersion=schema;
-  root.innerHTML='<div class="sada167-sort-status" id="sada167-sort-status" role="status" aria-live="polite" data-state="idle">اختر المنصة لعرض أقسامها وخدماتها.</div><div class="sada167-sort-controls"><div class="sada167-sort-field"><label for="sada167-scope">١. اختر المنصة</label><select class="inp" id="sada167-scope"></select></div><div class="sada167-sort-field"><label for="sada167-kind">٢. ماذا تريد أن ترتب؟</label><select class="inp" id="sada167-kind"><option value="categories">الأقسام</option><option value="services">الخدمات</option></select></div><div class="sada167-sort-field"><label for="sada167-category">٣. اختر القسم (للخدمات)</label><select class="inp" id="sada167-category"><option value="__all__">كل الخدمات في النطاق</option></select></div><div class="sada167-sort-field"><label for="sada167-mode">٤. طريقة الترتيب</label><select class="inp" id="sada167-mode"><option value="manual">ترتيب يدوي حسب اختياري</option><option value="priceAsc">من الأرخص إلى الأغلى</option><option value="priceDesc">من الأغلى إلى الأرخص</option></select></div></div><div class="sada167-sort-note" id="sada167-sort-note">اختر «الكل» لعرض جميع الأقسام، أو اختر منصة محددة.</div><div id="sada167-sort-summary" class="sada167-sort-note">يتم تحميل القائمة بعد اختيار المنصة.</div><div class="sada167-sort-list" id="sada167-sort-list"></div><button type="button" class="btn bs2 btn-w" id="sada167-sort-refresh" style="margin-top:10px">إعادة قراءة الأقسام والخدمات</button>';
-  const scope=root.querySelector('#sada167-scope');platforms.forEach(([v,t])=>scope.add(new Option(t,v)));scope.value=sortState.scope||'all';
-  const kind=root.querySelector('#sada167-kind');kind.value=sortState.kind||'categories';
+  const scope=root.querySelector('#sada167-scope');if(scope.options.length!==platforms.length||platforms.some(([v])=>![...scope.options].some(o=>o.value===v))){scope.replaceChildren();platforms.forEach(([v,t])=>scope.add(new Option(t,v)));}scope.value=sortState.scope||'all';
+  const kind=root.querySelector('#sada167-kind');if(kind.options.length<2){kind.replaceChildren(new Option('الأقسام','categories'),new Option('الخدمات','services'));}kind.value=sortState.kind||'categories';
+  const categorySelect=root.querySelector('#sada167-category');if(!categorySelect.options.length)categorySelect.add(new Option('كل الخدمات في النطاق','__all__'));
+  const modeSelect=root.querySelector('#sada167-mode');if(modeSelect.options.length<3)modeSelect.replaceChildren(new Option('ترتيب يدوي حسب اختياري','manual'),new Option('من الأرخص إلى الأغلى','priceAsc'),new Option('من الأغلى إلى الأرخص','priceDesc'));
   scope.onchange=()=>{sortState.scope=scope.value;sortState.category='__all__';renderSortPanel()};
   kind.onchange=()=>{sortState.kind=kind.value;sortState.category='__all__';renderSortPanel()};
   root.querySelector('#sada167-category').onchange=e=>{sortState.category=e.target.value;renderSortPanel()};
@@ -19094,7 +19131,7 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
   root.querySelector('#sada167-sort-refresh').onclick=async()=>{const b=root.querySelector('#sada167-sort-refresh'),status=root.querySelector('#sada167-sort-status');b.disabled=true;status.dataset.state='loading';status.textContent='جارٍ تحديث الأقسام والخدمات…';try{await loadSortData(true);renderSortPanel()}catch(e){showSortLoadError(e)}finally{b.disabled=false}};
   renderSortPanel();
  }
- function showSortLoadError(error){const root=$('sada167-sort-root');if(!root)return;const status=root.querySelector('#sada167-sort-status');if(!status)return;status.dataset.state='error';status.replaceChildren(document.createTextNode('تعذر تحميل الأقسام والخدمات: '+String(error?.message||error||'خطأ غير معروف')+' '));let retry=root.querySelector('#sada167-sort-retry');if(!retry){retry=document.createElement('button');retry.type='button';retry.id='sada167-sort-retry';retry.className='btn bs2 btn-sm';retry.textContent='إعادة المحاولة';retry.addEventListener('click',async()=>{retry.disabled=true;status.textContent='جارٍ إعادة قراءة الكتالوج…';try{await loadSortData(true);renderSortPanel();}catch(e){showSortLoadError(e)}finally{retry.disabled=false;}})}if(!retry.isConnected)status.appendChild(retry)}
+ function showSortLoadError(error){const root=$('sada167-sort-root');if(!root)return;const status=root.querySelector('#sada167-sort-status');if(!status)return;status.dataset.state='error';status.replaceChildren(document.createTextNode('تعذر قراءة الكتالوج (تعذر تحميل الأقسام والخدمات): '+String(error?.message||error||'خطأ غير معروف')+' '));let retry=root.querySelector('#sada167-sort-retry');if(!retry){retry=document.createElement('button');retry.type='button';retry.id='sada167-sort-retry';retry.className='btn bs2 btn-sm';retry.textContent='إعادة المحاولة';retry.addEventListener('click',async()=>{retry.disabled=true;status.textContent='جارٍ إعادة قراءة الكتالوج…';try{await loadSortData(true);renderSortPanel();}catch(e){showSortLoadError(e)}finally{retry.disabled=false;}})}if(!retry.isConnected)status.appendChild(retry)}
 
  function showAdminPage(id,item){const panel=$('adm-panel');panel?.querySelectorAll('.adm-sub').forEach(x=>x.classList.remove('on'));panel?.querySelectorAll('.adm-sb-item').forEach(x=>x.classList.remove('on'));$('adm-sub-'+id)?.classList.add('on');item?.classList.add('on');}
  function hideLegacyNav(){
@@ -19105,7 +19142,7 @@ html.sada-lite-motion .sada-side-flags-track,html.sada-lite-motion .sada62-about
   ['adm-sub-sada1598-recharges','adm-sub-database','adm-sub-catalog-manager','adm-sub-sada1599-wallet-admin'].forEach(id=>$(id)?.remove());
   const title=panel?.querySelector('.adm-sb-item[data-sub="services"] span');if(title&&title.textContent!=='خدمات الموقع')title.textContent='خدمات الموقع';
   const quick=$('adm-sub-overview')?.querySelectorAll('.adm-qa-btn')||[];quick.forEach(x=>{const t=norm(x.textContent);if(t.includes('smmparty')||t.includes('إدارة الكتالوج')||t.includes('الاستيراد')||t.includes('أوصاف الخدمات')||t==='الفئات'||t.includes('قاعدة البيانات')||t.includes('فحص firebase'))x.remove()});
-  $('sada-v51-sync-services')?.remove();cleanCatalogBulkImportUI();
+  cleanCatalogBulkImportUI();
 }
 function cleanCatalogBulkImportUI(){
   const root=$('adm-sub-services');if(!root)return;
@@ -19622,24 +19659,24 @@ function cleanCatalogBulkImportUI(){
 <script id="sadairaq-r10-fast-catalog-and-provider-add">
 (()=>{'use strict';if(window.__SADA_R10_LAYER__)return;window.__SADA_R10_LAYER__=true;
  const token=()=>{try{return String(localStorage.getItem('sadairaq_session_token')||'').trim()}catch(_){return ''}};
- let snapshotCache=null,snapshotAt=0,snapshotFlight=null,lastGoodSnapshot=null,lastGoodRows=[],lastCatalogRenderAt=0;
- async function fetchJson(url,opts={}){const headers={...(opts.headers||{}),'Accept':'application/json'};const t=token();if(t){headers['X-Sada-Session']=t;headers.Authorization='Bearer '+t;}if(opts.body&&!headers['Content-Type'])headers['Content-Type']='application/json';const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),Math.max(3000,Number(opts.timeoutMs)||16000));try{const response=await fetch(url,{...opts,headers,credentials:'include',cache:'no-store',signal:ctl.signal});const data=await response.json().catch(()=>({}));if(!response.ok||data.ok===false||data.error)throw new Error(data.error||('HTTP '+response.status));return data;}catch(e){if(e.name==='AbortError')throw new Error('انتهت مهلة الاتصال بالخادم. تحقق من اتصال Railway ثم أعد المحاولة.');throw e;}finally{clearTimeout(timer)}}
- async function fastSnapshot(force=false){if(force){snapshotCache=null;snapshotAt=0;}if(snapshotCache&&Date.now()-snapshotAt<12000)return snapshotCache;if(snapshotFlight&&!force)return snapshotFlight;const task=(async()=>{const d=await fetchJson('/api/catalog/snapshot'+(force?'?fresh=1':''),{timeoutMs:18000});if(!d.value||typeof d.value!=='object'||!d.value.services||typeof d.value.services!=='object')throw new Error('استجابة الكتالوج لا تحتوي قائمة الخدمات.');snapshotCache=d.value;snapshotAt=Date.now();lastGoodSnapshot=snapshotCache;return snapshotCache})();snapshotFlight=task;try{return await task}finally{if(snapshotFlight===task)snapshotFlight=null}}
+ let snapshotCache=null,snapshotAt=0,snapshotFlight=null,lastGoodSnapshot=null,lastGoodRows=[],lastCatalogRenderAt=0,allowServiceDropdownUntil=0;
+ async function fetchJson(url,opts={}){const {timeoutMs=16000,...fetchOpts}=opts;const headers={...(fetchOpts.headers||{}),'Accept':'application/json'};const t=token();if(t){headers['X-Sada-Session']=t;headers.Authorization='Bearer '+t;}if(fetchOpts.body&&!headers['Content-Type'])headers['Content-Type']='application/json';const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),Math.max(3000,Number(timeoutMs)||16000));try{const response=await fetch(url,{...fetchOpts,headers,credentials:'include',cache:'no-store',signal:ctl.signal});const data=await response.json().catch(()=>({}));if(!response.ok||data.ok===false||data.error)throw new Error(data.error||('HTTP '+response.status));return data;}catch(e){if(e.name==='AbortError')throw new Error('انتهت مهلة الاتصال بالخادم. تحقق من اتصال Railway ثم أعد المحاولة.');throw e;}finally{clearTimeout(timer)}}
+ async function fastSnapshot(force=false){if(force){snapshotCache=null;snapshotAt=0;}if(snapshotCache&&Date.now()-snapshotAt<4500)return snapshotCache;if(snapshotFlight&&!force)return snapshotFlight;const task=(async()=>{const d=await fetchJson('/api/catalog/snapshot'+(force?'?fresh=1':''),{timeoutMs:18000});if(!d.value||typeof d.value!=='object'||!d.value.services||typeof d.value.services!=='object')throw new Error('استجابة الكتالوج لا تحتوي قائمة الخدمات.');snapshotCache=d.value;snapshotAt=Date.now();lastGoodSnapshot=snapshotCache;return snapshotCache})();snapshotFlight=task;try{return await task}finally{if(snapshotFlight===task)snapshotFlight=null}}
  window.sadairaqFastCatalogData=fastSnapshot;
  function makeSnapshot(value,path){let selected=value;const parts=String(path||'services').split('/').filter(Boolean);const bucket=parts.shift();if(bucket==='services')selected=value.services;else if(bucket==='categoryMeta')selected=value.categoryMeta;else if(bucket==='settings'&&parts[0]==='catalogOrder')selected=value.catalogOrder;else selected=null;for(const key of parts)selected=selected&&typeof selected==='object'?selected[key]:null;const entries=()=>selected&&typeof selected==='object'&&!Array.isArray(selected)?Object.entries(selected):Array.isArray(selected)?selected.map((v,i)=>[String(i),v]):[];const child=(key,val)=>({key:String(key),val:()=>val,exists:()=>val!==null&&val!==undefined,numChildren:()=>val&&typeof val==='object'?Object.keys(val).length:0,hasChild:k=>!!(val&&typeof val==='object'&&Object.prototype.hasOwnProperty.call(val,String(k))),child:k=>child(String(k),val&&typeof val==='object'?val[String(k)]:null)});return {key:String(path||'services').split('/').pop()||null,val:()=>selected,exists:()=>selected!==null&&selected!==undefined&&(typeof selected!=='object'||Object.keys(selected).length>0),numChildren:()=>entries().length,hasChild:k=>!!(selected&&typeof selected==='object'&&Object.prototype.hasOwnProperty.call(selected,String(k))),child:k=>child(String(k),selected&&typeof selected==='object'?selected[String(k)]:null),forEach:fn=>{for(const [key,val] of entries())if(fn(child(key,val))===true)break;}}}
  window.sadaHostCatalogSnapshot=async function(path,force=false){const value=await fastSnapshot(force===true);return makeSnapshot(value,path||'services')};
  let catalogRenderFlight=null;
  async function fastLoadAll(force=false){
-  if(catalogRenderFlight&&!force)return catalogRenderFlight;if(!force&&lastGoodRows.length&&Date.now()-lastCatalogRenderAt<900)return lastGoodRows;
+  if(catalogRenderFlight&&!force)return catalogRenderFlight;if(!force&&lastGoodRows.length&&Date.now()-lastCatalogRenderAt<4500)return lastGoodRows;
   const task=(async()=>{try{const data=await fastSnapshot(force===true);const rows=Object.entries(data.services||{}).filter(([,row])=>row&&typeof row==='object'&&!row.deleted).map(([key,row])=>({...row,fbKey:String(row.fbKey||key)}));window.SECTION_META=data.categoryMeta&&typeof data.categoryMeta==='object'?data.categoryMeta:{};window.SADA31_ORDER=data.catalogOrder&&typeof data.catalogOrder==='object'?data.catalogOrder:{categories:[],services:{},platforms:{},sortModes:{}};if(typeof window.parseSvcsArr==='function')window.parseSvcsArr(rows);else{window.ALL_SVCS_ARR=rows;}lastGoodRows=rows;lastCatalogRenderAt=Date.now();
    // Build only the lightweight category list when the order page is visible. Service cards are drawn on demand when its dropdown opens.
    const orderPage=document.getElementById('pg-order');if(orderPage?.classList.contains('on')){try{window.buildCatDD?.(window.SEL_PLAT||'all')}catch(e){console.warn('R10 category render:',e)}}
-   try{window.svcsToCache?.(rows)}catch(_){}return rows;
+   const cacheRows=()=>{try{window.svcsToCache?.(rows)}catch(_){}};if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(cacheRows,{timeout:1200});else setTimeout(cacheRows,80);return rows;
   }catch(e){console.error('R10 fast catalog load:',e);if(lastGoodRows.length){window.toast?.('تعذر تحديث الخدمات؛ نعرض آخر قائمة مؤكدة تم تحميلها. '+e.message,'wrn');return lastGoodRows;}throw e;}})();catalogRenderFlight=task;try{return await task}finally{if(catalogRenderFlight===task)catalogRenderFlight=null;}
  }
  // Populate the dropdown only when the customer opens it; avoids creating thousands of hidden DOM nodes during login/admin navigation.
- if(!document.documentElement.dataset.sadaR10LazyOrderMenus){document.documentElement.dataset.sadaR10LazyOrderMenus='1';document.addEventListener('click',e=>{if(!document.getElementById('pg-order')?.classList.contains('on'))return;const target=e.target?.closest?.('#cat-btn,#svc-btn');if(!target)return;try{if(target.id==='cat-btn')window.buildCatDD?.(window.SEL_PLAT||'all');else{window.buildSvcDD?.(window.SEL_CAT||'__all__');window.filterSvcDD?.();}}catch(err){console.warn('R10 lazy order menu render:',err)}},true);} 
- window.loadAllSvcs=fastLoadAll;window.refreshSadaCatalog36=fastLoadAll;window.invalidateSadairaqCatalog=()=>{snapshotCache=null;snapshotAt=0;lastGoodSnapshot=null;lastCatalogRenderAt=0};
+ if(!document.documentElement.dataset.sadaR10LazyOrderMenus){document.documentElement.dataset.sadaR10LazyOrderMenus='1';document.addEventListener('click',e=>{if(!document.getElementById('pg-order')?.classList.contains('on'))return;const target=e.target?.closest?.('#cat-btn,#svc-btn');if(!target)return;/* toggleCDD renders once in the bubble handler; capture phase only grants permission. */if(target.id==='svc-btn')allowServiceDropdownUntil=Date.now()+1600;},true);} 
+ window.loadAllSvcs=fastLoadAll;window.refreshSadaCatalog36=fastLoadAll;window.invalidateSadairaqCatalog=()=>{snapshotCache=null;snapshotAt=0;lastGoodSnapshot=null;lastGoodRows=[];lastCatalogRenderAt=0};
  function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
  function field(label,node){const wrap=el('div','fld');wrap.append(el('label','',label),node);return wrap;}
  const norm=v=>String(v??'').trim().toLocaleLowerCase('ar').normalize('NFKC').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[\s_-]+/g,'');
@@ -19668,9 +19705,43 @@ function cleanCatalogBulkImportUI(){
  window.openSadaAddProviderService=openAddProviderService;window.modalAddSvcById=openAddProviderService;window.modalQuickSvc=openAddProviderService;
  // Keep only one provider-ID workflow in the legacy service header and route any old entry point to it.
  const normalizeText=v=>String(v||'').replace(/\s+/g,' ').trim();
- function normalizeLegacyProviderButtons(){const page=document.getElementById('adm-sub-services');if(!page)return;const matches=[...page.querySelectorAll('button')].filter(b=>/إضافة\s+خدمة\s+من\s+المزود|إضافة\s+خدمة\s+برقم\s+المزود|إضافة\s+بـ\s*ID|إضافة\s+سريعة/.test(normalizeText(b.textContent)));let keeper=null;for(const b of matches){if(!keeper){keeper=b;b.textContent='☁️ إضافة خدمة من المزود';b.title='رقم الخدمة + المزود + المنصة + الأقسام + نسبة الربح';b.onclick=null;if(b.dataset.sadaR10ProviderAdd!=='1'){b.dataset.sadaR10ProviderAdd='1';b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAddProviderService()})}}else if(b!==keeper){b.remove()}}if(!keeper){const head=page.querySelector('[data-sada167-pane="manage"] .adm-sec-hd');const host=head?.lastElementChild;if(host){const b=document.createElement('button');b.type='button';b.className='btn bs2 btn-sm';b.textContent='☁️ إضافة خدمة من المزود';b.title='رقم الخدمة + المزود + المنصة + الأقسام + نسبة الربح';b.dataset.sadaR10ProviderAdd='1';b.addEventListener('click',openAddProviderService);host.appendChild(b)}}}
- normalizeLegacyProviderButtons();if(window.MutationObserver){const observer=new MutationObserver(normalizeLegacyProviderButtons);const root=document.getElementById('adm-sub-services');if(root)observer.observe(root,{childList:true,subtree:true});}
- window.SADAIRAQ_R10={sortPageControlsAlwaysVisible:true,unifiedProviderServiceAdd:true,providerNameVerified:true,multiCategoryAdd:true,fastCatalogSnapshot:true,orderPageCacheMs:4500};
+ function normalizeLegacyProviderButtons(){
+  const page=document.getElementById('adm-sub-services');if(!page)return;
+  const head=page.querySelector('[data-sada167-pane="manage"] .adm-sec-hd')||page.querySelector('.adm-sec-hd');
+  const host=head?.lastElementChild;if(!host)return;
+  host.style.display='flex';host.style.gap='7px';host.style.flexWrap='wrap';
+  const providerPattern=/إضافة\s+خدمة\s+من\s+المزود|إضافة\s+خدمة\s+برقم\s+المزود|إضافة\s+بـ\s*ID|إضافة\s+سريعة/;
+  const obsoleteBulkPattern=/رفع\s+خدمات\s+محددة|اختيار\s+خدمات\s+قسم|رفع\s+خدمات\s+المزود/;
+  const oldProviders=[...host.querySelectorAll('button')].filter(b=>providerPattern.test(normalizeText(b.textContent)));
+  let addBtn=host.querySelector('[data-sada-r10-provider-add="1"]')||oldProviders[0]||null;
+  oldProviders.forEach(b=>{if(b!==addBtn)b.remove()});
+  if(!addBtn){addBtn=document.createElement('button');addBtn.type='button';addBtn.className='btn bs2 btn-sm';host.appendChild(addBtn);}
+  addBtn.type='button';addBtn.className='btn bp btn-sm';if(addBtn.textContent!=='☁️ إضافة خدمة من المزود')addBtn.textContent='☁️ إضافة خدمة من المزود';addBtn.title='إضافة خدمة واحدة برقمها من المزود إلى قسم أو أكثر';addBtn.onclick=null;addBtn.removeAttribute('onclick');addBtn.dataset.sadaR10ProviderAdd='1';addBtn.dataset.sadaR10ProviderAdd='1';addBtn.setAttribute('data-sada-r10-provider-add','1');
+  if(!addBtn.dataset.sadaR10Bound){addBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAddProviderService()});addBtn.dataset.sadaR10Bound='1';}
+  [...host.querySelectorAll('button')].filter(b=>b!==addBtn&&obsoleteBulkPattern.test(normalizeText(b.textContent))&&!b.dataset.sadaR10BulkImport).forEach(b=>b.remove());
+  let bulk=host.querySelector('[data-sada-r10-bulk-import="1"]');
+  if(!bulk){bulk=document.createElement('button');bulk.type='button';bulk.className='btn bok btn-sm';bulk.textContent='استيراد خدمات متعددة';bulk.dataset.sadaR10BulkImport='1';bulk.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(typeof window.openSadaCatalogImport==='function')window.openSadaCatalogImport();else window.toast?.('أداة الاستيراد المتعدد غير جاهزة؛ أعد تحميل لوحة الإدارة.','err')});host.appendChild(bulk);}
+  if(bulk.textContent!=='استيراد خدمات متعددة')bulk.textContent='استيراد خدمات متعددة';bulk.title='استيراد عدد من الخدمات أو أقسام المزود بعد مراجعتها';
+  // Restore safe, useful actions if a legacy toolbar was overwritten before R10 loaded.
+  const ensure=(selector,label,cls,handler)=>{let b=host.querySelector(selector);if(!b){b=document.createElement('button');b.type='button';b.className=cls;b.textContent=label;b.dataset.r10Restored='1';b.addEventListener('click',handler);host.appendChild(b);}return b;};
+  let manual=host.querySelector('[data-r10-manual-add]')||[...host.querySelectorAll('button')].find(b=>/^إضافة خدمة(?: يدوية)?$/.test(normalizeText(b.textContent)));if(!manual){manual=document.createElement('button');manual.type='button';manual.className='btn bs2 btn-sm';manual.textContent='إضافة خدمة يدوية';manual.addEventListener('click',()=>window.modalAddSvc?.());host.appendChild(manual);}manual.dataset.r10ManualAdd='1';
+  const hasRefresh=[...host.querySelectorAll('button')].some(b=>/تحديث(?: القائمة| الخدمات| المحفوظة)?/.test(normalizeText(b.textContent)));if(!hasRefresh){const b=document.createElement('button');b.id='sada-r10-refresh-services';b.type='button';b.className='btn bs2 btn-sm';b.textContent='تحديث القائمة';b.addEventListener('click',()=>window.loadAdmSvcsFull?.());host.appendChild(b);}
+  if(!host.querySelector('#sada-v51-sync-services')&&typeof window.sadaV51SyncProviderCatalog==='function'){const b=document.createElement('button');b.id='sada-v51-sync-services';b.type='button';b.className='btn bok btn-sm';b.textContent='تحديث خدمات المزود';b.addEventListener('click',()=>window.sadaV51SyncProviderCatalog());host.appendChild(b);}
+ }
+ normalizeLegacyProviderButtons();document.addEventListener('sada:r10-service-toolbar-refresh',normalizeLegacyProviderButtons);if(window.MutationObserver){let toolbarQueued=false;const observer=new MutationObserver(()=>{if(toolbarQueued)return;toolbarQueued=true;queueMicrotask(()=>{toolbarQueued=false;normalizeLegacyProviderButtons()})});const root=document.getElementById('adm-sub-services');if(root)observer.observe(root,{childList:true,subtree:true});}
+ // Legacy navigation layers call buildSvcDD while the picker is hidden. Do not build thousands of rows on page entry; allow a render only when the user opens the service picker. The existing renderer paginates visible rows (80 per page / 16 per platform group).
+ const baseLazyServiceBuild=window.buildSvcDD;
+ window.buildSvcDD=function(category){
+   const menu=document.getElementById('svc-menu'),options=document.getElementById('svc-options');
+   const explicitlyRequested=Date.now()<allowServiceDropdownUntil||!!menu?.classList.contains('open')||menu?.dataset.owner==='svc-cdd';
+   if(!explicitlyRequested){
+     if(options){const count=Number(window.ALL_SVCS_ARR?.length||0);const text='قائمة الخدمات جاهزة ('+count.toLocaleString('en-US')+' خدمة). افتح «اختيار الخدمة» لعرضها على دفعات.';if(options.dataset.sadaR10LazyHint!==text){options.replaceChildren();const hint=document.createElement('div');hint.className='cdd-empty sada-r10-service-lazy-hint';hint.style.cssText='padding:14px;text-align:center;line-height:1.9';hint.textContent=text;options.appendChild(hint);options.dataset.sadaR10LazyHint=text;}}
+     return;
+   }
+   if(options)delete options.dataset.sadaR10LazyHint;
+   return typeof baseLazyServiceBuild==='function'?baseLazyServiceBuild.apply(this,arguments):undefined;
+ };
+ window.SADAIRAQ_R10={sortPageControlsAlwaysVisible:true,unifiedProviderServiceAdd:true,providerNameVerified:true,multiCategoryAdd:true,fastCatalogSnapshot:true,orderPageCacheMs:4500,lazyServicePicker:true,servicePickerPageSize:80};
 })();
 </script>
 

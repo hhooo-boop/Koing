@@ -44,8 +44,8 @@ function purgeCatalogServiceSnapshots(){
 }
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
-const APP_VERSION = '3.0';
-const BUILD_ID = 'SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10';
+const APP_VERSION = '3.2';
+const BUILD_ID = 'SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -5893,9 +5893,10 @@ async function routeAPI(req,res,urlObj){
     const cacheKey=role+':'+(includeUnapproved?'unapproved':'approved');
     const force=urlObj.searchParams.get('fresh')==='1';
     const cached=CATALOG_SNAPSHOT_CACHE.get(cacheKey);
-    if(!force&&cached&&Date.now()-cached.at<1200)return json(res,200,{...cached.payload,cached:true});
+    if(!force&&cached&&Date.now()-cached.at<4500)return json(res,200,{...cached.payload,cached:true});
+    let pending=null,ownsPending=false;
     try{
-      let pending=!force?CATALOG_SNAPSHOT_IN_FLIGHT.get(cacheKey):null;
+      pending=!force?CATALOG_SNAPSHOT_IN_FLIGHT.get(cacheKey):null;
       if(!pending){
         pending=(async()=>{
           await ensureLocalServiceCatalogSeeded();
@@ -5928,14 +5929,14 @@ async function routeAPI(req,res,urlObj){
           const normalizedOrder={...order,categories:Array.isArray(order.categories)?order.categories:[],allServices:Array.isArray(order.allServices)?order.allServices:[],services:catalogObject(order.services),platforms:catalogObject(order.platforms),sortModes:catalogObject(order.sortModes)};
           return {ok:true,value:{services,categoryMeta,catalogOrder:normalizedOrder},source:'firebase',storage:'firebase+verified-server-cache',storageMode:'firebase',counts:{services:Object.keys(services).length,categories:Object.keys(categoryMeta).length},verifiedAt:nowISO()};
         })();
-        if(!force)CATALOG_SNAPSHOT_IN_FLIGHT.set(cacheKey,pending);
+        if(!force){CATALOG_SNAPSHOT_IN_FLIGHT.set(cacheKey,pending);ownsPending=true;}
       }
       const payload=await pending;
       if(!force)CATALOG_SNAPSHOT_CACHE.set(cacheKey,{at:Date.now(),payload});
       return json(res,200,payload);
     }catch(e){
       return json(res,503,{ok:false,error:'تعذر تحميل لقطة الخدمات والأقسام الموثوقة من Firebase: '+String(e.message||e).slice(0,200),source:'firebase',storageMode:'firebase'});
-    }finally{if(CATALOG_SNAPSHOT_IN_FLIGHT.get(cacheKey))CATALOG_SNAPSHOT_IN_FLIGHT.delete(cacheKey);}
+    }finally{if(ownsPending&&CATALOG_SNAPSHOT_IN_FLIGHT.get(cacheKey)===pending)CATALOG_SNAPSHOT_IN_FLIGHT.delete(cacheKey);}
   }
 
   if(p==='/api/catalog'&&req.method==='GET'){

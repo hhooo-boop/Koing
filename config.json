@@ -1,7 +1,7 @@
 {
   "appName": "صدى العراق",
-  "version": "3.0",
-  "buildId": "SADA-3.0-ORDER-PANE-PROVIDER-ADD-SPEED-20261031-R10",
+  "version": "3.2",
+  "buildId": "SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11",
   "currency": "USD",
   "exchangeRate": 1250,
   "fixedRecharge": "5000 IQD = 4 USD",
