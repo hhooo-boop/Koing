@@ -45,7 +45,7 @@ function purgeCatalogServiceSnapshots(){
 purgeCatalogServiceSnapshots();
 const APP_NAME = 'صدى العراق';
 const APP_VERSION = '3.2';
-const BUILD_ID = 'SADA-3.2-STARTUP-BOOT-WATCHDOG-FIREBASE-DEFER-20261031-R11';
+const BUILD_ID = 'SADA-3.2-PROVIDER-STATUS-RECONCILE-ADD-SECTION-MODE-PLATFORM-SORT-20261101-R12';
 // Keep the owner's admin identity available after packaging, but store only a scrypt hash
 // in the project. Railway variables can still explicitly override this packaged credential.
 function loadBundledAdminAuth(){
@@ -2974,6 +2974,24 @@ async function persistProviderStatusRetryState(order,error='provider-status-unav
 
 // The same verified status pipeline is used at creation, on the order-history page,
 // and for background retries. Unknown responses/timeouts remain unresolved, never failed.
+function shouldAutoRefreshProviderOrderStatus(order,now=Date.now()){
+  if(!order||typeof order!=='object')return false;
+  const hasProvider=!!(order.providerId&&(order.providerOrderId||order.smmpartyOrderId||order.provider_order_id));
+  if(!hasProvider)return false;
+  const terminal=new Set(['completed','partial','cancelled','failed','refunded']);
+  const confirmed=order.providerStatusConfirmed===true;
+  const siteStatus=normalizeProviderStatus(order.status||'');
+  const providerStatus=normalizeProviderStatus(order.providerStatus||'');
+  // A terminal provider response is settled only when the canonical site status
+  // agrees with it. Older records can contain providerStatus=Completed while the
+  // customer-facing status is still Processing; those mismatches must be reconciled.
+  const siteMatchesProvider=siteStatus===providerStatus||siteStatus.startsWith(providerStatus+'_');
+  if(confirmed&&terminal.has(providerStatus)&&siteMatchesProvider)return false;
+  // Do not age out active orders: a provider may complete an order days later.
+  const last=Date.parse(order.statusSyncLastAttemptAt||order.lastCheckedAt||0)||0;
+  return !last||now-last>=10000;
+}
+
 async function checkAndSyncProviderOrderStatus(order,provider,options={}){
   const providerOrderId=String(order?.providerOrderId||order?.smmpartyOrderId||'').trim();
   if(!providerOrderId||!provider?.url||!provider?.key){
@@ -5717,10 +5735,13 @@ async function routeAPI(req,res,urlObj){
     const platform=String(b.platform||'').trim();
     const markupPct=Number(b.markupPct);
     const categories=[...new Map((Array.isArray(b.categories)?b.categories:[]).map(x=>String(x??'').trim()).filter(Boolean).map(x=>[normalizeCatalogLabel(x),x])).values()];
+    const categoryMode=String(b.categoryMode||'existing');
     const validPlatforms=new Set(['Instagram','Tiktok','Youtube','Facebook','Telegram','Twitter','Snapchat','Whatsapp','Linkedin','Other']);
     if(!providerId||!providerServiceId)return json(res,422,{ok:false,error:'اختر المزود وأدخل رقم الخدمة لديه.'});
     if(!validPlatforms.has(platform))return json(res,422,{ok:false,error:'اختر منصة صحيحة للخدمة.'});
+    if(!['existing','new'].includes(categoryMode))return json(res,422,{ok:false,error:'حدد هل تريد الإضافة إلى قسم موجود أو إنشاء قسم جديد.'});
     if(!categories.length||categories.length>12)return json(res,422,{ok:false,error:'اختر قسماً واحداً على الأقل، وبحد أقصى 12 قسماً للخدمة الواحدة.'});
+    if(categoryMode==='new'&&categories.length!==1)return json(res,422,{ok:false,error:'إنشاء قسم جديد يقبل اسماً واحداً فقط.'});
     if(!Number.isFinite(markupPct)||markupPct<0||markupPct>5000)return json(res,422,{ok:false,error:'نسبة الربح يجب أن تكون بين 0 و5000 بالمئة.'});
     if(providerServiceId.length>100)return json(res,422,{ok:false,error:'رقم الخدمة طويل أو غير صالح.'});
     try{
@@ -5759,6 +5780,17 @@ async function routeAPI(req,res,urlObj){
       const at=nowISO();
       const serviceRow={...(existingRow||{}),key:serviceKey,fbKey:serviceKey,name:serviceName,app:apps[0]||platform,apps,platforms:apps,serviceApp:platform,servicePlatform:platform,platformsExplicit:true,groups:mergedGroups,categories:mergedGroups,category:mergedGroups[0]||categories[0],providerId,providerName:String(prov.name||providerId),providerServiceId,smmpartyId:providerServiceId,serviceId:providerServiceId,source:'smmparty',sourceProviderId:providerId,providerRateUsd:baseRate,smmRateUsd:baseRate,smmRate:baseRate,sellingUsd,rateUsd:sellingUsd,markupPct,basePrice:Number((baseRate*FIXED_RATE).toFixed(4)),price:Number((sellingUsd*FIXED_RATE).toFixed(4)),min:Math.max(1,Math.floor(Number(found.min||found.minimum||1)||1)),max:Math.max(Math.max(1,Math.floor(Number(found.min||found.minimum||1)||1)),Math.floor(Number(found.max||found.maximum||1000000)||1000000)),desc:description,description,providerDescription:description,refill:!!found.refill,cancel:!!found.cancel,quality:String(found.rawType||found.type||'SMM'),active:existingRow?.active!==false,enabled:existingRow?.enabled!==false,deleted:false,createdAt:existingRow?.createdAt||at,updatedAt:at,updatedBy:String(currentSession?.username||ADMIN_USER)};
       const metaRoot=catalogObject(readJSON('category_meta.json',{}));
+      const labelIdentity=value=>normalizeCatalogLabel(value).normalize('NFKC').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[\s._-]+/g,'');
+      const platformAliases={Instagram:['instagram','insta','انستغرام','انستجرام','انستقرام','انستا'],Tiktok:['tiktok','تيكتوك','تيك توك'],Youtube:['youtube','يوتيوب'],Facebook:['facebook','فيسبوك','فيس بوك','فيس'],Telegram:['telegram','تلجرام','تيليجرام','تليجرام','تلغرام'],Twitter:['twitter','تويتر','x','xcom'],Snapchat:['snapchat','سناب','سنابشات','سناب شات'],Whatsapp:['whatsapp','واتساب','واتس اب'],Linkedin:['linkedin','لينكدان','لينكدإن'],Other:['other','اخرى','عام']};
+      const isTargetPlatform=value=>{const v=labelIdentity(value);return (platformAliases[platform]||[]).some(a=>{const k=labelIdentity(a);return v===k||v.includes(k)});};
+      const knownForPlatform=new Map();
+      for(const m of Object.values(metaRoot)){if(!m||typeof m!=='object')continue;const name=String(m.name||'').trim();if(!name)continue;const ps=[...(Array.isArray(m.platforms)?m.platforms:[]),m.platform,m.imagePlatform].filter(Boolean);if(!ps.length||ps.some(isTargetPlatform))knownForPlatform.set(labelIdentity(name),name);}
+      const rowHasPlatform=(row)=>{const vals=[];for(const k of ['apps','platforms','app','platform','serviceApp','servicePlatform','network','site']){const v=row?.[k];if(Array.isArray(v))vals.push(...v);else if(v)vals.push(v);}if(vals.length)return vals.some(isTargetPlatform);return catalogRowGroups(row).some(group=>{const meta=Object.values(metaRoot).find(m=>labelIdentity(m?.name||'')===labelIdentity(group));const ps=[...(Array.isArray(meta?.platforms)?meta.platforms:[]),meta?.platform,meta?.imagePlatform].filter(Boolean);return ps.some(isTargetPlatform);});};
+      for(const row of Object.values(servicesRoot)){if(!row||typeof row!=='object'||row.deleted===true||!rowHasPlatform(row))continue;for(const group of catalogRowGroups(row))knownForPlatform.set(labelIdentity(group),group);}
+      if(categoryMode==='existing'){
+        const missing=categories.filter(name=>!knownForPlatform.has(labelIdentity(name)));
+        if(missing.length)return json(res,422,{ok:false,error:'الأقسام التالية غير موجودة في المنصة المحددة: '+missing.join('، ')+'. اختر «إنشاء قسم جديد» إذا كنت تريد إنشاءها.'});
+      }else if(knownForPlatform.has(labelIdentity(categories[0])))return json(res,409,{ok:false,error:'هذا القسم موجود بالفعل ضمن المنصة المحددة. اختر «إضافة إلى قسم موجود» بدلاً من إنشاء قسم مكرر.'});
       const metaUpdates={};
       for(const name of categories){
         const nk=normalizeCatalogLabel(name);
@@ -5786,7 +5818,7 @@ async function routeAPI(req,res,urlObj){
       const applied=catalogApplyBatch(updates);if(!applied.ok)return json(res,422,{ok:false,error:applied.error||'تعذر تجهيز بيانات الخدمة.'});
       try{await persistCatalogBatchToFirebase(updates);await firebaseWriteJson('settings/svcsVersion',String(Date.now()),8000);CATALOG_SNAPSHOT_CACHE.clear();purgeCatalogServiceSnapshots();}
       catch(e){try{await reloadLocalCatalogFromFirebase()}catch(reloadError){console.error('Provider service add rollback reload failed:',String(reloadError.message||reloadError))}return json(res,503,{ok:false,persisted:false,verified:false,error:'لم يتم تأكيد إضافة الخدمة في Firebase؛ لم نعلن نجاحها. '+String(e.message||e).slice(0,180)});}
-      return json(res,200,{ok:true,persisted:true,verified:true,created:!existingRow,serviceKey,serviceName,providerId,providerName:String(prov.name||providerId),providerServiceId,categories:mergedGroups.filter(name=>categories.some(c=>normalizeCatalogLabel(c)===normalizeCatalogLabel(name))),platform,providerRateUsd:baseRate,sellingUsd,markupPct,message:existingRow?'تم تحديث الخدمة وربطها بالأقسام المختارة.':'تمت إضافة الخدمة الحقيقية من المزود وربطها بالأقسام المختارة.'});
+      return json(res,200,{ok:true,persisted:true,verified:true,created:!existingRow,categoryMode,serviceKey,serviceName,providerId,providerName:String(prov.name||providerId),providerServiceId,categories:mergedGroups.filter(name=>categories.some(c=>normalizeCatalogLabel(c)===normalizeCatalogLabel(name))),platform,providerRateUsd:baseRate,sellingUsd,markupPct,message:existingRow?'تم تحديث الخدمة وربطها بالأقسام المختارة.':'تمت إضافة الخدمة الحقيقية من المزود وربطها بالأقسام المختارة.'});
     }catch(e){return json(res,502,{ok:false,persisted:false,verified:false,error:'تعذر التحقق من الخدمة أو إضافتها: '+String(e.message||e).slice(0,200)});}
   }
   if(p==='/api/admin/free-services'&&req.method==='POST'){
@@ -7793,21 +7825,13 @@ async function routeAPI(req,res,urlObj){
     // Auto-check unconfirmed provider orders when the user opens/refreshes "My Orders".
     // A bounded batch and short cooldown prevent repeated provider calls on every page render.
     const refreshNow=Date.now();let refreshedProviderStatuses=0;
-    const terminalProviderStatuses=new Set(['completed','partial','cancelled','failed','refunded']);
-    const statusCandidates=mergedRows.filter(o=>{
-      const hasProvider=!!(o.providerId&&(o.providerOrderId||o.smmpartyOrderId||o.provider_order_id));
-      if(!hasProvider)return false;
-      const currentStatus=normalizeProviderStatus(o.providerStatus||o.status||'');
-      if(terminalProviderStatuses.has(currentStatus))return false;
-      const created=Date.parse(o.createdAt||0)||0;if(created&&refreshNow-created>24*60*60*1000)return false;
-      const last=Date.parse(o.statusSyncLastAttemptAt||o.lastCheckedAt||0)||0;return !last||refreshNow-last>=10000;
-    }).sort((a,b)=>{
+    const statusCandidates=mergedRows.filter(o=>shouldAutoRefreshProviderOrderStatus(o,refreshNow)).sort((a,b)=>{
       // Fair rotation: check the least recently checked active order first, so a
       // busy customer cannot starve older pending/processing orders behind two new ones.
       const aLast=Date.parse(a.statusSyncLastAttemptAt||a.lastCheckedAt||0)||0;
       const bLast=Date.parse(b.statusSyncLastAttemptAt||b.lastCheckedAt||0)||0;
-      return aLast-bLast||((Date.parse(b.createdAt||0)||0)-(Date.parse(a.createdAt||0)||0));
-    }).slice(0,2);
+      return aLast-bLast||((Date.parse(a.createdAt||0)||0)-(Date.parse(b.createdAt||0)||0));
+    }).slice(0,4);
     for(const order of statusCandidates){
       try{
         await ensureProviderRuntime(String(order.providerId||''));
